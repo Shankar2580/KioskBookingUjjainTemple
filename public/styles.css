@@ -869,8 +869,32 @@ body {
     print-color-adjust: exact !important;
   }
 
-  /* Hide tablet casing, status bar, screen header, navigation buttons & countdown */
-  .kiosk-device-casing,
+  /* Reset outer tablet casing for print so children render */
+  .kiosk-device-casing {
+    display: block !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+  }
+
+  .kiosk-screen-viewport,
+  .kiosk-main {
+    display: block !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    overflow: visible !important;
+  }
+
+  /* Hide tablet chrome, status bar, header, footer, navigation buttons & non-active screens */
   .kiosk-casing-top,
   .kiosk-header,
   .kiosk-screen-footer,
@@ -885,23 +909,30 @@ body {
     display: none !important;
   }
 
-  /* Reset outer viewport containers for print */
-  .kiosk-screen-viewport,
-  .kiosk-main,
-  #screen-ticket,
-  .ticket-preview-container {
+  /* Ensure ticket screen and preview container are visible */
+  #screen-ticket {
     display: block !important;
     background: transparent !important;
     border: none !important;
+    box-shadow: none !important;
     padding: 0 !important;
     margin: 0 !important;
     width: 100% !important;
-    box-shadow: none !important;
+  }
+
+  .ticket-preview-container {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin: 0 auto !important;
   }
 
   /* Centered Official Darshan Pass Card */
   .darshan-pass-card {
     display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
     margin: 0 auto !important;
     width: 440px !important;
     max-width: 96% !important;
