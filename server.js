@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import QRCode from 'qrcode';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -65,7 +66,7 @@ app.get('/api/slots', (req, res) => {
 });
 
 // API: Create Booking & Issue Ticket
-app.post('/api/book', (req, res) => {
+app.post('/api/book', async (req, res) => {
   const { devoteeName, devoteeCount, mobileNumber, slotId, slotTime, photoBase64, language } = req.body;
 
   if (!devoteeName || !devoteeCount) {
@@ -85,6 +86,31 @@ app.post('/api/book', (req, res) => {
     hour12: true
   });
 
+  // Generate QR Code data URL
+  let qrDataUrl = '';
+  try {
+    const qrPayload = JSON.stringify({
+      passId: bookingId,
+      token: tokenNumber,
+      name: devoteeName.trim(),
+      persons: parseInt(devoteeCount, 10),
+      slot: slotTime || '08:00 AM - 11:00 AM',
+      gate: 'Gate No. 4 (Shanku Dwar)',
+      date: now.toLocaleDateString('en-IN')
+    });
+    qrDataUrl = await QRCode.toDataURL(qrPayload, {
+      errorCorrectionLevel: 'M',
+      margin: 1,
+      width: 220,
+      color: {
+        dark: '#1e1510',
+        light: '#ffffff'
+      }
+    });
+  } catch (err) {
+    console.error('QR generation error:', err);
+  }
+
   const booking = {
     bookingId,
     tokenNumber,
@@ -98,6 +124,7 @@ app.post('/api/book', (req, res) => {
     gateName: 'Gate No. 4 (Shanku Dwar / Bada Ganesh Marg)',
     gateNameHi: 'गेट नं. ४ (शंकु द्वार / बड़ा गणेश मार्ग)',
     bookedAt: now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+    qrDataUrl,
     photoBase64: photoBase64 || null,
     kioskId: 'KIOSK-UJJAIN-01'
   };
@@ -111,9 +138,13 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`===================================================`);
-  console.log(`🔱 Shri Mahakaleshwar Temple Kiosk Demo running!`);
-  console.log(`🌐 URL: http://localhost:${PORT}`);
-  console.log(`===================================================`);
-});
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`===================================================`);
+    console.log(`🔱 Shri Mahakaleshwar Temple Kiosk Demo running!`);
+    console.log(`🌐 URL: http://localhost:${PORT}`);
+    console.log(`===================================================`);
+  });
+}
+
+export default app;

@@ -1,25 +1,29 @@
 /* ============================================================
    Shri Mahakaleshwar Temple Ujjain — Self-Service Kiosk UI
-   Designed & Powered by FacePe
+   Theme matched with official Mahakaleshwar Temple Platform
    ============================================================ */
 
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Yatra+One&display=swap');
+
 :root {
-  --temple-saffron: #e65100;
-  --temple-saffron-light: #ff833a;
-  --temple-gold: #d4af37;
-  --temple-gold-light: #fef08a;
-  --temple-maroon: #7f1d1d;
-  --temple-dark: #1c0906;
-  --temple-card: #ffffff;
-  --temple-bg: #fffbf5;
-  --temple-line: #fde68a;
-  --temple-text: #1f2937;
-  --temple-muted: #6b7280;
-  --temple-green: #059669;
-  --radius-lg: 24px;
-  --radius-md: 16px;
-  --radius-sm: 10px;
-  --shadow-kiosk: 0 20px 40px -15px rgba(230, 81, 0, 0.25);
+  --primary: #d84b06;         /* Traditional Mahakal Saffron */
+  --primary-hover: #b33d04;
+  --primary-light: #fff2eb;
+  --secondary: #e5a93b;       /* Temple Gold */
+  --secondary-light: #fef3c7;
+  --dark: #1e1510;            /* Deep Terracotta / Dark Maroon */
+  --dark-gray: #3a2e2b;
+  --light: #fffbf8;           /* Soft Cream Background */
+  --white: #ffffff;
+  --gray-light: #f3ece8;
+  --gray-medium: #dccbc4;
+  --success: #2e7d32;
+  --success-light: #e8f5e9;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 8px;
 }
 
 * {
@@ -31,165 +35,217 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--temple-bg);
-  color: var(--temple-text);
+  font-family: var(--font-sans);
+  background: #110d0a;
+  color: var(--dark);
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
-  overflow-x: hidden;
-}
-
-/* Background Sacred Pattern */
-.bg-mandala {
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
   background-image: 
-    radial-gradient(circle at 50% 0%, rgba(230, 81, 0, 0.12) 0%, transparent 60%),
-    radial-gradient(circle at 100% 100%, rgba(212, 175, 55, 0.08) 0%, transparent 45%);
+    radial-gradient(circle at 50% 0%, rgba(216, 75, 6, 0.25) 0%, transparent 60%),
+    radial-gradient(circle at 100% 100%, rgba(229, 169, 59, 0.15) 0%, transparent 50%);
 }
 
-/* Header */
+/* ============================================================
+   KIOSK TABLET BEZEL CASING
+   ============================================================ */
+
+.kiosk-device-casing {
+  width: 100%;
+  max-width: 980px;
+  min-height: 820px;
+  background: #1c1511;
+  border-radius: 40px;
+  padding: 14px;
+  box-shadow: 
+    0 30px 90px rgba(0, 0, 0, 0.7),
+    0 0 0 2px rgba(229, 169, 59, 0.35),
+    inset 0 2px 4px rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Kiosk Camera Lens Top Notch */
+.kiosk-casing-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 20px 12px;
+}
+
+.kiosk-camera-notch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0d0907;
+  padding: 4px 12px;
+  border-radius: 100px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.camera-lens {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #1e293b;
+  box-shadow: inset 0 0 2px #38bdf8, 0 0 4px rgba(56, 189, 248, 0.3);
+}
+
+.kiosk-screen-viewport {
+  flex: 1;
+  background: var(--light);
+  border-radius: 28px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.08);
+}
+
+/* ============================================================
+   TEMPLE HEADER
+   ============================================================ */
+
 .kiosk-header {
-  background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 40%, #c2410c 100%);
+  background: linear-gradient(135deg, #7a1a03 0%, #b33d04 45%, #d84b06 100%);
   color: #fff;
-  padding: 16px 28px;
-  box-shadow: 0 4px 20px rgba(127, 29, 29, 0.3);
+  padding: 14px 24px;
+  box-shadow: 0 4px 20px rgba(122, 26, 3, 0.35);
   position: relative;
   z-index: 20;
 }
 
 .kiosk-header-inner {
-  max-width: 1200px;
-  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 14px;
 }
 
 .temple-brand {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 
-.temple-emblem {
-  width: 58px;
-  height: 58px;
+.temple-logo-img {
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
   background: #fff;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 3px solid var(--temple-gold);
-  box-shadow: 0 0 16px rgba(212, 175, 55, 0.6);
-  font-size: 28px;
+  padding: 3px;
+  border: 2.5px solid var(--secondary);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
 }
 
 .temple-title h1 {
+  font-family: var(--font-serif);
   font-size: 1.35rem;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   color: #fff;
   line-height: 1.15;
 }
 
 .temple-title p {
-  font-size: 0.8rem;
-  color: var(--temple-gold-light);
+  font-size: 0.78rem;
+  color: var(--secondary-light);
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
-/* Language Toggle Switcher */
+/* Language Switcher */
 .lang-switcher {
   display: flex;
   background: rgba(0, 0, 0, 0.25);
-  padding: 4px;
+  padding: 3px;
   border-radius: 100px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .lang-btn {
   border: none;
   background: transparent;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.85);
   font-weight: 700;
-  font-size: 0.95rem;
-  padding: 8px 18px;
+  font-size: 0.88rem;
+  padding: 6px 16px;
   border-radius: 100px;
   cursor: pointer;
   transition: all 0.25s ease;
 }
 
 .lang-btn.active {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
+  background: linear-gradient(135deg, #e5a93b, #d97706);
   color: #fff;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Live Waiting Time Status Bar */
+/* Live Waiting Banner */
 .live-wait-banner {
-  background: linear-gradient(90deg, #fff7ed 0%, #fef3c7 50%, #fff7ed 100%);
-  border-bottom: 2px solid #fde68a;
-  padding: 10px 24px;
+  background: linear-gradient(90deg, #fff2eb 0%, #fffbf8 50%, #fff2eb 100%);
+  border-bottom: 1.5px solid #fed7aa;
+  padding: 8px 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 24px;
+  gap: 16px;
   flex-wrap: wrap;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .wait-pill {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   background: #fff;
   border: 1px solid #fcd34d;
-  padding: 6px 14px;
+  padding: 5px 12px;
   border-radius: 100px;
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: #b45309;
-  box-shadow: 0 2px 6px rgba(180, 83, 9, 0.08);
+  box-shadow: 0 1px 4px rgba(180, 83, 9, 0.06);
 }
 
 .wait-pulse-dot {
-  width: 10px;
-  height: 10px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6);
+  background: #16a34a;
+  box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.6);
   animation: pulse 1.6s infinite;
 }
 
 @keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
-  70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.6); }
+  70% { box-shadow: 0 0 0 7px rgba(22, 163, 74, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
 }
 
-/* Main Container */
+/* ============================================================
+   MAIN KIOSK CONTENT
+   ============================================================ */
+
 .kiosk-main {
   flex: 1;
-  max-width: 1000px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 24px 20px 40px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
 }
 
-/* Step Card */
 .screen-card {
-  background: var(--temple-card);
+  background: #fff;
   border-radius: var(--radius-lg);
-  border: 1px solid rgba(230, 81, 0, 0.15);
-  box-shadow: 0 20px 50px -12px rgba(127, 29, 29, 0.12);
-  padding: 36px 32px;
+  border: 1px solid rgba(216, 75, 6, 0.15);
+  box-shadow: 0 14px 40px -10px rgba(58, 46, 43, 0.08);
+  padding: 32px 28px;
   display: none;
-  animation: fadeIn 0.35s ease forwards;
+  flex: 1;
+  animation: fadeIn 0.3s ease forwards;
 }
 
 .screen-card.active {
@@ -198,79 +254,86 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(12px) scale(0.99); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Step Header */
 .step-header {
   text-align: center;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .step-eyebrow {
   display: inline-block;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--temple-saffron);
-  background: #fff7ed;
-  border: 1px solid #ffedd5;
-  padding: 4px 14px;
+  color: var(--primary);
+  background: var(--primary-light);
+  border: 1px solid #ffd8c7;
+  padding: 4px 12px;
   border-radius: 100px;
   margin-bottom: 8px;
 }
 
 .step-title {
-  font-size: 2rem;
+  font-family: var(--font-serif);
+  font-size: 1.85rem;
   font-weight: 800;
-  color: var(--temple-dark);
+  color: var(--dark);
   line-height: 1.2;
 }
 
 .step-sub {
-  font-size: 1rem;
-  color: var(--temple-muted);
-  margin-top: 6px;
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin-top: 4px;
 }
 
-/* Home Welcome Screen */
+/* Welcome Screen */
 .welcome-hero {
   text-align: center;
-  padding: 20px 0 10px;
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
 }
 
-.holy-icon {
-  font-size: 72px;
-  margin-bottom: 12px;
-  display: inline-block;
-  filter: drop-shadow(0 6px 12px rgba(230, 81, 0, 0.3));
+.welcome-logo-badge {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  margin-bottom: 14px;
+  filter: drop-shadow(0 8px 20px rgba(216, 75, 6, 0.25));
 }
 
 .kiosk-btn-hero {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 14px;
   width: 100%;
-  max-width: 540px;
-  padding: 22px 36px;
-  font-size: 1.5rem;
+  max-width: 500px;
+  padding: 20px 32px;
+  font-size: 1.45rem;
   font-weight: 800;
   color: #fff;
-  background: linear-gradient(135deg, #ea580c 0%, #c2410c 50%, #991b1b 100%);
+  background: linear-gradient(135deg, #d84b06 0%, #b33d04 60%, #7a1a03 100%);
   border: none;
   border-radius: 100px;
   cursor: pointer;
-  box-shadow: 0 16px 36px -6px rgba(234, 88, 12, 0.55), inset 0 2px 0 rgba(255, 255, 255, 0.3);
-  transition: all 0.25s ease;
+  box-shadow: 0 14px 32px rgba(216, 75, 6, 0.45), inset 0 2px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease;
   margin-top: 24px;
 }
 
 .kiosk-btn-hero:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 22px 46px -8px rgba(234, 88, 12, 0.65);
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px rgba(216, 75, 6, 0.55);
 }
 
 .kiosk-btn-hero:active {
@@ -282,154 +345,141 @@ body {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
-  max-width: 600px;
-  margin: 0 auto 24px;
+  max-width: 620px;
+  margin: 10px auto 24px;
+  width: 100%;
 }
 
 .number-card {
-  aspect-ratio: 1;
+  height: 110px;
   background: #fff;
-  border: 2px solid #fed7aa;
+  border: 2px solid var(--gray-medium);
   border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.25s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
 }
 
 .number-card .num {
   font-size: 2.2rem;
   font-weight: 800;
-  color: var(--temple-dark);
+  color: var(--dark);
 }
 
 .number-card .lbl {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  color: var(--temple-muted);
+  color: #6b7280;
 }
 
 .number-card.selected {
-  border-color: var(--temple-saffron);
-  background: linear-gradient(135deg, #fff7ed, #ffedd5);
-  box-shadow: 0 8px 24px rgba(234, 88, 12, 0.3);
+  border-color: var(--primary);
+  background: linear-gradient(135deg, #fff2eb, #ffe4d6);
+  box-shadow: 0 8px 24px rgba(216, 75, 6, 0.3);
   transform: scale(1.04);
 }
 
 .number-card.selected .num {
-  color: var(--temple-saffron);
+  color: var(--primary);
 }
 
-/* Input Fields & Virtual Keypad */
-.input-group {
-  margin-bottom: 20px;
-  text-align: left;
-}
-
-.input-label {
-  display: block;
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--temple-dark);
-  margin-bottom: 8px;
-}
-
+/* Input Fields (Clean & Empty by default) */
 .touch-input {
   width: 100%;
-  height: 64px;
+  height: 68px;
   padding: 0 20px;
   font-size: 1.35rem;
   font-weight: 700;
-  color: var(--temple-dark);
-  background: #fafafa;
-  border: 2px solid #e5e7eb;
+  color: var(--dark);
+  background: #faf7f5;
+  border: 2px solid #dccbc4;
   border-radius: var(--radius-md);
   outline: none;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
 }
 
 .touch-input:focus {
-  border-color: var(--temple-saffron);
+  border-color: var(--primary);
   background: #fff;
-  box-shadow: 0 0 0 4px rgba(230, 81, 0, 0.15);
+  box-shadow: 0 0 0 4px rgba(216, 75, 6, 0.15);
 }
 
 /* Slots Grid */
 .slots-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  margin-bottom: 28px;
+  gap: 14px;
+  margin-bottom: 24px;
 }
 
 .slot-card {
   border: 2px solid #fed7aa;
   background: #fff;
   border-radius: var(--radius-md);
-  padding: 20px;
+  padding: 16px 18px;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  position: relative;
+  gap: 5px;
 }
 
 .slot-card.selected {
-  border-color: var(--temple-saffron);
-  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
-  box-shadow: 0 8px 24px rgba(230, 81, 0, 0.25);
+  border-color: var(--primary);
+  background: linear-gradient(135deg, #fff2eb 0%, #ffe4d6 100%);
+  box-shadow: 0 8px 20px rgba(216, 75, 6, 0.25);
   transform: translateY(-2px);
 }
 
 .slot-time {
-  font-size: 1.25rem;
+  font-size: 1.18rem;
   font-weight: 800;
-  color: var(--temple-dark);
+  color: var(--dark);
 }
 
 .slot-label {
-  font-size: 0.9rem;
-  color: #7c2d12;
+  font-size: 0.88rem;
+  color: #7a1a03;
   font-weight: 600;
 }
 
 .slot-badge {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  padding: 3px 10px;
+  padding: 3px 9px;
   border-radius: 100px;
   width: fit-content;
-  background: #ecfdf5;
-  color: #047857;
-  border: 1px solid #a7f3d0;
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
 }
 
 .slot-wait {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
   color: #b45309;
 }
 
-/* Action Navigation Buttons */
+/* Nav Actions */
 .nav-actions {
   display: flex;
-  gap: 16px;
+  gap: 14px;
   margin-top: auto;
-  padding-top: 24px;
+  padding-top: 20px;
 }
 
 .btn-back {
   flex: 1;
-  max-width: 180px;
-  height: 60px;
-  border: 2px solid #e5e7eb;
+  max-width: 160px;
+  height: 56px;
+  border: 2px solid #dccbc4;
   background: #fff;
-  color: var(--temple-text);
-  font-size: 1.1rem;
+  color: var(--dark);
+  font-size: 1.05rem;
   font-weight: 700;
   border-radius: 100px;
   cursor: pointer;
@@ -437,53 +487,52 @@ body {
 }
 
 .btn-back:hover {
-  background: #f3f4f6;
-  border-color: #d1d5db;
+  background: #f3ece8;
 }
 
 .btn-next {
   flex: 2;
-  height: 60px;
-  background: linear-gradient(135deg, #ea580c, #c2410c);
+  height: 56px;
+  background: linear-gradient(135deg, #d84b06, #b33d04);
   color: #fff;
   border: none;
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 800;
   border-radius: 100px;
   cursor: pointer;
-  box-shadow: 0 10px 24px rgba(234, 88, 12, 0.4);
-  transition: all 0.25s ease;
+  box-shadow: 0 8px 22px rgba(216, 75, 6, 0.4);
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .btn-next:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(234, 88, 12, 0.5);
+  box-shadow: 0 12px 28px rgba(216, 75, 6, 0.5);
 }
 
 .btn-confirm {
-  background: linear-gradient(135deg, #059669, #047857) !important;
-  box-shadow: 0 10px 24px rgba(5, 150, 105, 0.4) !important;
+  background: linear-gradient(135deg, #2e7d32, #1b5e20) !important;
+  box-shadow: 0 8px 22px rgba(46, 125, 50, 0.4) !important;
 }
 
-/* Confirmation Summary Box */
+/* Summary Box */
 .summary-box {
-  background: linear-gradient(135deg, #fffbf0 0%, #fff7ed 100%);
-  border: 2px dashed #fcd34d;
+  background: #fffbf8;
+  border: 2px dashed #e5a93b;
   border-radius: var(--radius-md);
-  padding: 24px;
-  margin-bottom: 24px;
+  padding: 22px;
+  margin-bottom: 20px;
 }
 
 .summary-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid #fed7aa;
+  padding: 9px 0;
+  border-bottom: 1px solid #f3ece8;
 }
 
 .summary-row:last-child {
@@ -491,147 +540,409 @@ body {
 }
 
 .summary-key {
-  font-size: 0.95rem;
-  color: #78350f;
+  font-size: 0.92rem;
+  color: #7a1a03;
   font-weight: 600;
 }
 
 .summary-val {
   font-size: 1.15rem;
   font-weight: 800;
-  color: #1c1917;
+  color: var(--dark);
 }
 
 .summary-val.highlight {
-  color: #ea580c;
-  font-size: 1.35rem;
+  color: var(--primary);
+  font-size: 1.3rem;
 }
 
 /* ============================================================
-   THERMAL PRINT TICKET STYLES (80mm POS Receipt Style)
+   OFFICIAL DARSHAN PASS & THERMAL TICKET DESIGN
    ============================================================ */
 
 .ticket-preview-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px 0;
+  width: 100%;
 }
 
-.thermal-ticket {
-  width: 340px;
-  background: #fff;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  padding: 24px 20px;
-  font-family: 'Courier New', Courier, monospace;
-  color: #000;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  line-height: 1.35;
-  text-align: center;
+.darshan-pass-card {
+  width: 100%;
+  max-width: 480px;
+  background: #ffffff;
+  border: 2.5px solid var(--primary);
+  border-radius: 18px;
+  padding: 22px 24px;
+  box-shadow: 0 12px 36px rgba(122, 26, 3, 0.14), 0 0 0 4px #fef3c7;
+  color: #1e1510;
   position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
-.thermal-ticket::after {
+/* Top decorative saffron bar */
+.darshan-pass-card::before {
   content: '';
   position: absolute;
-  bottom: -6px;
+  top: 0;
   left: 0;
   right: 0;
   height: 6px;
-  background: radial-gradient(circle, transparent, transparent 50%, #fff 50%, #fff 100%);
-  background-size: 12px 12px;
+  background: linear-gradient(90deg, #d84b06, #e5a93b, #d84b06);
 }
 
-.ticket-header {
-  border-bottom: 2px dashed #000;
-  padding-bottom: 12px;
-  margin-bottom: 12px;
+/* Pass Header */
+.pass-header {
+  text-align: center;
+  border-bottom: 2px dashed #fed7aa;
+  padding-bottom: 14px;
+  margin-bottom: 14px;
 }
 
-.ticket-om {
-  font-size: 28px;
-  margin-bottom: 4px;
+.pass-emblem-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 6px;
 }
 
-.ticket-temple-name {
-  font-size: 14px;
+.pass-emblem-img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: 50%;
+  border: 2px solid #e5a93b;
+  padding: 2px;
+  background: #fff;
+}
+
+.pass-temple-heading h3 {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
   font-weight: 900;
+  color: #7a1a03;
+  line-height: 1.15;
+}
+
+.pass-temple-heading p {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #b45309;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
-.ticket-pass-type {
-  font-size: 13px;
+.pass-badge-type {
+  display: inline-block;
+  background: linear-gradient(135deg, #d84b06, #b33d04);
+  color: #ffffff;
+  font-size: 0.82rem;
   font-weight: 800;
-  margin-top: 4px;
-  background: #000;
-  color: #fff;
-  padding: 3px 0;
+  padding: 4px 16px;
+  border-radius: 100px;
+  letter-spacing: 0.05em;
+  margin-top: 6px;
+  box-shadow: 0 2px 6px rgba(216, 75, 6, 0.25);
 }
 
-.ticket-token-large {
-  font-size: 32px;
-  font-weight: 900;
-  margin: 10px 0 6px;
-  letter-spacing: 2px;
-}
-
-.ticket-table {
-  width: 100%;
-  text-align: left;
-  font-size: 12px;
-  margin: 10px 0;
-  border-bottom: 2px dashed #000;
-  padding-bottom: 10px;
-}
-
-.ticket-table td {
-  padding: 3px 0;
-}
-
-.ticket-qr {
-  margin: 12px 0 6px;
-  display: flex;
-  justify-content: center;
-}
-
-.ticket-qr img,
-.ticket-qr canvas {
-  width: 140px;
-  height: 140px;
-}
-
-.ticket-footer {
-  font-size: 10px;
-  margin-top: 8px;
-}
-
-/* Print Only Styles for 80mm Roll */
-@media print {
-  body * {
-    visibility: hidden;
-  }
-  .thermal-ticket, .thermal-ticket * {
-    visibility: visible;
-  }
-  .thermal-ticket {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 78mm;
-    margin: 0;
-    padding: 10px;
-    border: none;
-    box-shadow: none;
-  }
-}
-
-/* Footer info */
-.kiosk-footer {
+/* Token Box */
+.pass-token-box {
+  background: linear-gradient(135deg, #fff2eb 0%, #fef3c7 100%);
+  border: 1.5px solid #fed7aa;
+  border-radius: 12px;
+  padding: 12px 16px;
   text-align: center;
-  padding: 16px;
-  font-size: 0.8rem;
-  color: var(--temple-muted);
-  border-top: 1px solid #fde68a;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.token-label-side {
+  text-align: left;
+}
+
+.token-label-side span {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #7a1a03;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.token-label-side strong {
+  font-size: 0.85rem;
+  color: #1e1510;
+  font-weight: 800;
+}
+
+.token-number-large {
+  font-size: 2.2rem;
+  font-weight: 900;
+  font-family: var(--font-serif);
+  color: #d84b06;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+.token-status-pill {
+  background: #e8f5e9;
+  border: 1px solid #81c784;
+  color: #2e7d32;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 100px;
+  display: inline-block;
+}
+
+/* Details Table */
+.pass-details-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  margin-bottom: 14px;
+}
+
+.pass-details-table tr {
+  border-bottom: 1px solid #f3ece8;
+}
+
+.pass-details-table tr:last-child {
+  border-bottom: 2px dashed #fed7aa;
+}
+
+.pass-details-table td {
+  padding: 7px 4px;
+  vertical-align: middle;
+}
+
+.pass-td-key {
+  color: #7a1a03;
+  font-weight: 700;
+  font-size: 0.84rem;
+  width: 48%;
+}
+
+.pass-td-val {
+  color: #1e1510;
+  font-weight: 800;
+  text-align: right;
+  font-size: 0.94rem;
+  word-break: break-word;
+}
+
+.pass-td-val.val-highlight {
+  color: #7a1a03;
+  font-size: 1.15rem;
+  font-weight: 900;
+  text-transform: capitalize;
+  letter-spacing: 0.02em;
+}
+
+/* QR Code & Barcode Section */
+.pass-qr-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: #faf7f5;
+  border: 1px solid #eedfd8;
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+}
+
+.pass-qr-img {
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  background: #fff;
+  border: 1.5px solid #d84b06;
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.pass-qr-meta {
+  text-align: left;
+  flex: 1;
+}
+
+.pass-qr-meta p {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #1e1510;
+  line-height: 1.35;
+}
+
+.pass-qr-gate-badge {
+  display: inline-block;
+  background: #2e7d32;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin-top: 6px;
+}
+
+/* Barcode Simulation Graphic */
+.pass-barcode-box {
+  text-align: center;
+  margin: 6px 0 10px;
+  letter-spacing: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  color: #444;
+}
+
+.barcode-lines {
+  height: 22px;
+  background: repeating-linear-gradient(
+    90deg,
+    #000 0px,
+    #000 2px,
+    transparent 2px,
+    transparent 4px,
+    #000 4px,
+    #000 7px,
+    transparent 7px,
+    transparent 9px,
+    #000 9px,
+    #000 10px,
+    transparent 10px,
+    transparent 13px
+  );
+  width: 80%;
+  margin: 0 auto 3px;
+  border-radius: 2px;
+}
+
+/* Pass Footer */
+.pass-footer-notes {
+  text-align: center;
+  border-top: 1px solid #f3ece8;
+  padding-top: 8px;
+}
+
+.pass-footer-notes p {
+  font-size: 0.72rem;
+  color: #7a1a03;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.pass-footer-notes small {
+  display: block;
+  font-size: 0.65rem;
+  color: #8b7367;
+  margin-top: 3px;
+}
+
+/* ============================================================
+   CLEAN & BEAUTIFUL PRINT STYLESHEET (A4, LETTER & THERMAL)
+   ============================================================ */
+
+@media print {
+  @page {
+    size: portrait;
+    margin: 8mm auto;
+  }
+
+  *, *::before, *::after {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: auto !important;
+    display: block !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide tablet casing, status bar, screen header, navigation buttons & countdown */
+  .kiosk-device-casing,
+  .kiosk-casing-top,
+  .kiosk-header,
+  .kiosk-screen-footer,
+  .nav-actions,
+  .step-header,
+  .reset-timer-msg,
+  #screen-welcome,
+  #screen-devotees,
+  #screen-name,
+  #screen-slot,
+  #screen-confirm {
+    display: none !important;
+  }
+
+  /* Reset outer viewport containers for print */
+  .kiosk-screen-viewport,
+  .kiosk-main,
+  #screen-ticket,
+  .ticket-preview-container {
+    display: block !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    box-shadow: none !important;
+  }
+
+  /* Centered Official Darshan Pass Card */
+  .darshan-pass-card {
+    display: block !important;
+    margin: 0 auto !important;
+    width: 440px !important;
+    max-width: 96% !important;
+    border: 2px solid #d84b06 !important;
+    border-radius: 12px !important;
+    padding: 16px 20px !important;
+    background: #ffffff !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .pass-token-box {
+    background: #fff2eb !important;
+    border: 1px solid #fed7aa !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .pass-badge-type {
+    background: #d84b06 !important;
+    color: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .pass-qr-gate-badge {
+    background: #2e7d32 !important;
+    color: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+/* Kiosk Screen Footer */
+.kiosk-screen-footer {
+  text-align: center;
+  padding: 10px;
+  font-size: 0.75rem;
+  color: #8b7367;
+  border-top: 1px solid #f3ece8;
   background: #fff;
 }

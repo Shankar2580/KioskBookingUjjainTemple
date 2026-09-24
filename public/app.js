@@ -6,42 +6,38 @@
 const DICT = {
   hi: {
     templeTitle: 'श्री महाकालेश्वर ज्योतिर्लिंग मंदिर',
-    templeSub: 'उज्जैन (म.प्र.) • दर्शन बुकिंग कियोस्क',
+    templeSub: 'उज्जैन (म.प्र.) • दर्शन पास कियोस्क',
     welcomePraise: '॥ ॐ नमः शिवाय ॥',
-    welcomeMain: 'स्वयं सेवा दर्शन पास बुकिंग',
+    welcomeMain: 'स्वयं सेवा सामान्य दर्शन पास',
     welcomeSub: 'कियोस्क से निःशुल्क सामान्य दर्शन पास प्राप्त करें',
     btnBookNow: 'सामान्य दर्शन बुक करें',
-    liveWait: 'वर्तमान प्रतीक्षा समय',
+    liveWait: 'वर्तमान प्रतीक्षा समय:',
     minutes: 'मिनट',
-    crowd: 'भीड़ स्थिति',
+    crowd: 'भीड़ स्थिति:',
     step1Eye: 'चरण १ / ४',
     step1Title: 'श्रद्धालुओं की संख्या चुनें',
     step1Sub: 'एक बार में अधिकतम ८ श्रद्धालु बुक कर सकते हैं',
     persons: 'श्रद्धालु',
     step2Eye: 'चरण २ / ४',
-    step2Title: 'मुख्य श्रद्धालु का विवरण दर्ज करें',
-    step2Sub: 'कृपया नाम और मोबाइल नंबर दर्ज करें',
+    step2Title: 'मुख्य श्रद्धालु का नाम दर्ज करें',
+    step2Sub: 'कृपया अपना पूरा नाम लिखें',
     labelName: 'मुख्य श्रद्धालु का पूरा नाम *',
-    placeholderName: 'उदा. राजेश शर्मा',
-    labelMobile: 'मोबाइल नंबर (व्हाट्सएप पर पास हेतु)',
-    placeholderMobile: '१० अंकों का मोबाइल नंबर',
-    labelPhoto: 'लाइव फोटो कैप्चर (वैकल्पिक)',
-    btnSnap: 'फोटो लें',
+    placeholderName: 'श्रद्धालु का नाम दर्ज करें',
     step3Eye: 'चरण ३ / ४',
     step3Title: 'दर्शन समय स्लॉट चुनें',
     step3Sub: 'आज के उपलब्ध समय स्लॉट',
     step4Eye: 'चरण ४ / ४',
     step4Title: 'बुकिंग की पुष्टि करें',
     step4Sub: 'कृपया विवरण जांचें और टिकट प्रिंट करें',
-    summaryDevotee: 'मुख्य श्रद्धालु',
-    summaryCount: 'कुल श्रद्धालु',
-    summarySlot: 'दर्शन स्लॉट',
-    summaryWait: 'अनुमानित प्रतीक्षा समय',
-    summaryGate: 'प्रवेश द्वार',
+    summaryDevotee: 'मुख्य श्रद्धालु:',
+    summaryCount: 'कुल श्रद्धालु:',
+    summarySlot: 'दर्शन स्लॉट:',
+    summaryWait: 'अनुमानित प्रतीक्षा समय:',
+    summaryGate: 'प्रवेश द्वार:',
     btnBack: 'पीछे',
     btnNext: 'आगे बढ़ें',
     btnConfirm: 'पुष्टि करें एवं टिकट प्रिंट करें',
-    btnPrintNow: 'टिकट प्रिंट करें',
+    btnPrintNow: '🖨️ फिर से प्रिंट करें',
     btnBookAnother: 'नई बुकिंग करें',
     ticketGenerated: 'दर्शन पास सफलतापूर्वक जारी हुआ!',
     ticketSub: 'कृपया नीचे से अपना प्रिंटेड पास प्राप्त करें',
@@ -51,40 +47,36 @@ const DICT = {
     templeTitle: 'Shri Mahakaleshwar Jyotirlinga Temple',
     templeSub: 'Ujjain (M.P.) • Darshan Booking Kiosk',
     welcomePraise: '॥ OM NAMAH SHIVAYA ॥',
-    welcomeMain: 'Self-Service Darshan Booking',
-    welcomeSub: 'Get your instant General Darshan Pass directly from the Kiosk',
+    welcomeMain: 'Self-Service General Darshan Pass',
+    welcomeSub: 'Get your free General Darshan Pass directly from the Kiosk',
     btnBookNow: 'Book General Darshan',
-    liveWait: 'Live Waiting Time',
+    liveWait: 'Live Waiting Time:',
     minutes: 'Minutes',
-    crowd: 'Crowd Level',
+    crowd: 'Crowd Level:',
     step1Eye: 'STEP 1 / 4',
     step1Title: 'Select Number of Devotees',
     step1Sub: 'You can book up to 8 devotees in one transaction',
     persons: 'Person(s)',
     step2Eye: 'STEP 2 / 4',
-    step2Title: 'Enter Primary Devotee Details',
-    step2Sub: 'Please enter name and contact details',
+    step2Title: 'Enter Primary Devotee Name',
+    step2Sub: 'Please enter your full name',
     labelName: 'Primary Devotee Full Name *',
-    placeholderName: 'e.g. Rajesh Sharma',
-    labelMobile: 'Mobile Number (For WhatsApp Pass)',
-    placeholderMobile: '10-digit mobile number',
-    labelPhoto: 'Live Photo Capture (Optional)',
-    btnSnap: 'Capture Photo',
+    placeholderName: 'Enter devotee name',
     step3Eye: 'STEP 3 / 4',
     step3Title: 'Select Darshan Time Slot',
     step3Sub: 'Available slots for today',
     step4Eye: 'STEP 4 / 4',
     step4Title: 'Confirm Your Booking',
     step4Sub: 'Please verify details and print your ticket',
-    summaryDevotee: 'Primary Devotee',
-    summaryCount: 'Total Devotees',
-    summarySlot: 'Darshan Slot',
-    summaryWait: 'Live Waiting Time',
-    summaryGate: 'Designated Entry Gate',
+    summaryDevotee: 'Primary Devotee:',
+    summaryCount: 'Total Devotees:',
+    summarySlot: 'Darshan Slot:',
+    summaryWait: 'Live Waiting Time:',
+    summaryGate: 'Designated Entry Gate:',
     btnBack: 'Back',
     btnNext: 'Proceed',
     btnConfirm: 'Confirm & Print Ticket',
-    btnPrintNow: 'Print Ticket',
+    btnPrintNow: '🖨️ Print Again',
     btnBookAnother: 'New Booking',
     ticketGenerated: 'Darshan Pass Issued Successfully!',
     ticketSub: 'Please collect your printed pass from the tray below',
@@ -92,19 +84,18 @@ const DICT = {
   }
 };
 
-// Global App State
+// Global State
 let currentLang = 'hi';
 let currentScreen = 'screen-welcome';
 let selectedDevoteeCount = 1;
 let devoteeName = '';
-let devoteeMobile = '';
 let selectedSlotId = 'S2';
 let selectedSlotTime = '08:00 AM - 11:00 AM';
 let liveWaitMinutes = 35;
 let resetTimerInterval = null;
 let bookingData = null;
 
-// Sound Effects (Web Audio API)
+// Sound Effects
 function playBeep(freq = 600, duration = 0.08) {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -118,9 +109,7 @@ function playBeep(freq = 600, duration = 0.08) {
     gain.connect(ctx.destination);
     osc.start();
     osc.stop(ctx.currentTime + duration);
-  } catch (e) {
-    // audio not supported or blocked
-  }
+  } catch (e) {}
 }
 
 // Language Switcher
@@ -145,7 +134,7 @@ function setLanguage(lang) {
   updateLiveWaitBanner();
 }
 
-// Navigation State Machine
+// Screen Navigation
 function goToScreen(screenId) {
   playBeep(750, 0.06);
   document.querySelectorAll('.screen-card').forEach(s => s.classList.remove('active'));
@@ -156,13 +145,17 @@ function goToScreen(screenId) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // Handle screen specific triggers
+  if (screenId === 'screen-name') {
+    const nameInput = document.getElementById('input-devotee-name');
+    if (nameInput) setTimeout(() => nameInput.focus(), 150);
+  }
+
   if (screenId === 'screen-confirm') {
     renderConfirmation();
   }
 }
 
-// Fetch Live Waiting Time from backend
+// Live Wait Time
 async function updateLiveWaitBanner() {
   try {
     const res = await fetch('/api/waiting-time');
@@ -178,12 +171,10 @@ async function updateLiveWaitBanner() {
         elCrowd.textContent = currentLang === 'hi' ? data.crowdLevelHi : data.crowdLevel;
       }
     }
-  } catch (e) {
-    // fallback
-  }
+  } catch (e) {}
 }
 
-// Devotee Count Selection
+// Devotee Number Selector
 function initDevoteeSelector() {
   const container = document.getElementById('devotee-number-grid');
   if (!container) return;
@@ -216,7 +207,7 @@ async function initSlots() {
     if (data.success && data.slots) {
       container.innerHTML = data.slots.map(s => `
         <div class="slot-card ${s.id === selectedSlotId ? 'selected' : ''}" data-slot-id="${s.id}" data-slot-time="${s.time}">
-          <div class="flex items-center justify-between">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
             <span class="slot-time">${s.time}</span>
             <span class="slot-badge">${s.remaining} Seats</span>
           </div>
@@ -238,10 +229,12 @@ async function initSlots() {
   } catch (e) {}
 }
 
-// Confirmation Preview
+// Confirmation Step
 function renderConfirmation() {
-  devoteeName = document.getElementById('input-devotee-name')?.value || 'Rajesh Sharma';
-  devoteeMobile = document.getElementById('input-devotee-phone')?.value || '9876543210';
+  const inputEl = document.getElementById('input-devotee-name');
+  if (inputEl && inputEl.value.trim()) {
+    devoteeName = inputEl.value.trim();
+  }
 
   const sumName = document.getElementById('sum-name');
   const sumCount = document.getElementById('sum-count');
@@ -249,16 +242,22 @@ function renderConfirmation() {
   const sumWait = document.getElementById('sum-wait');
   const sumGate = document.getElementById('sum-gate');
 
-  if (sumName) sumName.textContent = devoteeName;
+  if (sumName) sumName.textContent = devoteeName || 'श्रद्धालु (Devotee)';
   if (sumCount) sumCount.textContent = `${selectedDevoteeCount} ${DICT[currentLang].persons}`;
   if (sumSlot) sumSlot.textContent = selectedSlotTime;
   if (sumWait) sumWait.textContent = `~${liveWaitMinutes} ${DICT[currentLang].minutes}`;
   if (sumGate) sumGate.textContent = currentLang === 'hi' ? 'गेट नं. ४ (शंकु द्वार)' : 'Gate No. 4 (Shanku Dwar)';
 }
 
-// Submit Booking & Generate Thermal Ticket
+// Confirm & Print Action
 async function confirmAndPrint() {
   playBeep(1000, 0.15);
+
+  const inputEl = document.getElementById('input-devotee-name');
+  if (inputEl && inputEl.value.trim()) {
+    devoteeName = inputEl.value.trim();
+  }
+
   const btn = document.getElementById('btn-confirm-booking');
   if (btn) {
     btn.disabled = true;
@@ -270,9 +269,8 @@ async function confirmAndPrint() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        devoteeName,
+        devoteeName: devoteeName || 'Devotee',
         devoteeCount: selectedDevoteeCount,
-        mobileNumber: devoteeMobile,
         slotId: selectedSlotId,
         slotTime: selectedSlotTime,
         language: currentLang
@@ -284,13 +282,11 @@ async function confirmAndPrint() {
       bookingData = data.booking;
       renderThermalTicket(bookingData);
       goToScreen('screen-ticket');
-      
-      // Auto trigger print dialog after 600ms
+
       setTimeout(() => {
         window.print();
-      }, 600);
+      }, 500);
 
-      // Start Auto-reset countdown
       startAutoResetTimer(20);
     }
   } catch (e) {
@@ -303,68 +299,123 @@ async function confirmAndPrint() {
   }
 }
 
-// Render 80mm Thermal Receipt Ticket
+// Render Official Darshan Pass Card
 function renderThermalTicket(b) {
   const container = document.getElementById('thermal-ticket-mount');
   if (!container) return;
 
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(b.bookingId + '|' + b.tokenNumber)}`;
+  const qrSrc = b.qrDataUrl || `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(b.bookingId + '|' + b.tokenNumber)}`;
 
   container.innerHTML = `
-    <div class="thermal-ticket">
-      <div class="ticket-header">
-        <div class="ticket-om">॥ ॐ नमः शिवाय ॥</div>
-        <div class="ticket-temple-name">SHRI MAHAKALESHWAR TEMPLE</div>
-        <div style="font-size: 11px; font-weight: 700;">UJJAIN (MADHYA PRADESH)</div>
-        <div class="ticket-pass-type">GENERAL DARSHAN PASS (FREE)</div>
+    <div class="darshan-pass-card">
+      <!-- Top Header with Temple Emblem -->
+      <div class="pass-header">
+        <div class="pass-emblem-row">
+          <img src="shrimahakaleshwar_logo.png" alt="श्री महाकालेश्वर मंदिर" class="pass-emblem-img" />
+          <div class="pass-temple-heading">
+            <div style="font-size: 0.78rem; font-weight: 800; color: #d84b06; margin-bottom: 2px;">॥ श्री महाकालेश्वर ज्योतिर्लिंग मंदिर ॥</div>
+            <h3>SHRI MAHAKALESHWAR TEMPLE</h3>
+            <p>UJJAIN (MADHYA PRADESH)</p>
+          </div>
+        </div>
+        <div class="pass-badge-type">स्वयं सेवा सामान्य दर्शन पास • GENERAL DARSHAN PASS</div>
       </div>
 
-      <div style="font-size: 11px; font-weight: 700; color: #333;">TOKEN NUMBER</div>
-      <div class="ticket-token-large">${b.tokenNumber}</div>
-      <div style="font-size: 10px; color: #555; margin-bottom: 8px;">Pass ID: ${b.bookingId}</div>
+      <!-- Token & Status Row -->
+      <div class="pass-token-box">
+        <div class="token-label-side">
+          <span>टोकन क्रमांक / Token No.</span>
+          <div class="token-number-large">${b.tokenNumber}</div>
+          <small style="color: #6b7280; font-size: 0.72rem;">Pass ID: ${b.bookingId}</small>
+        </div>
+        <div style="text-align: right;">
+          <div class="token-status-pill">✓ पुष्टिकृत / CONFIRMED</div>
+          <div style="font-size: 0.75rem; color: #7a1a03; font-weight: 700; margin-top: 6px;">निःशुल्क पास (FREE)</div>
+        </div>
+      </div>
 
-      <table class="ticket-table">
+      <!-- Devotee & Booking Details Table -->
+      <table class="pass-details-table">
         <tr>
-          <td><strong>Devotee:</strong></td>
-          <td align="right">${b.devoteeName}</td>
+          <td class="pass-td-key">👤 श्रद्धालु का पूरा नाम (Full Name):</td>
+          <td class="pass-td-val val-highlight">${b.devoteeName}</td>
         </tr>
         <tr>
-          <td><strong>No. of Persons:</strong></td>
-          <td align="right"><strong>${b.devoteeCount} Person(s)</strong></td>
+          <td class="pass-td-key">👥 कुल संख्या (Total Persons):</td>
+          <td class="pass-td-val"><strong>${b.devoteeCount} Person(s)</strong></td>
         </tr>
         <tr>
-          <td><strong>Date & Slot:</strong></td>
-          <td align="right">${b.slotTime}</td>
+          <td class="pass-td-key">⏰ दर्शन स्लॉट (Darshan Slot):</td>
+          <td class="pass-td-val">${b.slotTime}</td>
         </tr>
         <tr>
-          <td><strong>Live Wait Time:</strong></td>
-          <td align="right"><strong>~${b.liveWaitMinutes} Mins</strong></td>
+          <td class="pass-td-key">⏳ अनुमानित समय (Est. Time):</td>
+          <td class="pass-td-val"><strong>${b.estimatedDarshanTime}</strong> (~${b.liveWaitMinutes} Mins)</td>
         </tr>
         <tr>
-          <td><strong>Est. Darshan:</strong></td>
-          <td align="right"><strong>${b.estimatedDarshanTime}</strong></td>
+          <td class="pass-td-key">📍 प्रवेश द्वार (Entry Gate):</td>
+          <td class="pass-td-val" style="color: #2e7d32;"><strong>गेट नं. ४ (शंकु द्वार)</strong></td>
         </tr>
         <tr>
-          <td><strong>Entry Gate:</strong></td>
-          <td align="right">${b.gateName}</td>
-        </tr>
-        <tr>
-          <td><strong>Issued At:</strong></td>
-          <td align="right">${b.bookedAt}</td>
+          <td class="pass-td-key">📅 जारी समय (Issued Date/Time):</td>
+          <td class="pass-td-val">${b.bookedAt}</td>
         </tr>
       </table>
 
-      <div class="ticket-qr">
-        <img src="${qrUrl}" alt="QR Code" width="140" height="140" />
+      <!-- QR Code & Turnstile Instructions -->
+      <div class="pass-qr-section">
+        <img src="${qrSrc}" alt="Turnstile QR Code" class="pass-qr-img" />
+        <div class="pass-qr-meta">
+          <p style="font-size: 0.8rem; font-weight: 800; color: #7a1a03;">★ प्रवेश हेतु QR कोड स्कैन करें</p>
+          <p style="margin-top: 2px; color: #4b5563;">Scan at turnstile barrier before entering queue.</p>
+          <span class="pass-qr-gate-badge">📍 GATE NO. 4 TURNSTILE</span>
+        </div>
       </div>
 
-      <div class="ticket-footer">
-        <p><strong>SCAN AT GATE NO. 4 TURNSTILE</strong></p>
-        <p style="margin-top: 3px;">Valid for single entry today only.</p>
-        <p style="margin-top: 5px; font-size: 9px;">Kiosk ID: ${b.kioskId} • Powered by FacePe</p>
+      <!-- Simulated Barcode -->
+      <div class="pass-barcode-box">
+        <div class="barcode-lines"></div>
+        <span>*${b.bookingId}*</span>
+      </div>
+
+      <!-- Official Footer -->
+      <div class="pass-footer-notes">
+        <p>श्री महाकालेश्वर मंदिर प्रबंध समिति, उज्जैन</p>
+        <small>यह पास केवल आज के दर्शन के लिए एक बार प्रवेश हेतु मान्य है • Terminal: ${b.kioskId}</small>
       </div>
     </div>
   `;
+}
+
+// Download PDF Helper
+async function downloadPdfPass() {
+  const element = document.querySelector('.darshan-pass-card');
+  if (!element || !bookingData) return;
+
+  const btn = document.getElementById('btn-download-pdf');
+  const originalText = btn ? btn.textContent : '';
+  if (btn) btn.textContent = '⏳ PDF तैयार हो रहा है...';
+
+  const opt = {
+    margin: [10, 10, 10, 10],
+    filename: `Mahakal_Darshan_Pass_${bookingData.tokenNumber}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 3, useCORS: true, letterRendering: true },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+
+  try {
+    if (window.html2pdf) {
+      await window.html2pdf().set(opt).from(element).save();
+    } else {
+      window.print();
+    }
+  } catch (err) {
+    console.error('PDF download error:', err);
+    window.print();
+  } finally {
+    if (btn) btn.textContent = originalText;
+  }
 }
 
 // Auto Reset Timer
@@ -384,19 +435,17 @@ function startAutoResetTimer(seconds = 20) {
   }, 1000);
 }
 
-// Reset Kiosk to Initial State
+// Reset Kiosk
 function resetKiosk() {
   clearInterval(resetTimerInterval);
   selectedDevoteeCount = 1;
   const nameInput = document.getElementById('input-devotee-name');
-  const phoneInput = document.getElementById('input-devotee-phone');
   if (nameInput) nameInput.value = '';
-  if (phoneInput) phoneInput.value = '';
   initDevoteeSelector();
   goToScreen('screen-welcome');
 }
 
-// Document Ready
+// Document Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
   setLanguage('hi');
   initDevoteeSelector();
@@ -410,12 +459,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Step 1: Start Booking
+  // Step 1 -> Step 2
   document.getElementById('btn-start-booking')?.addEventListener('click', () => {
     goToScreen('screen-devotees');
   });
 
-  // Step 2: Devotee count -> Name
+  // Step 2 -> Step 3
   document.getElementById('btn-to-name')?.addEventListener('click', () => {
     goToScreen('screen-name');
   });
@@ -423,7 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
     goToScreen('screen-welcome');
   });
 
-  // Step 3: Name -> Slot
+  // Step 3 -> Step 4
   document.getElementById('btn-to-slot')?.addEventListener('click', () => {
     const nameInput = document.getElementById('input-devotee-name');
     if (!nameInput || !nameInput.value.trim()) {
@@ -431,13 +480,14 @@ document.addEventListener('DOMContentLoaded', () => {
       nameInput?.focus();
       return;
     }
+    devoteeName = nameInput.value.trim();
     goToScreen('screen-slot');
   });
   document.getElementById('btn-back-to-devotees')?.addEventListener('click', () => {
     goToScreen('screen-devotees');
   });
 
-  // Step 4: Slot -> Confirm
+  // Step 4 -> Step 5
   document.getElementById('btn-to-confirm')?.addEventListener('click', () => {
     goToScreen('screen-confirm');
   });
@@ -445,7 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
     goToScreen('screen-name');
   });
 
-  // Step 5: Confirm -> Print Ticket
+  // Step 5 -> Step 6
   document.getElementById('btn-confirm-booking')?.addEventListener('click', () => {
     confirmAndPrint();
   });
@@ -453,10 +503,16 @@ document.addEventListener('DOMContentLoaded', () => {
     goToScreen('screen-slot');
   });
 
-  // Ticket Screen buttons
+  // Print button
   document.getElementById('btn-print-ticket-manual')?.addEventListener('click', () => {
     window.print();
   });
+
+  // PDF Download button
+  document.getElementById('btn-download-pdf')?.addEventListener('click', () => {
+    downloadPdfPass();
+  });
+
   document.getElementById('btn-start-new-booking')?.addEventListener('click', () => {
     resetKiosk();
   });
