@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>श्री महाकालेश्वर मंदिर — स्वयं सेवा दर्शन पास कियोस्क</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Yatra+One&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="bg-mandala">
+
+  <!-- ============ KIOSK HEADER ============ -->
+  <header class="kiosk-header">
+    <div class="kiosk-header-inner">
+      <div class="temple-brand">
+        <div class="temple-emblem">🔱</div>
+        <div class="temple-title">
+          <h1 data-t="templeTitle">श्री महाकालेश्वर ज्योतिर्लिंग मंदिर</h1>
+          <p data-t="templeSub">उज्जैन (म.प्र.) • दर्शन बुकिंग कियोस्क</p>
+        </div>
+      </div>
+
+      <!-- Language Selector -->
+      <div class="lang-switcher">
+        <button type="button" class="lang-btn active" data-lang="hi">हिंदी</button>
+        <button type="button" class="lang-btn" data-lang="en">English</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ LIVE QUEUE STATUS BANNER ============ -->
+  <div class="live-wait-banner">
+    <div class="wait-pill">
+      <span class="wait-pulse-dot"></span>
+      <span data-t="liveWait">वर्तमान प्रतीक्षा समय:</span>
+      <strong id="live-wait-val">~35 मिनट</strong>
+    </div>
+    <div class="wait-pill">
+      <span data-t="crowd">भीड़ स्थिति:</span>
+      <strong id="live-crowd-val" style="color: #059669;">सामान्य (Moderate)</strong>
+    </div>
+    <div class="wait-pill" style="border-color: #e5e7eb; color: #4b5563;">
+      <span>📍 प्रवेश द्वार:</span>
+      <strong>गेट नं. ४ (शंकु द्वार)</strong>
+    </div>
+  </div>
+
+  <!-- ============ MAIN KIOSK CONTAINER ============ -->
+  <main class="kiosk-main">
+
+    <!-- ================= SCREEN 1: WELCOME ================= -->
+    <div id="screen-welcome" class="screen-card active">
+      <div class="welcome-hero">
+        <div class="holy-icon">🪔</div>
+        <div style="font-size: 1.25rem; font-weight: 800; color: #c2410c; margin-bottom: 6px;" data-t="welcomePraise">
+          ॥ ॐ नमः शिवाय ॥
+        </div>
+        <h2 style="font-size: 2.4rem; font-weight: 900; color: #1c0906; line-height: 1.15;" data-t="welcomeMain">
+          स्वयं सेवा दर्शन पास बुकिंग
+        </h2>
+        <p style="font-size: 1.15rem; color: #6b7280; margin-top: 10px; max-width: 540px; margin-left: auto; margin-right: auto;"
+          data-t="welcomeSub">
+          कियोस्क से निःशुल्क सामान्य दर्शन पास प्राप्त करें
+        </p>
+
+        <!-- Touch CTA Button -->
+        <button type="button" id="btn-start-booking" class="kiosk-btn-hero">
+          <span style="font-size: 1.65rem;">🎟️</span>
+          <span data-t="btnBookNow">सामान्य दर्शन बुक करें</span>
+        </button>
+
+        <div style="margin-top: 32px; display: flex; justify-content: center; gap: 20px; font-size: 0.9rem; color: #78350f; font-weight: 600;">
+          <span>✓ निःशुल्क दर्शन</span>
+          <span>•</span>
+          <span>✓ त्वरित प्रिंट</span>
+          <span>•</span>
+          <span>✓ लाइव वेटिंग टाइम</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SCREEN 2: DEVOTEES COUNT ================= -->
+    <div id="screen-devotees" class="screen-card">
+      <div class="step-header">
+        <span class="step-eyebrow" data-t="step1Eye">चरण १ / ४</span>
+        <h2 class="step-title" data-t="step1Title">श्रद्धालुओं की संख्या चुनें</h2>
+        <p class="step-sub" data-t="step1Sub">एक बार में अधिकतम ८ श्रद्धालु बुक कर सकते हैं</p>
+      </div>
+
+      <!-- Touch Number Grid -->
+      <div id="devotee-number-grid" class="number-grid"></div>
+
+      <div class="nav-actions">
+        <button type="button" id="btn-back-to-welcome" class="btn-back" data-t="btnBack">पीछे</button>
+        <button type="button" id="btn-to-name" class="btn-next">
+          <span data-t="btnNext">आगे बढ़ें</span> &rarr;
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= SCREEN 3: NAME & MOBILE ================= -->
+    <div id="screen-name" class="screen-card">
+      <div class="step-header">
+        <span class="step-eyebrow" data-t="step2Eye">चरण २ / ४</span>
+        <h2 class="step-title" data-t="step2Title">मुख्य श्रद्धालु का विवरण दर्ज करें</h2>
+        <p class="step-sub" data-t="step2Sub">कृपया नाम और मोबाइल नंबर दर्ज करें</p>
+      </div>
+
+      <div style="max-width: 600px; margin: 0 auto; width: 100%;">
+        <div class="input-group">
+          <label class="input-label" data-t="labelName">मुख्य श्रद्धालु का पूरा नाम *</label>
+          <input type="text" id="input-devotee-name" class="touch-input" placeholder="उदा. राजेश शर्मा" value="राजेश शर्मा" data-t="placeholderName" autocomplete="off" />
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" data-t="labelMobile">मोबाइल नंबर (व्हाट्सएप पर पास प्राप्त करने हेतु)</label>
+          <input type="tel" id="input-devotee-phone" class="touch-input" placeholder="१० अंकों का मोबाइल नंबर" value="9876543210" data-t="placeholderMobile" maxlength="10" />
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <button type="button" id="btn-back-to-devotees" class="btn-back" data-t="btnBack">पीछे</button>
+        <button type="button" id="btn-to-slot" class="btn-next">
+          <span data-t="btnNext">आगे बढ़ें</span> &rarr;
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= SCREEN 4: SLOTS ================= -->
+    <div id="screen-slot" class="screen-card">
+      <div class="step-header">
+        <span class="step-eyebrow" data-t="step3Eye">चरण ३ / ४</span>
+        <h2 class="step-title" data-t="step3Title">दर्शन समय स्लॉट चुनें</h2>
+        <p class="step-sub" data-t="step3Sub">आज के उपलब्ध समय स्लॉट</p>
+      </div>
+
+      <div id="slots-container" class="slots-grid"></div>
+
+      <div class="nav-actions">
+        <button type="button" id="btn-back-to-name" class="btn-back" data-t="btnBack">पीछे</button>
+        <button type="button" id="btn-to-confirm" class="btn-next">
+          <span data-t="btnNext">आगे बढ़ें</span> &rarr;
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= SCREEN 5: CONFIRMATION ================= -->
+    <div id="screen-confirm" class="screen-card">
+      <div class="step-header">
+        <span class="step-eyebrow" data-t="step4Eye">चरण ४ / ४</span>
+        <h2 class="step-title" data-t="step4Title">बुकिंग की पुष्टि करें</h2>
+        <p class="step-sub" data-t="step4Sub">कृपया विवरण जांचें और टिकट प्रिंट करें</p>
+      </div>
+
+      <div style="max-width: 600px; margin: 0 auto; width: 100%;">
+        <div class="summary-box">
+          <div class="summary-row">
+            <span class="summary-key" data-t="summaryDevotee">मुख्य श्रद्धालु:</span>
+            <span id="sum-name" class="summary-val">-</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key" data-t="summaryCount">कुल श्रद्धालु:</span>
+            <span id="sum-count" class="summary-val">-</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key" data-t="summarySlot">दर्शन स्लॉट:</span>
+            <span id="sum-slot" class="summary-val">-</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key" data-t="summaryWait">अनुमानित प्रतीक्षा समय:</span>
+            <span id="sum-wait" class="summary-val highlight">~35 मिनट</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key" data-t="summaryGate">प्रवेश द्वार:</span>
+            <span id="sum-gate" class="summary-val" style="color: #047857;">गेट नं. ४ (शंकु द्वार)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <button type="button" id="btn-back-to-slot" class="btn-back" data-t="btnBack">पीछे</button>
+        <button type="button" id="btn-confirm-booking" class="btn-next btn-confirm">
+          <span>🖨️</span>
+          <span data-t="btnConfirm">पुष्टि करें एवं टिकट प्रिंट करें</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= SCREEN 6: TICKET PRINT ================= -->
+    <div id="screen-ticket" class="screen-card">
+      <div class="step-header" style="margin-bottom: 16px;">
+        <div style="font-size: 42px; margin-bottom: 6px;">🎉</div>
+        <h2 class="step-title" style="color: #059669;" data-t="ticketGenerated">दर्शन पास सफलतापूर्वक जारी हुआ!</h2>
+        <p class="step-sub" data-t="ticketSub">कृपया नीचे से अपना प्रिंटेड पास प्राप्त करें</p>
+      </div>
+
+      <!-- Thermal Ticket Mount -->
+      <div id="thermal-ticket-mount" class="ticket-preview-container"></div>
+
+      <div style="margin-top: 20px; text-align: center;">
+        <p style="font-size: 0.95rem; color: #4b5563;">
+          <span data-t="autoResetMsg">कियोस्क होम स्क्रीन पर रीसेट होगा:</span>
+          <strong id="reset-countdown" style="color: #e65100; font-size: 1.1rem;">20s</strong>
+        </p>
+      </div>
+
+      <div class="nav-actions" style="max-width: 500px; margin: 20px auto 0; width: 100%;">
+        <button type="button" id="btn-print-ticket-manual" class="btn-back" style="max-width: none;" data-t="btnPrintNow">🖨️ फिर से प्रिंट करें</button>
+        <button type="button" id="btn-start-new-booking" class="btn-next" data-t="btnBookAnother">नई बुकिंग करें</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ============ KIOSK FOOTER ============ -->
+  <footer class="kiosk-footer">
+    <p>श्री महाकालेश्वर मंदिर प्रबंध समिति, उज्जैन • कियोस्क टर्मिनल ID: KIOSK-UJJAIN-01 • Powered by <strong>FacePe</strong></p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
