@@ -383,8 +383,13 @@ async function confirmAndPrint() {
       renderThermalTicket(bookingData);
       goToScreen('screen-ticket');
 
-      // If already physically printed to Epson TM-T88VII, avoid popup; otherwise fallback to browser print
-      if (!data.printedToHardware) {
+      // Try printing directly to Epson TM-T88VII (or local bridge) if server could not print directly
+      let printed = data.printedToHardware;
+      if (!printed) {
+        printed = await printViaEposXml(bookingData);
+      }
+
+      if (!printed) {
         setTimeout(() => {
           window.print();
         }, 500);
@@ -400,6 +405,43 @@ async function confirmAndPrint() {
       btn.textContent = DICT[currentLang].btnConfirm;
     }
   }
+}
+
+// Direct Web ePOS-Print to Epson TM-T88VII on local network
+async function printViaEposXml(b) {
+  if (!b) return false;
+  const displayDate = b.darshanDateFormatted || b.darshanDate || 'Today';
+  const devoteeMobile = b.mobileNumber && b.mobileNumber !== 'Walk-in Devotee' ? b.mobileNumber : '—';
+  const qrText = `${b.bookingId}|${b.tokenNumber}|${b.devoteeName}|${devoteeMobile}|${b.devoteeCount}|Nilkanth Gate`;
+
+  const xml = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><text align="center" width="2" height="2">SHRI MAHAKALESHWAR&#10;</text><text width="1" height="1">UJJAIN (MADHYA PRADESH)&#10;GENERAL DARSHAN PASS&#10;------------------------------------------------&#10;</text><text width="2" height="2">TOKEN: ${b.tokenNumber}&#10;</text><text width="1" height="1">STATUS: CONFIRMED (FREE)&#10;------------------------------------------------&#10;</text><text align="left">Devotee Name : ${b.devoteeName}&#10;Mobile Number: ${devoteeMobile}&#10;Total Persons: ${b.devoteeCount} Person(s)&#10;Darshan Date : ${displayDate}&#10;Darshan Slot : ${b.slotTime}&#10;Est. Wait    : ~${b.liveWaitMinutes || 35} Min&#10;Entry Gate   : Nilkanth Gate&#10;Issued At    : ${b.bookedAt}&#10;------------------------------------------------&#10;</text><text align="center">&#10;</text><symbol type="qrcode_model_2" level="level_m" width="6">${qrText}</symbol><text align="center">&#10;Scan at Nilkanth Gate Barrier&#10;Shri Mahakaleshwar Temple Committee&#10;&#10;&#10;</text><cut type="feed"/></epos-print></s:Body></s:Envelope>`;
+
+  const endpoints = [
+    'http://192.168.31.222:3005/api/print-thermal',
+    'https://192.168.31.201/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000',
+    'http://192.168.31.201/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000'
+  ];
+
+  for (const url of endpoints) {
+    try {
+      const isProxy = url.includes('/api/print-thermal');
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: isProxy ? { 'Content-Type': 'application/json' } : {
+          'Content-Type': 'text/xml; charset=utf-8',
+          'SOAPAction': '""'
+        },
+        body: isProxy ? JSON.stringify(b) : xml,
+        signal: AbortSignal.timeout(3000)
+      });
+      if (res.ok) {
+        return true;
+      }
+    } catch (err) {
+      // Continue to next endpoint
+    }
+  }
+  return false;
 }
 
 // Render Official Darshan Pass Card
@@ -634,18 +676,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Print button
   document.getElementById('btn-print-ticket-manual')?.addEventListener('click', async () => {
     if (bookingData) {
-      try {
-        const res = await fetch('/api/print-thermal', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(bookingData)
-        });
-        const resData = await res.json();
-        if (resData.success) {
-          playBeep(900, 0.08);
-          return;
-        }
-      } catch (err) {}
+      const printed = await printViaEposXml(bookingData);
+      if (printed) {
+        playBeep(900, 0.08);
+        return;
+      }
     }
     window.print();
   });
