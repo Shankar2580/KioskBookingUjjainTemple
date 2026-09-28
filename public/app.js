@@ -781,91 +781,101 @@ async function generateDarshanPassCanvas(b, lang) {
 async function sendTestSlip(targetIp) {
   const ip = (targetIp && targetIp.trim()) || getPrinterIp();
   if (!ip) return false;
+  const xml = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><text align="center" width="2" height="2">SHRI MAHAKALESHWAR&#10;</text><text width="1" height="1">UJJAIN (MADHYA PRADESH)&#10;------------------------------------------------&#10;</text><text width="2" height="2">TEST PRINT OK&#10;</text><text width="1" height="1">Printer IP: ${ip}&#10;Status: ONLINE &amp; READY&#10;------------------------------------------------&#10;&#10;&#10;</text><cut type="feed"/></epos-print></s:Body></s:Envelope>`;
 
-  const testBooking = {
-    tokenNumber: 'TEST-01',
-    bookingId: 'MP-TEST-001',
-    devoteeName: 'परीक्षण श्रद्धालु (Test Devotee)',
-    devoteeCount: 1,
-    mobileNumber: '9876543210',
-    slotTime: '08:00 AM - 11:00 AM',
-    liveWaitMinutes: 25,
-    darshanDateFormatted: '29 Sep 2026',
-    bookedAt: 'Now',
-    kioskId: 'KIOSK-UJJAIN-01'
-  };
+  // Try local /api/print-thermal proxy first
+  try {
+    const res = await fetch('/api/print-thermal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tokenNumber: 'TEST-01',
+        bookingId: 'TEST-PRINT',
+        devoteeName: 'Test Devotee',
+        devoteeCount: 1,
+        slotTime: '08:00 AM - 11:00 AM',
+        language: currentLang
+      }),
+      signal: AbortSignal.timeout(2500)
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success) return true;
+    }
+  } catch (e) {}
 
-  return await printViaEposXml(testBooking);
+  const endpoints = [
+    `https://${ip}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`,
+    `http://${ip}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`
+  ];
+
+  for (const url of endpoints) {
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/xml; charset=utf-8', 'SOAPAction': '""' },
+        body: xml,
+        signal: AbortSignal.timeout(3000)
+      });
+      if (res.ok) return true;
+    } catch (e) {}
+  }
+  return false;
 }
 
-// Direct Web ePOS-Print to Epson TM-T88VII on local network
+// Fast & Crisp hardware text mode print format (Standard Epson receipt)
 async function printViaEposXml(b) {
   if (!b) return false;
   const ip = getPrinterIp();
 
-  let raster = null;
-  let xml = '';
+  const cleanDate = getCleanDisplayDate(b);
+  const devoteeMobile = b.mobileNumber && b.mobileNumber !== 'Walk-in Devotee' ? b.mobileNumber : '—';
+  const qrText = `${b.bookingId}|${b.tokenNumber}|${b.devoteeName}|${devoteeMobile}|${b.devoteeCount}|Nilkanth Gate`;
+  const cleanIssued = b.bookedAt ? b.bookedAt.replace(/[\u0900-\u097F]/g, '').trim() : 'Now';
 
-  // 1. Generate crisp monochrome graphic raster with 100% Hindi Devanagari text & Emblem
+  const xml = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><text align="center" width="2" height="2">SHRI MAHAKALESHWAR&#10;</text><text width="1" height="1">JYOTIRLINGA TEMPLE, UJJAIN (M.P.)&#10;SAMANYA DARSHAN PASS (FREE)&#10;================================================&#10;</text><text align="center" width="2" height="2">TOKEN: ${b.tokenNumber}&#10;</text><text width="1" height="1">PASS ID: ${b.bookingId}&#10;STATUS: CONFIRMED (FREE)&#10;------------------------------------------------&#10;</text><text align="left">Devotee Name : ${b.devoteeName}&#10;Mobile Number: ${devoteeMobile}&#10;Total Persons: ${b.devoteeCount} Person(s)&#10;Darshan Date : ${cleanDate}&#10;Darshan Slot : ${b.slotTime}&#10;Est. Wait    : ${b.liveWaitMinutes || 35} Min&#10;Entry Gate   : Nilkanth Gate (Neelkanth Dwar)&#10;Issued At    : ${cleanIssued}&#10;------------------------------------------------&#10;</text><text align="center">&#10;</text><symbol type="qrcode_model_2" level="level_m" width="6">${qrText}</symbol><text align="center">&#10;Scan at Nilkanth Gate Barrier&#10;Shri Mahakaleshwar Temple Committee, Ujjain&#10;Terminal: ${b.kioskId || 'KIOSK-UJJAIN-01'}&#10;&#10;&#10;</text><cut type="feed"/></epos-print></s:Body></s:Envelope>`;
+
+  // 1. Try local server endpoint if running
   try {
-    const canvas = await generateDarshanPassCanvas(b, currentLang);
-    if (canvas) {
-      raster = convertCanvasToEposRaster(canvas);
-      if (raster && raster.base64) {
-        xml = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><image width="${raster.width}" height="${raster.height}">${raster.base64}</image><cut type="feed"/></epos-print></s:Body></s:Envelope>`;
-      }
+    const localRes = await fetch('/api/print-thermal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(b),
+      signal: AbortSignal.timeout(2500)
+    });
+    if (localRes.ok) {
+      const data = await localRes.json();
+      if (data.success) return true;
     }
-  } catch (e) {
-    console.warn('Canvas raster generation error:', e);
+  } catch (e) {}
+
+  // 2. Direct Web ePOS-Print to printer IP on local Wi-Fi / tablet
+  if (!ip) {
+    console.log('ℹ️ No printer IP configured yet in settings. Open ⚙️ to set IP.');
+    return false;
   }
 
-  // 2. First attempt printing graphic raster to local Node bridge if available
-  if (raster && raster.base64) {
+  const endpoints = [
+    `http://${ip}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`,
+    `https://${ip}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`,
+    'http://EPSON20CAAF.local/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000'
+  ];
+
+  for (const url of endpoints) {
     try {
-      const localBridgeRes = await fetch('/api/print-raster', {
+      const res = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          rasterBase64: raster.base64,
-          widthBytes: raster.widthBytes,
-          heightDots: raster.heightDots
-        }),
-        signal: AbortSignal.timeout(3000)
+        headers: {
+          'Content-Type': 'text/xml; charset=utf-8',
+          'SOAPAction': '""'
+        },
+        body: xml,
+        signal: AbortSignal.timeout(4000)
       });
-      if (localBridgeRes.ok) {
-        const data = await localBridgeRes.json();
-        if (data.success) {
-          console.log('✓ Successfully printed Hindi graphic pass via local bridge');
-          return true;
-        }
+      if (res.ok) {
+        return true;
       }
-    } catch (e) {}
-  }
-
-  // 3. Send ePOS XML directly to printer IP on local Wi-Fi / tablet
-  if (xml && ip) {
-    const endpoints = [
-      `http://${ip}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`,
-      `https://${ip}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`,
-      'http://EPSON20CAAF.local/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000'
-    ];
-
-    for (const url of endpoints) {
-      try {
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'text/xml; charset=utf-8',
-            'SOAPAction': '""'
-          },
-          body: xml,
-          signal: AbortSignal.timeout(4000)
-        });
-        if (res.ok) {
-          return true;
-        }
-      } catch (err) {}
-    }
+    } catch (err) {}
   }
 
   return false;

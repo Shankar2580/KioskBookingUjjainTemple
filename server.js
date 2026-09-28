@@ -280,54 +280,34 @@ function printToEpsonNetworkPrinter(b) {
       const ESC = '\x1b';
       const GS = '\x1d';
 
-      const isHi = (b.language === 'hi');
-      const cleanDate = b.darshanDateFormattedEn || (b.darshanDate && !/[\u0900-\u097F]/.test(b.darshanDate) ? b.darshanDate : 'Today');
+      const displayDate = b.darshanDateFormattedEn || (b.darshanDate && !/[\u0900-\u097F]/.test(b.darshanDate) ? b.darshanDate : 'Today');
       const devoteeMobile = b.mobileNumber && b.mobileNumber !== 'Walk-in Devotee' ? b.mobileNumber : '—';
       const cleanIssued = b.bookedAt ? b.bookedAt.replace(/[\u0900-\u097F]/g, '').trim() : 'Now';
-
-      const titleHeader =
-        'SHRI MAHAKALESHWAR TEMPLE\n' +
-        'UJJAIN (MADHYA PRADESH)\n' +
-        'SWAYAM SEVA SAMANYA DARSHAN PASS\n';
-
-      const tokenLabel  = `TOKEN NUMBER  : ${b.tokenNumber}\n`;
-      const passIdLabel = `PASS ID       : ${b.bookingId}\n`;
-      const statusLabel = 'STATUS        : CONFIRMED (FREE)\n';
-
-      const lblDevotee = 'Devotee Name  : ';
-      const lblMobile  = 'Mobile Number : ';
-      const lblCount   = 'Total Persons : ';
-      const lblDate    = 'Darshan Date  : ';
-      const lblSlot    = 'Darshan Slot  : ';
-      const lblWait    = 'Est. Wait     : ';
-      const lblGate    = 'Entry Gate    : ';
-      const lblIssued  = 'Issued At     : ';
-
-      const personsVal = `${b.devoteeCount} Person(s)`;
-      const dateVal    = cleanDate;
-      const waitVal    = `${b.liveWaitMinutes || 35} Min`;
 
       const header = Buffer.from(
         ESC + '@' + // Initialize printer
         ESC + 'a' + '\x01' + // Center
         GS + '!' + '\x11' + // Double size
-        titleHeader +
+        'SHRI MAHAKALESHWAR\n' +
+        GS + '!' + '\x00' + // Normal size
+        'JYOTIRLINGA TEMPLE, UJJAIN (M.P.)\n' +
+        'SAMANYA DARSHAN PASS (FREE)\n' +
         '================================================\n' +
         GS + '!' + '\x11' +
-        tokenLabel +
+        `TOKEN: ${b.tokenNumber}\n` +
         GS + '!' + '\x00' +
-        passIdLabel +
-        statusLabel +
+        `PASS ID: ${b.bookingId}\n` +
+        'STATUS: CONFIRMED (FREE)\n' +
         '------------------------------------------------\n' +
         ESC + 'a' + '\x00' + // Left align
-        `${lblDevotee}${b.devoteeName}\n` +
-        `${lblMobile}${devoteeMobile}\n` +
-        `${lblCount}${personsVal}\n` +
-        `${lblDate}${dateVal}\n` +
-        `${lblSlot}${b.slotTime}\n` +
-        `${lblWait}${waitVal}\n` +
-        `${lblGate}Nilkanth Gate (Neelkanth Dwar)\n` +
-        `${lblIssued}${cleanIssued}\n` +
+        `Devotee Name : ${b.devoteeName}\n` +
+        `Mobile Number: ${devoteeMobile}\n` +
+        `Total Persons: ${b.devoteeCount} Person(s)\n` +
+        `Darshan Date : ${displayDate}\n` +
+        `Darshan Slot : ${b.slotTime}\n` +
+        `Est. Wait    : ${b.liveWaitMinutes || 35} Min\n` +
+        `Entry Gate   : Nilkanth Gate (Neelkanth Dwar)\n` +
+        `Issued At    : ${cleanIssued}\n` +
         '------------------------------------------------\n' +
         ESC + 'a' + '\x01', // Center
         'binary'
