@@ -875,8 +875,8 @@ html, body {
 
 @media print {
   @page {
-    size: portrait;
-    margin: 10mm auto;
+    size: auto;
+    margin: 2mm;
   }
 
   *, *::before, *::after {
@@ -956,17 +956,17 @@ html, body {
     padding: 0 !important;
   }
 
-  /* Centered Official Darshan Pass Card with crisp borders */
+  /* Centered Official Darshan Pass Card optimized for 80mm thermal rolls */
   .darshan-pass-card {
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
-    margin: 0 auto !important;
-    width: 440px !important;
-    max-width: 94% !important;
-    border: 2px solid #d84b06 !important;
-    border-radius: 12px !important;
-    padding: 16px 20px !important;
+    margin: 2mm auto !important;
+    width: 72mm !important;
+    max-width: 100% !important;
+    border: 1.5px solid #d84b06 !important;
+    border-radius: 8px !important;
+    padding: 6px 8px !important;
     background: #ffffff !important;
     box-sizing: border-box !important;
     page-break-inside: avoid !important;
