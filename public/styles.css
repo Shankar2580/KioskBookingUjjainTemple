@@ -1552,24 +1552,98 @@ html, body {
     padding: 0 14px !important;
   }
 
-  /* Step 4: Summary Grid */
-  .summary-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 8px !important;
+  /* Step 4: Booking Summary Box (Mobile Responsive 1-Column Card) */
+  #screen-confirm .step-header {
+    margin-bottom: 12px !important;
+  }
+
+  .summary-box {
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: 1fr !important;
+    gap: 0 !important;
+    padding: 12px 14px !important;
+    border-radius: 14px !important;
+    border: 1.5px dashed #e5a93b !important;
+    background: #fffdfb !important;
+    box-shadow: 0 4px 12px rgba(216, 75, 6, 0.05) !important;
     margin-bottom: 14px !important;
-    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
-  .summary-item {
-    padding: 10px 8px !important;
+  .summary-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 9px 0 !important;
+    border-bottom: 1px solid #f3ece8 !important;
+    gap: 10px !important;
   }
 
-  .summary-item .sum-label {
-    font-size: 0.72rem !important;
+  .summary-row:last-child {
+    border-bottom: none !important;
+    padding-bottom: 2px !important;
   }
 
-  .summary-item .sum-val {
-    font-size: 0.95rem !important;
+  .summary-key {
+    font-size: 0.88rem !important;
+    color: #7a1a03 !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+  }
+
+  .summary-val {
+    font-size: 1rem !important;
+    font-weight: 800 !important;
+    color: var(--dark) !important;
+    text-align: right !important;
+    word-break: break-word !important;
+  }
+
+  .summary-val.highlight {
+    font-size: 1.08rem !important;
+    color: var(--primary) !important;
+  }
+
+  #sum-gate {
+    font-size: 0.92rem !important;
+    line-height: 1.3 !important;
+  }
+
+  #screen-confirm .nav-actions {
+    display: flex !important;
+    flex-direction: column-reverse !important;
+    gap: 10px !important;
+    width: 100% !important;
+    margin-top: 14px !important;
+  }
+
+  #screen-confirm .btn-confirm {
+    width: 100% !important;
+    min-height: 52px !important;
+    padding: 14px 16px !important;
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+  }
+
+  #screen-confirm .btn-back {
+    width: 100% !important;
+    min-height: 44px !important;
+    font-size: 1rem !important;
+    border-radius: 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
   }
 
   /* Navigation Buttons */

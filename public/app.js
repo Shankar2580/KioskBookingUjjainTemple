@@ -496,7 +496,7 @@ function showPrintingDispenserAnimation(b) {
 
 // Helper: Get configured printer IP for this device
 function getPrinterIp() {
-  return localStorage.getItem('kiosk_printer_ip') || '192.168.31.201';
+  return localStorage.getItem('kiosk_printer_ip') || '';
 }
 
 // Helper: Ensure date is clean English/Latin without non-ASCII garbled characters
@@ -592,7 +592,8 @@ async function renderCardToEposRaster(element) {
 
 // Test print slip helper
 async function sendTestSlip(targetIp) {
-  const ip = targetIp || getPrinterIp();
+  const ip = (targetIp && targetIp.trim()) || getPrinterIp();
+  if (!ip) return false;
   const printMode = localStorage.getItem('kiosk_print_mode') || 'graphic';
   const xml = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><text align="center" width="2" height="2">SHRI MAHAKALESHWAR&#10;</text><text width="1" height="1">UJJAIN (MADHYA PRADESH)&#10;------------------------------------------------&#10;</text><text width="2" height="2">TEST PRINT OK&#10;</text><text width="1" height="1">Printer IP: ${ip}&#10;Print Mode: ${printMode.toUpperCase()}&#10;Status: ONLINE &amp; READY&#10;------------------------------------------------&#10;&#10;&#10;</text><cut type="feed"/></epos-print></s:Body></s:Envelope>`;
 
@@ -619,6 +620,10 @@ async function sendTestSlip(targetIp) {
 async function printViaEposXml(b) {
   if (!b) return false;
   const ip = getPrinterIp();
+  if (!ip) {
+    console.log('ℹ️ No printer IP configured yet in settings. Open ⚙️ to set IP.');
+    return false;
+  }
   const printMode = localStorage.getItem('kiosk_print_mode') || 'graphic';
 
   let xml = '';
@@ -940,7 +945,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('btn-open-settings')?.addEventListener('click', () => {
     if (modal && ipInput) {
-      ipInput.value = getPrinterIp();
+      // If user opens first time, will be empty ('')
+      ipInput.value = localStorage.getItem('kiosk_printer_ip') || '';
       if (modeSelect) {
         modeSelect.value = localStorage.getItem('kiosk_print_mode') || 'graphic';
       }
@@ -954,15 +960,24 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('btn-save-printer')?.addEventListener('click', () => {
-    if (ipInput && ipInput.value.trim()) {
-      const cleanIp = ipInput.value.trim();
-      localStorage.setItem('kiosk_printer_ip', cleanIp);
+    const rawIp = ipInput ? ipInput.value.trim() : '';
+    if (rawIp) {
+      localStorage.setItem('kiosk_printer_ip', rawIp);
       if (modeSelect) {
         localStorage.setItem('kiosk_print_mode', modeSelect.value);
       }
       if (statusEl) {
         statusEl.style.color = '#2e7d32';
-        statusEl.textContent = `✓ Saved (IP: ${cleanIp}, Mode: ${modeSelect ? modeSelect.value : 'graphic'})`;
+        statusEl.textContent = `✓ IP सेव हो गया (Saved: ${rawIp})`;
+      }
+      setTimeout(() => {
+        if (modal) modal.style.display = 'none';
+      }, 1000);
+    } else {
+      localStorage.removeItem('kiosk_printer_ip');
+      if (statusEl) {
+        statusEl.style.color = '#7a1a03';
+        statusEl.textContent = 'ℹ️ कोई IP सेट नहीं है (IP cleared / empty)';
       }
       setTimeout(() => {
         if (modal) modal.style.display = 'none';
@@ -971,10 +986,17 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('btn-test-printer')?.addEventListener('click', async () => {
-    const testIp = ipInput ? ipInput.value.trim() : getPrinterIp();
+    const testIp = (ipInput ? ipInput.value.trim() : '') || getPrinterIp();
+    if (!testIp) {
+      if (statusEl) {
+        statusEl.style.color = '#b91c1c';
+        statusEl.textContent = '⚠️ कृपया प्रिंटर IP दर्ज करें (Please enter IP first)';
+      }
+      return;
+    }
     if (statusEl) {
       statusEl.style.color = '#d84b06';
-      statusEl.textContent = '⏳ Sending test print...';
+      statusEl.textContent = `⏳ Sending test print to ${testIp}...`;
     }
     const ok = await sendTestSlip(testIp);
     if (statusEl) {
