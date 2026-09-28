@@ -47,11 +47,11 @@ app.post('/api/admin/waiting-time', (req, res) => {
 // API: Get Available Slots & Dates (Always dynamically calculated from today + 5 days)
 app.get('/api/slots', (req, res) => {
   const dates = [];
-  const now = new Date();
   
   const monthNamesHi = ['जनवरी', 'फ़रवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर'];
   const monthNamesEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const dayNamesHi = ['रवि', 'सोम', 'मंगल', 'बुध', 'गुरु', 'शुक्र', 'शनि'];
+  const dayNamesEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   const baseSlotsConfig = [
     { id: 'S1', time: '06:00 AM - 08:00 AM', baseSeats: 180, wait: '20 mins', waitHi: '२० मिनट' },
@@ -62,10 +62,21 @@ app.get('/api/slots', (req, res) => {
     { id: 'S6', time: '08:00 PM - 10:00 PM', baseSeats: 200, wait: '25 mins', waitHi: '२५ मिनट' }
   ];
 
+  // Helper: Calculate exact date in Indian Standard Time (Asia/Kolkata, UTC+5:30)
+  function getKolkataDate(offsetDays = 0) {
+    const now = new Date();
+    const kolkataStr = now.toLocaleDateString('en-US', { timeZone: 'Asia/Kolkata' });
+    const [m, day, y] = kolkataStr.split('/').map(Number);
+    return new Date(y, m - 1, day + offsetDays);
+  }
+
   for (let i = 0; i <= 5; i++) {
-    const d = new Date(now.getTime() + i * 86400000);
-    const isoDate = d.toISOString().split('T')[0];
-    const dayNameEn = d.toLocaleDateString('en-US', { weekday: 'short' });
+    const d = getKolkataDate(i);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const isoDate = `${yyyy}-${mm}-${dd}`;
+    const dayNameEn = dayNamesEn[d.getDay()];
     const dayNameHi = dayNamesHi[d.getDay()];
     const monthNameEn = monthNamesEn[d.getMonth()];
     const monthNameHi = monthNamesHi[d.getMonth()];
@@ -97,8 +108,8 @@ app.get('/api/slots', (req, res) => {
       monthNameHi,
       labelHi: i === 0 ? 'आज (Today)' : i === 1 ? 'कल (Tomorrow)' : `${dayNameHi}, ${dateNum} ${monthNameHi}`,
       labelEn: i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : `${dayNameEn}, ${dateNum} ${monthNameEn}`,
-      displayFullHi: `${dateNum} ${monthNameHi} ${d.getFullYear()}`,
-      displayFullEn: `${dateNum} ${monthNameEn} ${d.getFullYear()}`,
+      displayFullHi: `${dateNum} ${monthNameHi} ${yyyy}`,
+      displayFullEn: `${dateNum} ${monthNameEn} ${yyyy}`,
       slots: dateSlots
     });
   }
@@ -247,7 +258,7 @@ function printToEpsonNetworkPrinter(b) {
         `Total Persons: ${b.devoteeCount} Person(s)\n` +
         `Darshan Date : ${displayDate}\n` +
         `Darshan Slot : ${b.slotTime}\n` +
-        `Est. Wait    : ~${b.liveWaitMinutes || 35} Min\n` +
+        `Est. Wait    : ${b.liveWaitMinutes || 35} Min\n` +
         `Entry Gate   : Nilkanth Gate (Neelkanth Dwar)\n` +
         `Issued At    : ${cleanIssued}\n` +
         '------------------------------------------------\n' +
