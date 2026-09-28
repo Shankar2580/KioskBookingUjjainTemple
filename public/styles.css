@@ -322,44 +322,46 @@ body {
 .number-grid {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  gap: 10px;
-  max-width: 900px;
-  margin: 20px auto;
+  gap: 14px;
+  max-width: 1040px;
+  margin: 30px auto;
   width: 100%;
 }
 
 .number-card {
-  height: 90px;
+  height: 140px;
   background: #fff;
-  border: 2px solid var(--gray-medium);
-  border-radius: var(--radius-md);
+  border: 2.5px solid var(--gray-medium);
+  border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
 .number-card .num {
-  font-size: 1.85rem;
-  font-weight: 800;
+  font-size: 2.8rem;
+  font-weight: 900;
   color: var(--dark);
   line-height: 1.1;
+  margin-bottom: 4px;
 }
 
 .number-card .lbl {
-  font-size: 0.72rem;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 700;
   color: #6b7280;
 }
 
 .number-card.selected {
   border-color: var(--primary);
+  border-width: 3px;
   background: linear-gradient(135deg, #fff2eb, #ffe4d6);
-  box-shadow: 0 6px 20px rgba(216, 75, 6, 0.3);
-  transform: scale(1.04);
+  box-shadow: 0 10px 28px rgba(216, 75, 6, 0.35);
+  transform: scale(1.05);
 }
 
 .number-card.selected .num {
@@ -369,13 +371,13 @@ body {
 /* Input Fields */
 .touch-input {
   width: 100%;
-  height: 58px;
-  padding: 0 18px;
-  font-size: 1.25rem;
+  height: 68px;
+  padding: 0 22px;
+  font-size: 1.45rem;
   font-weight: 700;
   color: var(--dark);
   background: #faf7f5;
-  border: 2px solid #dccbc4;
+  border: 2.5px solid #dccbc4;
   border-radius: var(--radius-md);
   outline: none;
   transition: all 0.2s ease;
@@ -384,7 +386,7 @@ body {
 .touch-input:focus {
   border-color: var(--primary);
   background: #fff;
-  box-shadow: 0 0 0 4px rgba(216, 75, 6, 0.15);
+  box-shadow: 0 0 0 5px rgba(216, 75, 6, 0.18);
 }
 
 /* Date Selection Grid */
@@ -575,18 +577,18 @@ body {
   background: #fffbf8;
   border: 2px dashed #e5a93b;
   border-radius: var(--radius-md);
-  padding: 14px 18px;
-  margin-bottom: 8px;
+  padding: 18px 24px;
+  margin-bottom: 10px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 8px 20px;
+  gap: 12px 28px;
 }
 
 .summary-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 6px 0;
+  padding: 8px 0;
   border-bottom: 1px solid #f3ece8;
 }
 
@@ -595,13 +597,13 @@ body {
 }
 
 .summary-key {
-  font-size: 0.85rem;
+  font-size: 1.05rem;
   color: #7a1a03;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .summary-val {
-  font-size: 1.02rem;
+  font-size: 1.25rem;
   font-weight: 800;
   color: var(--dark);
   text-align: right;
@@ -609,7 +611,8 @@ body {
 
 .summary-val.highlight {
   color: var(--primary);
-  font-size: 1.15rem;
+  font-size: 1.35rem;
+  font-weight: 900;
 }
 
 /* ============================================================
