@@ -3,6 +3,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import QRCode from 'qrcode';
+import net from 'net';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -180,8 +181,105 @@ app.post('/api/book', async (req, res) => {
   };
 
   bookings.unshift(booking);
-  res.json({ success: true, booking });
+
+  // Directly send to Epson TM-T88VII on local network if reachable
+  const printResult = await printToEpsonNetworkPrinter(booking);
+  booking.printedToHardware = printResult.printed;
+
+  res.json({ success: true, booking, printedToHardware: printResult.printed });
 });
+
+// API: Manual Thermal Print Trigger
+app.post('/api/print-thermal', async (req, res) => {
+  const b = req.body || {};
+  const printResult = await printToEpsonNetworkPrinter(b);
+  res.json({ success: printResult.printed, error: printResult.error });
+});
+
+const PRINTER_HOST = process.env.PRINTER_HOST || '192.168.31.201';
+const PRINTER_PORT = parseInt(process.env.PRINTER_PORT, 10) || 9100;
+
+function printToEpsonNetworkPrinter(b) {
+  return new Promise((resolve) => {
+    const client = new net.Socket();
+    client.setTimeout(2500);
+
+    client.connect(PRINTER_PORT, PRINTER_HOST, () => {
+      const ESC = '\x1b';
+      const GS = '\x1d';
+
+      const displayDate = b.darshanDateFormatted || b.darshanDate || 'Today';
+      const devoteeMobile = b.mobileNumber && b.mobileNumber !== 'Walk-in Devotee' ? b.mobileNumber : '—';
+
+      const header = Buffer.from(
+        ESC + '@' + // Initialize printer
+        ESC + 'a' + '\x01' + // Center
+        GS + '!' + '\x11' + // Double size
+        'SHRI MAHAKALESHWAR TEMPLE\n' +
+        GS + '!' + '\x00' + // Normal size
+        'UJJAIN (MADHYA PRADESH)\n' +
+        'GENERAL DARSHAN PASS\n' +
+        '------------------------------------------------\n' +
+        GS + '!' + '\x11' +
+        `TOKEN: ${b.tokenNumber}\n` +
+        GS + '!' + '\x00' +
+        'STATUS: CONFIRMED (FREE)\n' +
+        '------------------------------------------------\n' +
+        ESC + 'a' + '\x00' + // Left align
+        `Devotee Name : ${b.devoteeName}\n` +
+        `Mobile Number: ${devoteeMobile}\n` +
+        `Total Persons: ${b.devoteeCount} Person(s)\n` +
+        `Darshan Date : ${displayDate}\n` +
+        `Darshan Slot : ${b.slotTime}\n` +
+        `Est. Wait    : ~${b.liveWaitMinutes || 35} Min\n` +
+        `Entry Gate   : Nilkanth Gate\n` +
+        `Issued At    : ${b.bookedAt}\n` +
+        '------------------------------------------------\n' +
+        ESC + 'a' + '\x01', // Center
+        'binary'
+      );
+
+      const qrPayloadText = `${b.bookingId}|${b.tokenNumber}|${b.devoteeName}|${devoteeMobile}|${b.devoteeCount}|Nilkanth Gate`;
+      const qrBytes = Buffer.from(qrPayloadText, 'utf8');
+      const len = qrBytes.length + 3;
+      const pL = len % 256;
+      const pH = Math.floor(len / 256);
+
+      const qrBuf = Buffer.concat([
+        Buffer.from([0x1d, 0x28, 0x6b, 0x04, 0x00, 0x31, 0x41, 0x32, 0x00]),
+        Buffer.from([0x1d, 0x28, 0x6b, 0x03, 0x00, 0x31, 0x43, 0x06]),
+        Buffer.from([0x1d, 0x28, 0x6b, 0x03, 0x00, 0x31, 0x45, 0x31]),
+        Buffer.from([0x1d, 0x28, 0x6b, pL, pH, 0x31, 0x50, 0x30]),
+        qrBytes,
+        Buffer.from([0x1d, 0x28, 0x6b, 0x03, 0x00, 0x31, 0x51, 0x30])
+      ]);
+
+      const footer = Buffer.from(
+        '\nScan at Nilkanth Gate Barrier\n' +
+        'Shri Mahakaleshwar Temple Committee\n\n\n\n' +
+        ESC + 'd' + '\x04' +
+        GS + 'V' + '\x41' + '\x03',
+        'binary'
+      );
+
+      const fullBuffer = Buffer.concat([header, qrBuf, footer]);
+      client.write(fullBuffer, () => {
+        client.end();
+        resolve({ printed: true });
+      });
+    });
+
+    client.on('error', (err) => {
+      console.warn('Epson printer offline/unreachable:', err.message);
+      resolve({ printed: false, error: err.message });
+    });
+
+    client.on('timeout', () => {
+      client.destroy();
+      resolve({ printed: false, error: 'Printer timeout' });
+    });
+  });
+}
 
 // Fallback to index.html
 app.get('*', (req, res) => {

@@ -383,9 +383,12 @@ async function confirmAndPrint() {
       renderThermalTicket(bookingData);
       goToScreen('screen-ticket');
 
-      setTimeout(() => {
-        window.print();
-      }, 500);
+      // If already physically printed to Epson TM-T88VII, avoid popup; otherwise fallback to browser print
+      if (!data.printedToHardware) {
+        setTimeout(() => {
+          window.print();
+        }, 500);
+      }
 
       startAutoResetTimer(20);
     }
@@ -629,7 +632,21 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Print button
-  document.getElementById('btn-print-ticket-manual')?.addEventListener('click', () => {
+  document.getElementById('btn-print-ticket-manual')?.addEventListener('click', async () => {
+    if (bookingData) {
+      try {
+        const res = await fetch('/api/print-thermal', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bookingData)
+        });
+        const resData = await res.json();
+        if (resData.success) {
+          playBeep(900, 0.08);
+          return;
+        }
+      } catch (err) {}
+    }
     window.print();
   });
 
