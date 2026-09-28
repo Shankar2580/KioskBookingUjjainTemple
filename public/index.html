@@ -230,6 +230,65 @@
     </div>
   </div>
 
+  <!-- ============ 3-SECOND PRINT DISPENSER ANIMATION OVERLAY ============ -->
+  <div id="modal-printing-dispenser" class="printing-dispenser-overlay" style="display: none;">
+    <div class="dispenser-content-card">
+      <!-- Status Header -->
+      <div class="dispenser-status-header">
+        <div class="dispenser-led-pill">
+          <span class="blinking-led"></span>
+          <span id="dispenser-status-text">🖨️ दर्शन पास प्रिंट हो रहा है...</span>
+        </div>
+        <p id="dispenser-subtext" class="dispenser-subtext">कृपया नीचे प्रिंटर ट्रे से टिकट प्राप्त करें • Please collect ticket from dispenser below</p>
+      </div>
+
+      <!-- Kiosk Dispenser Graphic Slot with Sliding Paper -->
+      <div class="dispenser-machine-frame">
+        <div class="dispenser-slot-mouth">
+          <div class="dispenser-laser-light"></div>
+        </div>
+        
+        <div class="dispenser-paper-stream">
+          <div id="dispenser-ticket-card" class="dispenser-ticket-slip">
+            <div class="slip-header">
+              <span class="slip-om">॥ श्री महाकालेश्वर ज्योतिर्लिंग मंदिर ॥</span>
+              <div class="slip-title">SHRI MAHAKALESHWAR TEMPLE</div>
+            </div>
+            <div class="slip-token-row">
+              <span class="slip-token-label">TOKEN NO.</span>
+              <span id="slip-token-val" class="slip-token-val">GD-101</span>
+            </div>
+            <div class="slip-details">
+              <div class="slip-row"><span class="slip-k">Devotee:</span> <span id="slip-name-val" class="slip-v">Rahul</span></div>
+              <div class="slip-row"><span class="slip-k">Persons:</span> <span id="slip-count-val" class="slip-v">1 Person(s)</span></div>
+              <div class="slip-row"><span class="slip-k">Slot:</span> <span id="slip-slot-val" class="slip-v">08:00 AM - 11:00 AM</span></div>
+              <div class="slip-row"><span class="slip-k">Gate:</span> <span class="slip-v slip-gate">नीलकंठ द्वार (Nilkanth Gate)</span></div>
+            </div>
+            <div class="slip-qr-box">
+              <img id="slip-qr-img" src="" alt="QR" class="slip-qr-img" />
+              <div class="slip-qr-note">Scan at Nilkanth Barrier</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dispenser-tray-indicator">
+          <span>⬇ नीचे प्रिंटर ट्रे • Collector Tray Below ⬇</span>
+        </div>
+      </div>
+
+      <!-- 3-Second Progress Bar & Auto-Reset Timer -->
+      <div class="dispenser-timer-section">
+        <div class="dispenser-progress-track">
+          <div id="dispenser-progress-fill" class="dispenser-progress-fill"></div>
+        </div>
+        <div class="dispenser-timer-label">
+          <span id="dispenser-reset-msg">कियोस्क होम स्क्रीन पर वापस जा रहा है:</span>
+          <strong id="dispenser-countdown-val">3s</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ============ PRINTER SETTINGS MODAL ============ -->
   <div id="modal-printer-settings" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center;">
     <div style="background: #fff; border-radius: 16px; padding: 22px 24px; max-width: 440px; width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 2px solid #fed7aa;">

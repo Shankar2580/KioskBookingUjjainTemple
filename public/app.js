@@ -106,6 +106,7 @@ let selectedDate = '';
 let selectedDateFormatted = '';
 let selectedDateFormattedEn = '';
 let availableDates = [];
+let currentSlots = [];
 let selectedSlotId = 'S2';
 let selectedSlotTime = '08:00 AM - 11:00 AM';
 let liveWaitMinutes = 35;
@@ -150,9 +151,21 @@ function setLanguage(lang) {
 
   if (availableDates.length) {
     initDateSelector(availableDates);
+    const activeDateObj = availableDates.find(d => d.isoDate === selectedDate) || availableDates[0];
+    if (activeDateObj && activeDateObj.slots) {
+      renderSlots(activeDateObj.slots);
+    } else if (currentSlots.length) {
+      renderSlots(currentSlots);
+    }
+  } else if (currentSlots.length) {
+    renderSlots(currentSlots);
   }
 
+  initDevoteeSelector();
   updateLiveWaitBanner();
+  if (currentScreen === 'screen-confirm') {
+    renderConfirmation();
+  }
 }
 
 // Screen Navigation
@@ -221,6 +234,7 @@ function initDevoteeSelector() {
 function renderSlots(slots) {
   const container = document.getElementById('slots-container');
   if (!container || !slots) return;
+  currentSlots = slots;
 
   const seatsLabel = currentLang === 'hi' ? 'सीटें' : 'Seats';
   const waitLabel = currentLang === 'hi' ? 'प्रतीक्षा' : 'Wait';
@@ -385,21 +399,15 @@ async function confirmAndPrint() {
     if (data.success && data.booking) {
       bookingData = data.booking;
       renderThermalTicket(bookingData);
-      goToScreen('screen-ticket');
 
-      // Try printing directly to Epson TM-T88VII (or local bridge) if server could not print directly
+      // Trigger hardware / ePOS printing immediately in background
       let printed = data.printedToHardware;
       if (!printed) {
-        printed = await printViaEposXml(bookingData);
+        printViaEposXml(bookingData).catch(e => console.warn('Background ePOS print error:', e));
       }
 
-      if (!printed) {
-        setTimeout(() => {
-          window.print();
-        }, 500);
-      }
-
-      startAutoResetTimer(20);
+      // Show 3-Second Dispenser Animation and smoothly return to Home
+      showPrintingDispenserAnimation(bookingData);
     }
   } catch (e) {
     alert('Booking error. Please try again.');
@@ -409,6 +417,81 @@ async function confirmAndPrint() {
       btn.textContent = DICT[currentLang].btnConfirm;
     }
   }
+}
+
+// 3-Second Smooth Dispenser Animation Overlay
+function showPrintingDispenserAnimation(b) {
+  const modal = document.getElementById('modal-printing-dispenser');
+  if (!modal) {
+    resetKiosk();
+    return;
+  }
+
+  // Populate mini slip details
+  const tokenEl = document.getElementById('slip-token-val');
+  const nameEl = document.getElementById('slip-name-val');
+  const countEl = document.getElementById('slip-count-val');
+  const slotEl = document.getElementById('slip-slot-val');
+  const qrImg = document.getElementById('slip-qr-img');
+  const statusText = document.getElementById('dispenser-status-text');
+  const subText = document.getElementById('dispenser-subtext');
+  const resetMsg = document.getElementById('dispenser-reset-msg');
+  const countdownEl = document.getElementById('dispenser-countdown-val');
+  const progressFill = document.getElementById('dispenser-progress-fill');
+
+  if (tokenEl) tokenEl.textContent = b.tokenNumber || 'GD-101';
+  if (nameEl) nameEl.textContent = b.devoteeName || 'Devotee';
+  if (countEl) countEl.textContent = `${b.devoteeCount || 1} Person(s)`;
+  if (slotEl) slotEl.textContent = b.slotTime || '08:00 AM - 11:00 AM';
+  if (qrImg) qrImg.src = b.qrDataUrl || `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(b.bookingId + '|' + b.tokenNumber)}`;
+
+  if (statusText) {
+    statusText.textContent = currentLang === 'hi' ? '🖨️ दर्शन पास प्रिंट हो रहा है...' : '🖨️ Printing Darshan Pass...';
+  }
+  if (subText) {
+    subText.textContent = currentLang === 'hi' ? 'कृपया नीचे प्रिंटर ट्रे से टिकट प्राप्त करें' : 'Please collect ticket from dispenser below';
+  }
+  if (resetMsg) {
+    resetMsg.textContent = currentLang === 'hi' ? 'कियोस्क होम स्क्रीन पर वापस जा रहा है:' : 'Kiosk returning to Home Screen in:';
+  }
+
+  // Reset animations
+  if (progressFill) {
+    progressFill.style.animation = 'none';
+    progressFill.offsetHeight; // trigger reflow
+    progressFill.style.animation = 'fillDispenserBar 3s linear forwards';
+  }
+
+  const ticketSlip = document.getElementById('dispenser-ticket-card');
+  if (ticketSlip) {
+    ticketSlip.style.animation = 'none';
+    ticketSlip.offsetHeight; // trigger reflow
+    ticketSlip.style.animation = 'feedPaperDownwards 2.8s cubic-bezier(0.2, 0.7, 0.25, 1) forwards';
+  }
+
+  modal.style.display = 'flex';
+
+  // 3-Second countdown (3s -> 2s -> 1s)
+  let seconds = 3;
+  if (countdownEl) countdownEl.textContent = `${seconds}s`;
+
+  const timer = setInterval(() => {
+    seconds--;
+    if (countdownEl && seconds >= 0) {
+      countdownEl.textContent = `${seconds}s`;
+    }
+    if (seconds <= 0) {
+      clearInterval(timer);
+    }
+  }, 1000);
+
+  // Exactly 3.0 seconds: chime, hide modal, return to Home Screen
+  setTimeout(() => {
+    clearInterval(timer);
+    playBeep(1200, 0.12);
+    modal.style.display = 'none';
+    resetKiosk();
+  }, 3000);
 }
 
 // Helper: Get configured printer IP for this device
