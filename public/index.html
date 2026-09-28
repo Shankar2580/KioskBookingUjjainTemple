@@ -133,9 +133,9 @@
 
             <div>
               <label style="display: block; font-size: 1.15rem; font-weight: 800; color: #1e1510; margin-bottom: 8px;" data-t="labelMobile">
-                मोबाइल नंबर (Mobile No.)
+                मोबाइल नंबर (Mobile No.) *
               </label>
-              <input type="tel" id="input-devotee-mobile" class="touch-input" inputmode="numeric" pattern="[0-9]*" placeholder="१० अंकों का मोबाइल नंबर" maxlength="10" value="" data-t="placeholderMobile" autocomplete="off" />
+              <input type="tel" id="input-devotee-mobile" class="touch-input" inputmode="numeric" pattern="[0-9]*" placeholder="१० अंकों का मोबाइल नंबर *" maxlength="10" value="" data-t="placeholderMobile" autocomplete="off" required />
             </div>
           </div>
 
@@ -187,7 +187,6 @@
           <div class="nav-actions">
             <button type="button" id="btn-back-to-name" class="btn-back" data-t="btnBack">पीछे</button>
             <button type="button" id="btn-confirm-booking" class="btn-next btn-confirm">
-              <span>🖨️</span>
               <span data-t="btnConfirm">पुष्टि करें एवं टिकट प्रिंट करें</span>
             </button>
           </div>
@@ -196,7 +195,7 @@
         <!-- ================= SCREEN 6: TICKET PRINT ================= -->
         <div id="screen-ticket" class="screen-card">
           <div class="step-header" style="margin-bottom: 6px;">
-            <h2 class="step-title" style="color: #2e7d32; font-size: 1.35rem;" data-t="ticketGenerated">🎉 दर्शन पास सफलतापूर्वक जारी हुआ!</h2>
+            <h2 class="step-title" style="color: #2e7d32; font-size: 1.35rem;" data-t="ticketGenerated">दर्शन पास सफलतापूर्वक जारी हुआ!</h2>
             <p class="step-sub" style="font-size: 0.8rem;" data-t="ticketSub">कृपया नीचे से अपना प्रिंटेड पास प्राप्त करें</p>
           </div>
 
@@ -211,8 +210,8 @@
           </div>
 
           <div class="nav-actions" style="max-width: 560px; margin: 8px auto 0; width: 100%; display: flex; gap: 10px;">
-            <button type="button" id="btn-print-ticket-manual" class="btn-back" style="flex: 1; max-width: none;" data-t="btnPrintNow">🖨️ प्रिंट करें</button>
-            <button type="button" id="btn-download-pdf" class="btn-back" style="flex: 1; max-width: none; background: #fff8f0; border-color: #d84b06; color: #d84b06; font-weight: 800;">📥 PDF डाउनलोड</button>
+            <button type="button" id="btn-print-ticket-manual" class="btn-back" style="flex: 1; max-width: none;" data-t="btnPrintNow">प्रिंट करें</button>
+            <button type="button" id="btn-download-pdf" class="btn-back" style="flex: 1; max-width: none; background: #fff8f0; border-color: #d84b06; color: #d84b06; font-weight: 800;">PDF डाउनलोड</button>
             <button type="button" id="btn-start-new-booking" class="btn-next" style="flex: 1.2;" data-t="btnBookAnother">नई बुकिंग करें</button>
           </div>
         </div>

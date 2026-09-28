@@ -28,8 +28,8 @@ const DICT = {
     step3Sub: 'कृपया अपना नाम एवं मोबाइल नंबर लिखें',
     labelName: 'मुख्य श्रद्धालु का पूरा नाम *',
     placeholderName: 'श्रद्धालु का नाम दर्ज करें',
-    labelMobile: 'मोबाइल नंबर (Mobile No.)',
-    placeholderMobile: '१० अंकों का मोबाइल नंबर',
+    labelMobile: 'मोबाइल नंबर (Mobile No.) *',
+    placeholderMobile: '१० अंकों का मोबाइल नंबर *',
     step4Eye: 'चरण ४ / ४',
     step4Title: 'बुकिंग की पुष्टि करें',
     step4Sub: 'कृपया विवरण जांचें और टिकट प्रिंट करें',
@@ -43,7 +43,7 @@ const DICT = {
     btnBack: 'पीछे',
     btnNext: 'आगे बढ़ें',
     btnConfirm: 'पुष्टि करें एवं टिकट प्रिंट करें',
-    btnPrintNow: '🖨️ फिर से प्रिंट करें',
+    btnPrintNow: 'पुनः प्रिंट करें',
     btnBookAnother: 'नई बुकिंग करें',
     ticketGenerated: 'दर्शन पास सफलतापूर्वक जारी हुआ!',
     ticketSub: 'कृपया नीचे से अपना प्रिंटेड पास प्राप्त करें',
@@ -73,8 +73,8 @@ const DICT = {
     step3Sub: 'Please enter your full name and mobile number',
     labelName: 'Primary Devotee Full Name *',
     placeholderName: 'Enter devotee name',
-    labelMobile: 'Mobile Number (10 digits)',
-    placeholderMobile: 'Enter 10-digit mobile number',
+    labelMobile: 'Mobile Number (10 digits) *',
+    placeholderMobile: 'Enter 10-digit mobile number *',
     step4Eye: 'STEP 4 / 4',
     step4Title: 'Confirm Your Booking',
     step4Sub: 'Please verify details and print your ticket',
@@ -88,7 +88,7 @@ const DICT = {
     btnBack: 'Back',
     btnNext: 'Proceed',
     btnConfirm: 'Confirm & Print Ticket',
-    btnPrintNow: '🖨️ Print Again',
+    btnPrintNow: 'Print Again',
     btnBookAnother: 'New Booking',
     ticketGenerated: 'Darshan Pass Issued Successfully!',
     ticketSub: 'Please collect your printed pass from the tray below',
@@ -430,7 +430,7 @@ function renderThermalTicket(b) {
           <small style="color: #6b7280; font-size: 0.72rem;">Pass ID: ${b.bookingId}</small>
         </div>
         <div style="text-align: right;">
-          <div class="token-status-pill">✓ पुष्टिकृत / CONFIRMED</div>
+          <div class="token-status-pill">पुष्टिकृत / CONFIRMED</div>
           <div style="font-size: 0.75rem; color: #7a1a03; font-weight: 700; margin-top: 6px;">निःशुल्क पास (FREE)</div>
         </div>
       </div>
@@ -438,35 +438,35 @@ function renderThermalTicket(b) {
       <!-- Devotee & Booking Details Table -->
       <table class="pass-details-table">
         <tr>
-          <td class="pass-td-key">👤 श्रद्धालु का पूरा नाम (Full Name):</td>
+          <td class="pass-td-key">श्रद्धालु का नाम (Full Name):</td>
           <td class="pass-td-val val-highlight">${b.devoteeName}</td>
         </tr>
         <tr>
-          <td class="pass-td-key">📱 मोबाइल नंबर (Mobile No.):</td>
+          <td class="pass-td-key">मोबाइल नंबर (Mobile No.):</td>
           <td class="pass-td-val"><strong>${b.mobileNumber && b.mobileNumber !== 'Walk-in Devotee' ? b.mobileNumber : '—'}</strong></td>
         </tr>
         <tr>
-          <td class="pass-td-key">👥 कुल संख्या (Total Persons):</td>
+          <td class="pass-td-key">कुल संख्या (Total Persons):</td>
           <td class="pass-td-val"><strong>${b.devoteeCount} Person(s)</strong></td>
         </tr>
         <tr>
-          <td class="pass-td-key">📅 दर्शन दिनांक (Darshan Date):</td>
+          <td class="pass-td-key">दर्शन दिनांक (Darshan Date):</td>
           <td class="pass-td-val"><strong>${displayPassDate}</strong></td>
         </tr>
         <tr>
-          <td class="pass-td-key">⏰ दर्शन स्लॉट (Darshan Slot):</td>
+          <td class="pass-td-key">दर्शन स्लॉट (Darshan Slot):</td>
           <td class="pass-td-val">${b.slotTime}</td>
         </tr>
         <tr>
-          <td class="pass-td-key">⏳ अनुमानित समय (Est. Time):</td>
-          <td class="pass-td-val"><strong>${b.estimatedDarshanTime}</strong> (~${b.liveWaitMinutes} Mins)</td>
+          <td class="pass-td-key">अनुमानित प्रतीक्षा समय (Est. Wait):</td>
+          <td class="pass-td-val"><strong>~${b.liveWaitMinutes} मिनट (~${b.liveWaitMinutes} Mins)</strong></td>
         </tr>
         <tr>
-          <td class="pass-td-key">📍 प्रवेश द्वार (Entry Gate):</td>
+          <td class="pass-td-key">प्रवेश द्वार (Entry Gate):</td>
           <td class="pass-td-val" style="color: #2e7d32;"><strong>नीलकंठ द्वार (Nilkanth Gate)</strong></td>
         </tr>
         <tr>
-          <td class="pass-td-key">🕒 जारी समय (Issued Date/Time):</td>
+          <td class="pass-td-key">जारी समय (Issued Date/Time):</td>
           <td class="pass-td-val">${b.bookedAt}</td>
         </tr>
       </table>
@@ -475,9 +475,9 @@ function renderThermalTicket(b) {
       <div class="pass-qr-section">
         <img src="${qrSrc}" alt="Turnstile QR Code" class="pass-qr-img" />
         <div class="pass-qr-meta">
-          <p style="font-size: 0.8rem; font-weight: 800; color: #7a1a03;">★ प्रवेश हेतु QR कोड स्कैन करें</p>
+          <p style="font-size: 0.8rem; font-weight: 800; color: #7a1a03;">प्रवेश हेतु QR कोड स्कैन करें</p>
           <p style="margin-top: 2px; color: #4b5563;">Scan at turnstile barrier before entering queue.</p>
-          <span class="pass-qr-gate-badge">📍 NILKANTH GATE (नीलकंठ द्वार)</span>
+          <span class="pass-qr-gate-badge">NILKANTH GATE (नीलकंठ द्वार)</span>
         </div>
       </div>
 
@@ -605,9 +605,15 @@ document.addEventListener('DOMContentLoaded', () => {
       nameInput?.focus();
       return;
     }
-    devoteeName = nameInput.value.trim();
     const mobInput = document.getElementById('input-devotee-mobile');
-    devoteeMobile = mobInput ? mobInput.value.trim() : '';
+    const mobVal = mobInput ? mobInput.value.trim().replace(/\D/g, '') : '';
+    if (!mobVal || mobVal.length !== 10) {
+      alert(currentLang === 'hi' ? 'कृपया १० अंकों का वैध मोबाइल नंबर दर्ज करें।' : 'Please enter a valid 10-digit mobile number.');
+      mobInput?.focus();
+      return;
+    }
+    devoteeName = nameInput.value.trim();
+    devoteeMobile = mobVal;
     goToScreen('screen-confirm');
   });
   document.getElementById('btn-back-to-devotees')?.addEventListener('click', () => {
