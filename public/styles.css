@@ -118,12 +118,12 @@ body {
 .temple-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .temple-logo-img {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   object-fit: contain;
   background: #fff;
   border-radius: 50%;
@@ -134,7 +134,7 @@ body {
 
 .temple-title h1 {
   font-family: var(--font-serif);
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 800;
   letter-spacing: -0.01em;
   color: #fff;
@@ -142,7 +142,7 @@ body {
 }
 
 .temple-title p {
-  font-size: 0.72rem;
+  font-size: 0.76rem;
   color: var(--secondary-light);
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -153,7 +153,7 @@ body {
 .lang-switcher {
   display: flex;
   background: rgba(0, 0, 0, 0.25);
-  padding: 2px;
+  padding: 3px;
   border-radius: 100px;
   border: 1px solid rgba(255, 255, 255, 0.25);
 }
@@ -163,8 +163,8 @@ body {
   background: transparent;
   color: rgba(255, 255, 255, 0.85);
   font-weight: 700;
-  font-size: 0.82rem;
-  padding: 5px 14px;
+  font-size: 0.88rem;
+  padding: 6px 16px;
   border-radius: 100px;
   cursor: pointer;
   transition: all 0.25s ease;
@@ -249,50 +249,68 @@ body {
   margin-top: 2px;
 }
 
-/* Welcome Screen */
+/* Welcome Screen (Page 1 — Big & Bold for Horizontal Tablet) */
 .welcome-hero {
   text-align: center;
-  padding: 10px 0;
+  padding: 12px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   flex: 1;
-  gap: 6px;
+  gap: 4px;
 }
 
 .welcome-logo-badge {
-  width: 130px;
-  height: 130px;
-  max-height: 25vh;
+  width: 220px;
+  height: 220px;
+  max-height: 32vh;
   object-fit: contain;
-  margin-bottom: 8px;
-  filter: drop-shadow(0 8px 20px rgba(216, 75, 6, 0.28));
+  margin-bottom: 12px;
+  filter: drop-shadow(0 12px 28px rgba(216, 75, 6, 0.35));
+}
+
+.welcome-title {
+  font-family: var(--font-serif);
+  font-size: 2.85rem;
+  font-weight: 900;
+  color: #1e1510;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin-top: 6px;
+}
+
+.welcome-subtitle {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #4b423e;
+  margin-top: 6px;
+  max-width: 650px;
+  line-height: 1.35;
 }
 
 .kiosk-btn-hero {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
   width: 100%;
-  max-width: 440px;
-  padding: 16px 30px;
-  font-size: 1.35rem;
+  max-width: 520px;
+  padding: 22px 48px;
+  font-size: 1.6rem;
   font-weight: 800;
   color: #fff;
   background: linear-gradient(135deg, #d84b06 0%, #b33d04 60%, #7a1a03 100%);
   border: none;
   border-radius: 100px;
   cursor: pointer;
-  box-shadow: 0 10px 26px rgba(216, 75, 6, 0.4), inset 0 2px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: 0 12px 32px rgba(216, 75, 6, 0.45), inset 0 2px 0 rgba(255, 255, 255, 0.3);
   transition: all 0.2s ease;
-  margin-top: 14px;
+  margin-top: 20px;
 }
 
 .kiosk-btn-hero:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 32px rgba(216, 75, 6, 0.5);
+  box-shadow: 0 16px 40px rgba(216, 75, 6, 0.55);
 }
 
 .kiosk-btn-hero:active {
