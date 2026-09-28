@@ -36,72 +36,62 @@
 
 body {
   font-family: var(--font-sans);
-  background: #110d0a;
+  background: var(--light);
   color: var(--dark);
+  width: 100vw;
+  height: 100vh;
   min-height: 100vh;
+  max-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  position: fixed;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  background-image: 
-    radial-gradient(circle at 50% 0%, rgba(216, 75, 6, 0.25) 0%, transparent 60%),
-    radial-gradient(circle at 100% 100%, rgba(229, 169, 59, 0.15) 0%, transparent 50%);
+  flex-direction: column;
 }
 
 /* ============================================================
-   KIOSK TABLET BEZEL CASING
+   KIOSK FULL-WIDTH HORIZONTAL TABLET VIEWPORT
    ============================================================ */
 
 .kiosk-device-casing {
-  width: 100%;
-  max-width: 980px;
-  min-height: 820px;
-  background: #1c1511;
-  border-radius: 40px;
-  padding: 14px;
-  box-shadow: 
-    0 30px 90px rgba(0, 0, 0, 0.7),
-    0 0 0 2px rgba(229, 169, 59, 0.35),
-    inset 0 2px 4px rgba(255, 255, 255, 0.1);
+  width: 100vw;
+  max-width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  max-height: 100vh;
+  background: var(--light);
+  border-radius: 0;
+  border: none;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
   display: flex;
   flex-direction: column;
   position: relative;
+  overflow: hidden;
 }
 
-/* Kiosk Camera Lens Top Notch */
+/* Hide artificial camera notch on full-bleed tablet */
 .kiosk-casing-top {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 20px 12px;
+  display: none;
 }
 
 .kiosk-camera-notch {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #0d0907;
-  padding: 4px 12px;
-  border-radius: 100px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.camera-lens {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #1e293b;
-  box-shadow: inset 0 0 2px #38bdf8, 0 0 4px rgba(56, 189, 248, 0.3);
+  display: none;
 }
 
 .kiosk-screen-viewport {
   flex: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
   background: var(--light);
-  border-radius: 28px;
+  border-radius: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.08);
+  box-shadow: none;
 }
 
 /* ============================================================
@@ -111,10 +101,11 @@ body {
 .kiosk-header {
   background: linear-gradient(135deg, #7a1a03 0%, #b33d04 45%, #d84b06 100%);
   color: #fff;
-  padding: 14px 24px;
-  box-shadow: 0 4px 20px rgba(122, 26, 3, 0.35);
+  padding: 10px 24px;
+  box-shadow: 0 4px 16px rgba(122, 26, 3, 0.25);
   position: relative;
   z-index: 20;
+  flex-shrink: 0;
 }
 
 .kiosk-header-inner {
@@ -127,23 +118,23 @@ body {
 .temple-brand {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 .temple-logo-img {
-  width: 54px;
-  height: 54px;
+  width: 44px;
+  height: 44px;
   object-fit: contain;
   background: #fff;
   border-radius: 50%;
-  padding: 3px;
-  border: 2.5px solid var(--secondary);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  padding: 2px;
+  border: 2px solid var(--secondary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .temple-title h1 {
   font-family: var(--font-serif);
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: -0.01em;
   color: #fff;
@@ -151,7 +142,7 @@ body {
 }
 
 .temple-title p {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   color: var(--secondary-light);
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -162,7 +153,7 @@ body {
 .lang-switcher {
   display: flex;
   background: rgba(0, 0, 0, 0.25);
-  padding: 3px;
+  padding: 2px;
   border-radius: 100px;
   border: 1px solid rgba(255, 255, 255, 0.25);
 }
@@ -172,8 +163,8 @@ body {
   background: transparent;
   color: rgba(255, 255, 255, 0.85);
   font-weight: 700;
-  font-size: 0.88rem;
-  padding: 6px 16px;
+  font-size: 0.82rem;
+  padding: 5px 14px;
   border-radius: 100px;
   cursor: pointer;
   transition: all 0.25s ease;
@@ -185,173 +176,141 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Live Waiting Banner */
-.live-wait-banner {
-  background: linear-gradient(90deg, #fff2eb 0%, #fffbf8 50%, #fff2eb 100%);
-  border-bottom: 1.5px solid #fed7aa;
-  padding: 8px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.wait-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: #fff;
-  border: 1px solid #fcd34d;
-  padding: 5px 12px;
-  border-radius: 100px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: #b45309;
-  box-shadow: 0 1px 4px rgba(180, 83, 9, 0.06);
-}
-
-.wait-pulse-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #16a34a;
-  box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.6);
-  animation: pulse 1.6s infinite;
-}
-
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.6); }
-  70% { box-shadow: 0 0 0 7px rgba(22, 163, 74, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
-}
-
 /* ============================================================
-   MAIN KIOSK CONTENT
+   MAIN KIOSK CONTENT (ZERO SCROLL FIT)
    ============================================================ */
 
 .kiosk-main {
   flex: 1;
-  padding: 24px;
+  min-height: 0;
+  padding: 12px 20px;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  position: relative;
 }
 
 .screen-card {
   background: #fff;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   border: 1px solid rgba(216, 75, 6, 0.15);
-  box-shadow: 0 14px 40px -10px rgba(58, 46, 43, 0.08);
-  padding: 32px 28px;
+  box-shadow: 0 6px 24px -6px rgba(58, 46, 43, 0.06);
+  padding: 16px 22px;
   display: none;
   flex: 1;
-  animation: fadeIn 0.3s ease forwards;
+  min-height: 0;
+  height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  animation: fadeIn 0.25s ease forwards;
 }
 
 .screen-card.active {
   display: flex;
-  flex-direction: column;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 /* Step Header */
 .step-header {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 10px;
+  flex-shrink: 0;
 }
 
 .step-eyebrow {
   display: inline-block;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   color: var(--primary);
   background: var(--primary-light);
   border: 1px solid #ffd8c7;
-  padding: 4px 12px;
+  padding: 2px 10px;
   border-radius: 100px;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .step-title {
   font-family: var(--font-serif);
-  font-size: 1.85rem;
+  font-size: 1.45rem;
   font-weight: 800;
   color: var(--dark);
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
 .step-sub {
-  font-size: 0.95rem;
+  font-size: 0.84rem;
   color: #6b7280;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 /* Welcome Screen */
 .welcome-hero {
   text-align: center;
-  padding: 16px 0;
+  padding: 10px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   flex: 1;
+  gap: 6px;
 }
 
 .welcome-logo-badge {
-  width: 150px;
-  height: 150px;
+  width: 130px;
+  height: 130px;
+  max-height: 25vh;
   object-fit: contain;
-  margin-bottom: 16px;
-  filter: drop-shadow(0 10px 24px rgba(216, 75, 6, 0.3));
+  margin-bottom: 8px;
+  filter: drop-shadow(0 8px 20px rgba(216, 75, 6, 0.28));
 }
 
 .kiosk-btn-hero {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 12px;
   width: 100%;
-  max-width: 500px;
-  padding: 20px 32px;
-  font-size: 1.45rem;
+  max-width: 440px;
+  padding: 16px 30px;
+  font-size: 1.35rem;
   font-weight: 800;
   color: #fff;
   background: linear-gradient(135deg, #d84b06 0%, #b33d04 60%, #7a1a03 100%);
   border: none;
   border-radius: 100px;
   cursor: pointer;
-  box-shadow: 0 14px 32px rgba(216, 75, 6, 0.45), inset 0 2px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: 0 10px 26px rgba(216, 75, 6, 0.4), inset 0 2px 0 rgba(255, 255, 255, 0.3);
   transition: all 0.2s ease;
-  margin-top: 24px;
+  margin-top: 14px;
 }
 
 .kiosk-btn-hero:hover {
   transform: translateY(-2px);
-  box-shadow: 0 18px 40px rgba(216, 75, 6, 0.55);
+  box-shadow: 0 14px 32px rgba(216, 75, 6, 0.5);
 }
 
 .kiosk-btn-hero:active {
   transform: translateY(1px);
 }
 
-/* Number Selector Grid */
+/* Number Selector Grid (Horizontal Tablet: 8 in one clean row) */
 .number-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  max-width: 620px;
-  margin: 10px auto 24px;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 10px;
+  max-width: 900px;
+  margin: 20px auto;
   width: 100%;
 }
 
 .number-card {
-  height: 110px;
+  height: 90px;
   background: #fff;
   border: 2px solid var(--gray-medium);
   border-radius: var(--radius-md);
@@ -361,17 +320,18 @@ body {
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.03);
 }
 
 .number-card .num {
-  font-size: 2.2rem;
+  font-size: 1.85rem;
   font-weight: 800;
   color: var(--dark);
+  line-height: 1.1;
 }
 
 .number-card .lbl {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 600;
   color: #6b7280;
 }
@@ -379,7 +339,7 @@ body {
 .number-card.selected {
   border-color: var(--primary);
   background: linear-gradient(135deg, #fff2eb, #ffe4d6);
-  box-shadow: 0 8px 24px rgba(216, 75, 6, 0.3);
+  box-shadow: 0 6px 20px rgba(216, 75, 6, 0.3);
   transform: scale(1.04);
 }
 
@@ -387,12 +347,12 @@ body {
   color: var(--primary);
 }
 
-/* Input Fields (Clean & Empty by default) */
+/* Input Fields */
 .touch-input {
   width: 100%;
-  height: 68px;
-  padding: 0 20px;
-  font-size: 1.35rem;
+  height: 58px;
+  padding: 0 18px;
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--dark);
   background: #faf7f5;
@@ -410,14 +370,15 @@ body {
 
 /* Date Selection Grid */
 .date-selector-container {
-  margin-bottom: 18px;
+  margin-bottom: 10px;
+  flex-shrink: 0;
 }
 
 .date-section-heading {
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   font-weight: 800;
   color: #7a1a03;
-  margin-bottom: 8px;
+  margin-bottom: 5px;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -427,14 +388,14 @@ body {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 8px;
-  margin-bottom: 14px;
+  margin-bottom: 6px;
 }
 
 .date-card {
   background: #fff;
   border: 2px solid #fed7aa;
-  border-radius: var(--radius-md);
-  padding: 10px 4px;
+  border-radius: var(--radius-sm);
+  padding: 6px 3px;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -442,7 +403,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
   user-select: none;
 }
 
@@ -454,21 +415,21 @@ body {
 .date-card.selected {
   border-color: var(--primary);
   background: linear-gradient(135deg, #fff2eb 0%, #ffe4d6 100%);
-  box-shadow: 0 6px 18px rgba(216, 75, 6, 0.25);
-  transform: scale(1.03);
+  box-shadow: 0 4px 14px rgba(216, 75, 6, 0.25);
+  transform: scale(1.02);
 }
 
 .date-tag {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 800;
   text-transform: uppercase;
   color: #7a1a03;
-  letter-spacing: 0.04em;
-  margin-bottom: 2px;
+  letter-spacing: 0.03em;
+  margin-bottom: 1px;
 }
 
 .date-num {
-  font-size: 1.45rem;
+  font-size: 1.3rem;
   font-weight: 900;
   color: #1e1510;
   line-height: 1.1;
@@ -479,54 +440,55 @@ body {
 }
 
 .date-month {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
   color: #6b7280;
 }
 
-/* Slots Grid */
+/* Slots Grid (Horizontal Tablet: 2 rows of 3 columns) */
 .slots-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-shrink: 0;
 }
 
 .slot-card {
   border: 2px solid #fed7aa;
   background: #fff;
-  border-radius: var(--radius-md);
-  padding: 16px 18px;
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 2px;
 }
 
 .slot-card.selected {
   border-color: var(--primary);
   background: linear-gradient(135deg, #fff2eb 0%, #ffe4d6 100%);
-  box-shadow: 0 8px 20px rgba(216, 75, 6, 0.25);
-  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(216, 75, 6, 0.22);
+  transform: translateY(-1px);
 }
 
 .slot-time {
-  font-size: 1.18rem;
+  font-size: 1.02rem;
   font-weight: 800;
   color: var(--dark);
 }
 
 .slot-label {
-  font-size: 0.88rem;
+  font-size: 0.78rem;
   color: #7a1a03;
   font-weight: 600;
 }
 
 .slot-badge {
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   font-weight: 700;
-  padding: 3px 9px;
+  padding: 2px 7px;
   border-radius: 100px;
   width: fit-content;
   background: #e8f5e9;
@@ -535,7 +497,7 @@ body {
 }
 
 .slot-wait {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: #b45309;
 }
@@ -543,19 +505,20 @@ body {
 /* Nav Actions */
 .nav-actions {
   display: flex;
-  gap: 14px;
+  gap: 12px;
   margin-top: auto;
-  padding-top: 20px;
+  padding-top: 8px;
+  flex-shrink: 0;
 }
 
 .btn-back {
   flex: 1;
-  max-width: 160px;
-  height: 56px;
+  max-width: 140px;
+  height: 48px;
   border: 2px solid #dccbc4;
   background: #fff;
   color: var(--dark);
-  font-size: 1.05rem;
+  font-size: 0.98rem;
   font-weight: 700;
   border-radius: 100px;
   cursor: pointer;
@@ -568,15 +531,15 @@ body {
 
 .btn-next {
   flex: 2;
-  height: 56px;
+  height: 48px;
   background: linear-gradient(135deg, #d84b06, #b33d04);
   color: #fff;
   border: none;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 800;
   border-radius: 100px;
   cursor: pointer;
-  box-shadow: 0 8px 22px rgba(216, 75, 6, 0.4);
+  box-shadow: 0 6px 18px rgba(216, 75, 6, 0.35);
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
@@ -586,71 +549,83 @@ body {
 
 .btn-next:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(216, 75, 6, 0.5);
+  box-shadow: 0 10px 24px rgba(216, 75, 6, 0.45);
 }
 
 .btn-confirm {
   background: linear-gradient(135deg, #2e7d32, #1b5e20) !important;
-  box-shadow: 0 8px 22px rgba(46, 125, 50, 0.4) !important;
+  box-shadow: 0 6px 18px rgba(46, 125, 50, 0.35) !important;
 }
 
-/* Summary Box */
+/* Summary Box (Horizontal Tablet: 2 Column Grid) */
 .summary-box {
   background: #fffbf8;
   border: 2px dashed #e5a93b;
   border-radius: var(--radius-md);
-  padding: 22px;
-  margin-bottom: 20px;
+  padding: 14px 18px;
+  margin-bottom: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 20px;
 }
 
 .summary-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 9px 0;
+  padding: 6px 0;
   border-bottom: 1px solid #f3ece8;
 }
 
 .summary-row:last-child {
-  border-bottom: none;
+  border-bottom: 1px solid #f3ece8;
 }
 
 .summary-key {
-  font-size: 0.92rem;
+  font-size: 0.85rem;
   color: #7a1a03;
   font-weight: 600;
 }
 
 .summary-val {
-  font-size: 1.15rem;
+  font-size: 1.02rem;
   font-weight: 800;
   color: var(--dark);
+  text-align: right;
 }
 
 .summary-val.highlight {
   color: var(--primary);
-  font-size: 1.3rem;
+  font-size: 1.15rem;
 }
 
 /* ============================================================
    OFFICIAL DARSHAN PASS & THERMAL TICKET DESIGN
    ============================================================ */
 
+/* ============================================================
+   OFFICIAL DARSHAN PASS & THERMAL TICKET DESIGN (COMPACT FIT)
+   ============================================================ */
+
 .ticket-preview-container {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   width: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .darshan-pass-card {
   width: 100%;
-  max-width: 480px;
+  max-width: 520px;
   background: #ffffff;
-  border: 2.5px solid var(--primary);
-  border-radius: 18px;
-  padding: 22px 24px;
-  box-shadow: 0 12px 36px rgba(122, 26, 3, 0.14), 0 0 0 4px #fef3c7;
+  border: 2px solid var(--primary);
+  border-radius: 14px;
+  padding: 10px 16px;
+  box-shadow: 0 4px 18px rgba(122, 26, 3, 0.1), 0 0 0 3px #fef3c7;
   color: #1e1510;
   position: relative;
   overflow: hidden;
@@ -664,46 +639,46 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  height: 6px;
+  height: 4px;
   background: linear-gradient(90deg, #d84b06, #e5a93b, #d84b06);
 }
 
 /* Pass Header */
 .pass-header {
   text-align: center;
-  border-bottom: 2px dashed #fed7aa;
-  padding-bottom: 14px;
-  margin-bottom: 14px;
+  border-bottom: 1.5px dashed #fed7aa;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
 }
 
 .pass-emblem-row {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  margin-bottom: 6px;
+  gap: 8px;
+  margin-bottom: 3px;
 }
 
 .pass-emblem-img {
-  width: 48px;
-  height: 48px;
+  width: 36px;
+  height: 36px;
   object-fit: contain;
   border-radius: 50%;
-  border: 2px solid #e5a93b;
-  padding: 2px;
+  border: 1.5px solid #e5a93b;
+  padding: 1.5px;
   background: #fff;
 }
 
 .pass-temple-heading h3 {
   font-family: var(--font-serif);
-  font-size: 1.25rem;
+  font-size: 1.05rem;
   font-weight: 900;
   color: #7a1a03;
-  line-height: 1.15;
+  line-height: 1.1;
 }
 
 .pass-temple-heading p {
-  font-size: 0.76rem;
+  font-size: 0.68rem;
   font-weight: 700;
   color: #b45309;
   letter-spacing: 0.04em;
@@ -714,23 +689,23 @@ body {
   display: inline-block;
   background: linear-gradient(135deg, #d84b06, #b33d04);
   color: #ffffff;
-  font-size: 0.82rem;
+  font-size: 0.72rem;
   font-weight: 800;
-  padding: 4px 16px;
+  padding: 2px 12px;
   border-radius: 100px;
-  letter-spacing: 0.05em;
-  margin-top: 6px;
-  box-shadow: 0 2px 6px rgba(216, 75, 6, 0.25);
+  letter-spacing: 0.04em;
+  margin-top: 3px;
+  box-shadow: 0 1px 4px rgba(216, 75, 6, 0.2);
 }
 
 /* Token Box */
 .pass-token-box {
   background: linear-gradient(135deg, #fff2eb 0%, #fef3c7 100%);
-  border: 1.5px solid #fed7aa;
-  border-radius: 12px;
-  padding: 12px 16px;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  padding: 6px 12px;
   text-align: center;
-  margin-bottom: 14px;
+  margin-bottom: 6px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -742,21 +717,15 @@ body {
 
 .token-label-side span {
   display: block;
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   font-weight: 700;
   color: #7a1a03;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.token-label-side strong {
-  font-size: 0.85rem;
-  color: #1e1510;
-  font-weight: 800;
+  letter-spacing: 0.04em;
 }
 
 .token-number-large {
-  font-size: 2.2rem;
+  font-size: 1.55rem;
   font-weight: 900;
   font-family: var(--font-serif);
   color: #d84b06;
@@ -768,9 +737,9 @@ body {
   background: #e8f5e9;
   border: 1px solid #81c784;
   color: #2e7d32;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 800;
-  padding: 3px 8px;
+  padding: 2px 6px;
   border-radius: 100px;
   display: inline-block;
 }
@@ -779,8 +748,8 @@ body {
 .pass-details-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.92rem;
-  margin-bottom: 14px;
+  font-size: 0.8rem;
+  margin-bottom: 6px;
 }
 
 .pass-details-table tr {
@@ -788,58 +757,57 @@ body {
 }
 
 .pass-details-table tr:last-child {
-  border-bottom: 2px dashed #fed7aa;
+  border-bottom: 1.5px dashed #fed7aa;
 }
 
 .pass-details-table td {
-  padding: 7px 4px;
+  padding: 3px 2px;
   vertical-align: middle;
 }
 
 .pass-td-key {
   color: #7a1a03;
   font-weight: 700;
-  font-size: 0.84rem;
-  width: 48%;
+  font-size: 0.76rem;
+  width: 44%;
 }
 
 .pass-td-val {
   color: #1e1510;
   font-weight: 800;
   text-align: right;
-  font-size: 0.94rem;
+  font-size: 0.82rem;
   word-break: break-word;
 }
 
 .pass-td-val.val-highlight {
   color: #7a1a03;
-  font-size: 1.15rem;
+  font-size: 0.95rem;
   font-weight: 900;
   text-transform: capitalize;
-  letter-spacing: 0.02em;
 }
 
-/* QR Code & Barcode Section */
+/* QR Code Section */
 .pass-qr-section {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 12px;
   background: #faf7f5;
   border: 1px solid #eedfd8;
-  border-radius: 12px;
-  padding: 10px 14px;
-  margin-bottom: 12px;
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin-bottom: 6px;
 }
 
 .pass-qr-img {
-  width: 110px;
-  height: 110px;
+  width: 68px;
+  height: 68px;
   object-fit: contain;
   background: #fff;
   border: 1.5px solid #d84b06;
-  border-radius: 8px;
-  padding: 4px;
+  border-radius: 6px;
+  padding: 2px;
 }
 
 .pass-qr-meta {
@@ -848,74 +816,42 @@ body {
 }
 
 .pass-qr-meta p {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: #1e1510;
-  line-height: 1.35;
+  line-height: 1.25;
 }
 
 .pass-qr-gate-badge {
   display: inline-block;
   background: #2e7d32;
   color: #fff;
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   font-weight: 800;
-  padding: 3px 8px;
-  border-radius: 6px;
-  margin-top: 6px;
-}
-
-/* Barcode Simulation Graphic */
-.pass-barcode-box {
-  text-align: center;
-  margin: 6px 0 10px;
-  letter-spacing: 3px;
-  font-family: 'Courier New', monospace;
-  font-size: 0.75rem;
-  color: #444;
-}
-
-.barcode-lines {
-  height: 22px;
-  background: repeating-linear-gradient(
-    90deg,
-    #000 0px,
-    #000 2px,
-    transparent 2px,
-    transparent 4px,
-    #000 4px,
-    #000 7px,
-    transparent 7px,
-    transparent 9px,
-    #000 9px,
-    #000 10px,
-    transparent 10px,
-    transparent 13px
-  );
-  width: 80%;
-  margin: 0 auto 3px;
-  border-radius: 2px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 3px;
 }
 
 /* Pass Footer */
 .pass-footer-notes {
   text-align: center;
   border-top: 1px solid #f3ece8;
-  padding-top: 8px;
+  padding-top: 4px;
 }
 
 .pass-footer-notes p {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   color: #7a1a03;
   font-weight: 700;
-  line-height: 1.3;
+  line-height: 1.2;
 }
 
 .pass-footer-notes small {
   display: block;
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   color: #8b7367;
-  margin-top: 3px;
+  margin-top: 1px;
 }
 
 /* ============================================================
