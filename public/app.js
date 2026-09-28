@@ -458,11 +458,12 @@ async function downloadPdfPass() {
   if (btn) btn.textContent = '⏳ PDF तैयार हो रहा है...';
 
   const opt = {
-    margin: [10, 10, 10, 10],
+    margin: [12, 10, 12, 10],
     filename: `Mahakal_Darshan_Pass_${bookingData.tokenNumber}.pdf`,
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 3, useCORS: true, letterRendering: true },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    html2canvas: { scale: 3, useCORS: true, letterRendering: true, backgroundColor: '#ffffff', scrollY: 0 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
   };
 
   try {
