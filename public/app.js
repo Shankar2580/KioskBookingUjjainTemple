@@ -407,6 +407,35 @@ async function confirmAndPrint() {
   }
 }
 
+// Helper: Get configured printer IP for this device
+function getPrinterIp() {
+  return localStorage.getItem('kiosk_printer_ip') || '192.168.31.201';
+}
+
+// Test print slip helper
+async function sendTestSlip(targetIp) {
+  const ip = targetIp || getPrinterIp();
+  const xml = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><text align="center" width="2" height="2">SHRI MAHAKALESHWAR&#10;</text><text width="1" height="1">UJJAIN (MADHYA PRADESH)&#10;------------------------------------------------&#10;</text><text width="2" height="2">TEST PRINT OK&#10;</text><text width="1" height="1">Printer IP: ${ip}&#10;Status: ONLINE &amp; READY&#10;------------------------------------------------&#10;&#10;&#10;</text><cut type="feed"/></epos-print></s:Body></s:Envelope>`;
+
+  const endpoints = [
+    `https://${ip}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`,
+    `http://${ip}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`
+  ];
+
+  for (const url of endpoints) {
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/xml; charset=utf-8', 'SOAPAction': '""' },
+        body: xml,
+        signal: AbortSignal.timeout(3000)
+      });
+      if (res.ok) return true;
+    } catch (e) {}
+  }
+  return false;
+}
+
 // Direct Web ePOS-Print to Epson TM-T88VII on local network
 async function printViaEposXml(b) {
   if (!b) return false;
@@ -416,10 +445,12 @@ async function printViaEposXml(b) {
 
   const xml = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><text align="center" width="2" height="2">SHRI MAHAKALESHWAR&#10;</text><text width="1" height="1">UJJAIN (MADHYA PRADESH)&#10;GENERAL DARSHAN PASS&#10;------------------------------------------------&#10;</text><text width="2" height="2">TOKEN: ${b.tokenNumber}&#10;</text><text width="1" height="1">STATUS: CONFIRMED (FREE)&#10;------------------------------------------------&#10;</text><text align="left">Devotee Name : ${b.devoteeName}&#10;Mobile Number: ${devoteeMobile}&#10;Total Persons: ${b.devoteeCount} Person(s)&#10;Darshan Date : ${displayDate}&#10;Darshan Slot : ${b.slotTime}&#10;Est. Wait    : ~${b.liveWaitMinutes || 35} Min&#10;Entry Gate   : Nilkanth Gate&#10;Issued At    : ${b.bookedAt}&#10;------------------------------------------------&#10;</text><text align="center">&#10;</text><symbol type="qrcode_model_2" level="level_m" width="6">${qrText}</symbol><text align="center">&#10;Scan at Nilkanth Gate Barrier&#10;Shri Mahakaleshwar Temple Committee&#10;&#10;&#10;</text><cut type="feed"/></epos-print></s:Body></s:Envelope>`;
 
+  const ip = getPrinterIp();
   const endpoints = [
-    'http://192.168.31.222:3005/api/print-thermal',
-    'https://192.168.31.201/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000',
-    'http://192.168.31.201/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000'
+    `https://${ip}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`,
+    `http://${ip}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`,
+    'http://EPSON20CAAF.local/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000',
+    'http://192.168.31.222:3005/api/print-thermal'
   ];
 
   for (const url of endpoints) {
@@ -692,5 +723,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('btn-start-new-booking')?.addEventListener('click', () => {
     resetKiosk();
+  });
+
+  // Printer Settings Modal Handlers
+  const modal = document.getElementById('modal-printer-settings');
+  const ipInput = document.getElementById('input-printer-ip');
+  const statusEl = document.getElementById('settings-status');
+
+  document.getElementById('btn-open-settings')?.addEventListener('click', () => {
+    if (modal && ipInput) {
+      ipInput.value = getPrinterIp();
+      if (statusEl) statusEl.textContent = '';
+      modal.style.display = 'flex';
+    }
+  });
+
+  document.getElementById('btn-close-settings')?.addEventListener('click', () => {
+    if (modal) modal.style.display = 'none';
+  });
+
+  document.getElementById('btn-save-printer')?.addEventListener('click', () => {
+    if (ipInput && ipInput.value.trim()) {
+      const cleanIp = ipInput.value.trim();
+      localStorage.setItem('kiosk_printer_ip', cleanIp);
+      if (statusEl) {
+        statusEl.style.color = '#2e7d32';
+        statusEl.textContent = `✓ IP Saved: ${cleanIp}`;
+      }
+      setTimeout(() => {
+        if (modal) modal.style.display = 'none';
+      }, 1000);
+    }
+  });
+
+  document.getElementById('btn-test-printer')?.addEventListener('click', async () => {
+    const testIp = ipInput ? ipInput.value.trim() : getPrinterIp();
+    if (statusEl) {
+      statusEl.style.color = '#d84b06';
+      statusEl.textContent = '⏳ Sending test print...';
+    }
+    const ok = await sendTestSlip(testIp);
+    if (statusEl) {
+      if (ok) {
+        statusEl.style.color = '#2e7d32';
+        statusEl.textContent = '✓ Test print successful!';
+      } else {
+        statusEl.style.color = '#b91c1c';
+        statusEl.textContent = `✗ Unreachable at ${testIp}. Check IP & Wi-Fi.`;
+      }
+    }
   });
 });

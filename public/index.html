@@ -40,10 +40,14 @@
             </div>
           </div>
 
-          <!-- Language Selector -->
-          <div class="lang-switcher">
-            <button type="button" class="lang-btn active" data-lang="hi">हिंदी</button>
-            <button type="button" class="lang-btn" data-lang="en">English</button>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <!-- Language Selector -->
+            <div class="lang-switcher">
+              <button type="button" class="lang-btn active" data-lang="hi">हिंदी</button>
+              <button type="button" class="lang-btn" data-lang="en">English</button>
+            </div>
+            <!-- Printer Settings Button -->
+            <button type="button" id="btn-open-settings" style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 50%; width: 32px; height: 32px; color: #fff; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="Printer Settings">⚙️</button>
           </div>
         </div>
       </header>
@@ -222,6 +226,24 @@
       <footer class="kiosk-screen-footer">
         <p>श्री महाकालेश्वर मंदिर प्रबंध समिति, उज्जैन (म.प्र.)</p>
       </footer>
+    </div>
+  </div>
+
+  <!-- ============ PRINTER SETTINGS MODAL ============ -->
+  <div id="modal-printer-settings" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center;">
+    <div style="background: #fff; border-radius: 16px; padding: 22px 24px; max-width: 440px; width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 2px solid #fed7aa;">
+      <h3 style="margin-bottom: 8px; font-size: 1.25rem; color: #7a1a03; font-weight: 800;">🖨️ Printer Settings / प्रिंटर सेटिंग्स</h3>
+      <p style="font-size: 0.85rem; color: #555; margin-bottom: 14px;">Set the Epson TM-T88VII IP address for this tablet / kiosk:</p>
+      
+      <label style="display: block; font-weight: 700; margin-bottom: 6px; font-size: 0.95rem; color: #1e1510;">Printer IP Address:</label>
+      <input type="text" id="input-printer-ip" class="touch-input" style="height: 48px; font-size: 1.1rem; margin-bottom: 14px;" placeholder="192.168.31.201" />
+
+      <div style="display: flex; gap: 8px;">
+        <button type="button" id="btn-test-printer" style="flex: 1; height: 44px; border-radius: 8px; border: 1.5px solid #d84b06; background: #fff8f0; color: #d84b06; font-weight: 700; cursor: pointer;">Test Print</button>
+        <button type="button" id="btn-save-printer" style="flex: 1; height: 44px; border-radius: 8px; border: none; background: #d84b06; color: #fff; font-weight: 700; cursor: pointer;">Save</button>
+        <button type="button" id="btn-close-settings" style="height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid #ccc; background: #eee; color: #333; font-weight: 700; cursor: pointer;">Close</button>
+      </div>
+      <div id="settings-status" style="margin-top: 10px; font-size: 0.85rem; text-align: center; font-weight: 700;"></div>
     </div>
   </div>
 
