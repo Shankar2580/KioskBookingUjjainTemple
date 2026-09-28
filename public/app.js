@@ -524,11 +524,20 @@ function getCleanDisplayDate(b) {
   return `${day} ${months[m - 1]} ${y}`;
 }
 
-// Convert Canvas into Epson 1-bit monochrome raster (width: 512 dots = 64 bytes/row)
+// Convert any Canvas into Epson 1-bit monochrome raster (width: 512 dots = 64 bytes/row)
 function convertCanvasToEposRaster(canvas) {
   const targetWidth = 512;
-  const targetHeight = canvas.height;
-  const ctx = canvas.getContext('2d');
+  const scale = targetWidth / canvas.width;
+  const targetHeight = Math.round(canvas.height * scale);
+
+  const scaledCanvas = document.createElement('canvas');
+  scaledCanvas.width = targetWidth;
+  scaledCanvas.height = targetHeight;
+  const ctx = scaledCanvas.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, targetWidth, targetHeight);
+  ctx.drawImage(canvas, 0, 0, targetWidth, targetHeight);
+
   const imgData = ctx.getImageData(0, 0, targetWidth, targetHeight);
   const data = imgData.data;
   const bytesPerRow = targetWidth / 8; // 64 bytes
@@ -568,13 +577,58 @@ function convertCanvasToEposRaster(canvas) {
   };
 }
 
-// Generate complete official Darshan Pass in memory on high-resolution 512px canvas
+// Local offline QR code data URL generator using qrcode.min.js
+function generateLocalQrDataUrl(text, size = 160) {
+  try {
+    if (typeof QRCode !== 'undefined') {
+      const tempDiv = document.createElement('div');
+      new QRCode(tempDiv, {
+        text: text,
+        width: size,
+        height: size,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: (QRCode.CorrectLevel && QRCode.CorrectLevel.M) || 0
+      });
+      const canvas = tempDiv.querySelector('canvas');
+      if (canvas) return canvas.toDataURL('image/png');
+      const img = tempDiv.querySelector('img');
+      if (img && img.src && img.src.startsWith('data:')) return img.src;
+    }
+  } catch (e) {
+    console.warn('Local QR generator warning:', e);
+  }
+  return '';
+}
+
+// Generate complete official Darshan Pass on high-resolution 512px canvas
 async function generateDarshanPassCanvas(b, lang) {
   if (document.fonts) {
     try { await document.fonts.ready; } catch (e) {}
   }
 
-  const isHi = (lang === 'hi') || (!lang);
+  // Method 1: Try capturing from the pre-mounted DOM element via html2canvas
+  const renderTarget = document.querySelector('#print-render-container .darshan-pass-card') || document.querySelector('#thermal-ticket-mount .darshan-pass-card');
+  if (renderTarget && window.html2canvas) {
+    try {
+      const capturedCanvas = await html2canvas(renderTarget, {
+        scale: 1.5,
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: '#ffffff',
+        logging: false,
+        scrollX: 0,
+        scrollY: 0
+      });
+      if (capturedCanvas && capturedCanvas.width > 100 && capturedCanvas.height > 100) {
+        return capturedCanvas;
+      }
+    } catch (err) {
+      console.warn('html2canvas capture warning, falling back to direct canvas draw:', err);
+    }
+  }
+
+  // Method 2: Direct 2D Canvas rendering with 100% Devanagari Hindi and Temple Emblem
   const canvas = document.createElement('canvas');
   canvas.width = 512;
   canvas.height = 980;
@@ -590,14 +644,17 @@ async function generateDarshanPassCanvas(b, lang) {
   ctx.strokeRect(8, 8, 496, 964);
 
   // 3. Header Section with Temple Emblem Logo
+  const logoDataUri = (typeof TEMPLE_LOGO_DATA_URL !== 'undefined') ? TEMPLE_LOGO_DATA_URL : 'logo-print.png';
   const logoImg = new Image();
-  logoImg.src = 'shrimahakaleshwar_logo.png';
-  await new Promise(r => {
-    if (logoImg.complete) return r();
-    logoImg.onload = r;
-    logoImg.onerror = r;
-    setTimeout(r, 600);
-  });
+  logoImg.crossOrigin = 'anonymous';
+  logoImg.src = logoDataUri;
+  if (!logoImg.complete) {
+    await new Promise(r => {
+      logoImg.onload = r;
+      logoImg.onerror = r;
+      setTimeout(r, 400);
+    });
+  }
 
   try {
     if (logoImg.naturalWidth) {
@@ -608,23 +665,14 @@ async function generateDarshanPassCanvas(b, lang) {
   ctx.fillStyle = '#000000';
   ctx.textAlign = 'center';
 
-  if (isHi) {
-    ctx.font = 'bold 22px "Noto Sans Devanagari", sans-serif';
-    ctx.fillText('॥ श्री महाकालेश्वर ज्योतिर्लिंग मंदिर ॥', 280, 40);
-    ctx.font = 'bold 18px "Inter", sans-serif';
-    ctx.fillText('SHRI MAHAKALESHWAR TEMPLE', 280, 64);
-    ctx.font = '13px "Inter", sans-serif';
-    ctx.fillText('UJJAIN (MADHYA PRADESH)', 280, 82);
-    ctx.font = 'bold 14px "Noto Sans Devanagari", sans-serif';
-    ctx.fillText('स्वयं सेवा सामान्य दर्शन पास • GENERAL DARSHAN PASS', 256, 114);
-  } else {
-    ctx.font = 'bold 20px "Inter", sans-serif';
-    ctx.fillText('SHRI MAHAKALESHWAR JYOTIRLINGA TEMPLE', 280, 42);
-    ctx.font = '15px "Inter", sans-serif';
-    ctx.fillText('UJJAIN (MADHYA PRADESH)', 280, 68);
-    ctx.font = 'bold 14px "Inter", sans-serif';
-    ctx.fillText('SELF-SERVICE GENERAL DARSHAN PASS (FREE)', 256, 110);
-  }
+  ctx.font = 'bold 22px "Noto Sans Devanagari", sans-serif';
+  ctx.fillText('॥ श्री महाकालेश्वर ज्योतिर्लिंग मंदिर ॥', 280, 40);
+  ctx.font = 'bold 18px "Inter", sans-serif';
+  ctx.fillText('SHRI MAHAKALESHWAR TEMPLE', 280, 64);
+  ctx.font = '13px "Inter", sans-serif';
+  ctx.fillText('UJJAIN (MADHYA PRADESH)', 280, 82);
+  ctx.font = 'bold 14px "Noto Sans Devanagari", sans-serif';
+  ctx.fillText('स्वयं सेवा सामान्य दर्शन पास • GENERAL DARSHAN PASS', 256, 114);
 
   // 4. Token Box
   const tokenY = 130;
@@ -632,26 +680,19 @@ async function generateDarshanPassCanvas(b, lang) {
   ctx.strokeRect(20, tokenY, 472, 86);
 
   ctx.textAlign = 'left';
-  if (isHi) {
-    ctx.font = 'bold 15px "Noto Sans Devanagari", sans-serif';
-    ctx.fillText('टोकन क्रमांक / Token No.', 32, tokenY + 28);
-  } else {
-    ctx.font = 'bold 15px "Inter", sans-serif';
-    ctx.fillText('TOKEN NUMBER', 32, tokenY + 28);
-  }
+  ctx.font = 'bold 15px "Noto Sans Devanagari", sans-serif';
+  ctx.fillText('टोकन क्रमांक / Token No.', 32, tokenY + 28);
 
   ctx.font = '900 36px "Inter", sans-serif';
   ctx.fillText(b.tokenNumber || 'GD-101', 32, tokenY + 70);
 
   ctx.textAlign = 'right';
   ctx.font = 'bold 15px "Noto Sans Devanagari", sans-serif';
-  ctx.fillText(isHi ? 'पुष्टिकृत / CONFIRMED' : 'CONFIRMED (FREE)', 476, tokenY + 32);
+  ctx.fillText('पुष्टिकृत / CONFIRMED', 476, tokenY + 32);
   ctx.font = '13px "Inter", sans-serif';
   ctx.fillText(`Pass ID: ${b.bookingId || 'MP-MK-2026'}`, 476, tokenY + 54);
-  if (isHi) {
-    ctx.font = 'bold 13px "Noto Sans Devanagari", sans-serif';
-    ctx.fillText('निःशुल्क पास (FREE)', 476, tokenY + 74);
-  }
+  ctx.font = 'bold 13px "Noto Sans Devanagari", sans-serif';
+  ctx.fillText('निःशुल्क पास (FREE)', 476, tokenY + 74);
 
   // 5. Divider
   let y = tokenY + 104;
@@ -665,7 +706,7 @@ async function generateDarshanPassCanvas(b, lang) {
   const devoteeMobile = b.mobileNumber && b.mobileNumber !== 'Walk-in Devotee' ? b.mobileNumber : '—';
   const cleanIssued = b.bookedAt || 'Now';
 
-  const rows = isHi ? [
+  const rows = [
     ['श्रद्धालु का नाम (Devotee):', b.devoteeName || 'श्रद्धालु'],
     ['मोबाइल नंबर (Mobile):', devoteeMobile],
     ['कुल श्रद्धालु (Persons):', `${b.devoteeCount || 1} व्यक्ति (${b.devoteeCount || 1} Person)`],
@@ -674,15 +715,6 @@ async function generateDarshanPassCanvas(b, lang) {
     ['अनुमानित प्रतीक्षा (Wait):', `${b.liveWaitMinutes || 35} मिनट (${b.liveWaitMinutes || 35} Min)`],
     ['प्रवेश द्वार (Entry Gate):', 'नीलकंठ द्वार (Nilkanth Gate)'],
     ['जारी समय (Issued At):', cleanIssued]
-  ] : [
-    ['Devotee Name:', b.devoteeName || 'Devotee'],
-    ['Mobile Number:', devoteeMobile],
-    ['Total Persons:', `${b.devoteeCount || 1} Person(s)`],
-    ['Darshan Date:', cleanDate],
-    ['Darshan Slot:', b.slotTime || '08:00 AM - 11:00 AM'],
-    ['Est. Wait Time:', `${b.liveWaitMinutes || 35} Min`],
-    ['Entry Gate:', 'Nilkanth Gate (Neelkanth Dwar)'],
-    ['Issued Date/Time:', cleanIssued]
   ];
 
   y += 24;
@@ -708,42 +740,41 @@ async function generateDarshanPassCanvas(b, lang) {
 
   // 7. QR Code
   y += 6;
-  const qrImg = new Image();
-  const qrLoaded = new Promise(resolve => {
-    qrImg.onload = () => resolve(true);
-    qrImg.onerror = () => resolve(false);
-  });
-  qrImg.src = b.qrDataUrl || `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent((b.bookingId || '') + '|' + (b.tokenNumber || ''))}`;
-  await Promise.race([qrLoaded, new Promise(r => setTimeout(r, 800))]);
+  const qrPayload = `${b.bookingId || ''}|${b.tokenNumber || ''}|${b.devoteeName || ''}|${b.devoteeCount || 1}|Nilkanth Gate`;
+  let qrDataUri = b.qrDataUrl || '';
+  if (!qrDataUri || qrDataUri.includes('api.qrserver.com')) {
+    qrDataUri = generateLocalQrDataUrl(qrPayload, 160) || b.qrDataUrl || '';
+  }
 
-  try {
-    ctx.drawImage(qrImg, 181, y, 150, 150);
-  } catch (e) {}
+  if (qrDataUri) {
+    const qrImg = new Image();
+    qrImg.crossOrigin = 'anonymous';
+    qrImg.src = qrDataUri;
+    if (!qrImg.complete) {
+      await new Promise(r => {
+        qrImg.onload = r;
+        qrImg.onerror = r;
+        setTimeout(r, 400);
+      });
+    }
+    try {
+      ctx.drawImage(qrImg, 181, y, 150, 150);
+    } catch (e) {}
+  }
 
   y += 168;
 
   // 8. Gate Note & Footer
   ctx.fillStyle = '#000000';
   ctx.textAlign = 'center';
-  if (isHi) {
-    ctx.font = 'bold 15px "Noto Sans Devanagari", sans-serif';
-    ctx.fillText('प्रवेश हेतु नीलकंठ द्वार पर QR कोड स्कैन करें', 256, y);
-    ctx.font = '13px "Inter", sans-serif';
-    ctx.fillText('Scan at Nilkanth Gate Barrier before entering queue', 256, y + 20);
-    ctx.font = 'bold 13px "Noto Sans Devanagari", sans-serif';
-    ctx.fillText('श्री महाकालेश्वर मंदिर प्रबंध समिति, उज्जैन (म.प्र.)', 256, y + 42);
-    ctx.font = '11px "Inter", sans-serif';
-    ctx.fillText(`टर्मिनल: ${b.kioskId || 'KIOSK-UJJAIN-01'} • केवल एक बार प्रवेश हेतु मान्य`, 256, y + 60);
-  } else {
-    ctx.font = 'bold 15px "Inter", sans-serif';
-    ctx.fillText('Scan QR Code at Nilkanth Gate Barrier', 256, y);
-    ctx.font = '13px "Inter", sans-serif';
-    ctx.fillText('Valid for one-time entry on selected darshan slot', 256, y + 20);
-    ctx.font = 'bold 13px "Inter", sans-serif';
-    ctx.fillText('Shri Mahakaleshwar Temple Committee, Ujjain (M.P.)', 256, y + 42);
-    ctx.font = '11px "Inter", sans-serif';
-    ctx.fillText(`Terminal: ${b.kioskId || 'KIOSK-UJJAIN-01'}`, 256, y + 60);
-  }
+  ctx.font = 'bold 15px "Noto Sans Devanagari", sans-serif';
+  ctx.fillText('प्रवेश हेतु नीलकंठ द्वार पर QR कोड स्कैन करें', 256, y);
+  ctx.font = '13px "Inter", sans-serif';
+  ctx.fillText('Scan at Nilkanth Gate Barrier before entering queue', 256, y + 20);
+  ctx.font = 'bold 13px "Noto Sans Devanagari", sans-serif';
+  ctx.fillText('श्री महाकालेश्वर मंदिर प्रबंध समिति, उज्जैन (म.प्र.)', 256, y + 42);
+  ctx.font = '11px "Inter", sans-serif';
+  ctx.fillText(`टर्मिनल: ${b.kioskId || 'KIOSK-UJJAIN-01'} • केवल एक बार प्रवेश हेतु मान्य`, 256, y + 60);
 
   return canvas;
 }
@@ -752,104 +783,45 @@ async function generateDarshanPassCanvas(b, lang) {
 async function sendTestSlip(targetIp) {
   const ip = (targetIp && targetIp.trim()) || getPrinterIp();
   if (!ip) return false;
-  const xml = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><text align="center" width="2" height="2">SHRI MAHAKALESHWAR&#10;</text><text width="1" height="1">UJJAIN (MADHYA PRADESH)&#10;------------------------------------------------&#10;</text><text width="2" height="2">TEST PRINT OK&#10;</text><text width="1" height="1">Printer IP: ${ip}&#10;Status: ONLINE &amp; READY&#10;------------------------------------------------&#10;&#10;&#10;</text><cut type="feed"/></epos-print></s:Body></s:Envelope>`;
 
-  // Try local /api/print-thermal proxy first
-  try {
-    const res = await fetch('/api/print-thermal', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        tokenNumber: 'TEST-01',
-        bookingId: 'TEST-PRINT',
-        devoteeName: 'Test Devotee',
-        devoteeCount: 1,
-        slotTime: '08:00 AM - 11:00 AM',
-        language: currentLang
-      }),
-      signal: AbortSignal.timeout(2500)
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.success) return true;
-    }
-  } catch (e) {}
+  const testBooking = {
+    tokenNumber: 'TEST-01',
+    bookingId: 'MP-TEST-001',
+    devoteeName: 'परीक्षण श्रद्धालु (Test Devotee)',
+    devoteeCount: 1,
+    mobileNumber: '9876543210',
+    slotTime: '08:00 AM - 11:00 AM',
+    liveWaitMinutes: 25,
+    darshanDateFormatted: '29 Sep 2026',
+    bookedAt: 'Now',
+    kioskId: 'KIOSK-UJJAIN-01'
+  };
 
-  const endpoints = [
-    `https://${ip}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`,
-    `http://${ip}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`
-  ];
-
-  for (const url of endpoints) {
-    try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/xml; charset=utf-8', 'SOAPAction': '""' },
-        body: xml,
-        signal: AbortSignal.timeout(3000)
-      });
-      if (res.ok) return true;
-    } catch (e) {}
-  }
-  return false;
+  return await printViaEposXml(testBooking);
 }
 
 // Direct Web ePOS-Print to Epson TM-T88VII on local network
 async function printViaEposXml(b) {
   if (!b) return false;
   const ip = getPrinterIp();
-  const printMode = localStorage.getItem('kiosk_print_mode') || 'graphic';
-  const isHi = (currentLang === 'hi') || (b && b.language === 'hi');
 
   let raster = null;
   let xml = '';
 
-  // 1. Generate crisp monochrome graphic raster with full Hindi/Devanagari text
-  if (printMode === 'graphic') {
-    try {
-      const canvas = await generateDarshanPassCanvas(b, currentLang);
-      if (canvas) {
-        raster = convertCanvasToEposRaster(canvas);
-        if (raster && raster.base64) {
-          xml = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><image width="${raster.width}" height="${raster.height}" color="none" mode="mono">${raster.base64}</image><cut type="feed"/></epos-print></s:Body></s:Envelope>`;
-        }
+  // 1. Generate crisp monochrome graphic raster with 100% Hindi Devanagari text & Emblem
+  try {
+    const canvas = await generateDarshanPassCanvas(b, currentLang);
+    if (canvas) {
+      raster = convertCanvasToEposRaster(canvas);
+      if (raster && raster.base64) {
+        xml = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><image width="${raster.width}" height="${raster.height}">${raster.base64}</image><cut type="feed"/></epos-print></s:Body></s:Envelope>`;
       }
-    } catch (e) {
-      console.warn('Canvas raster generation error:', e);
     }
+  } catch (e) {
+    console.warn('Canvas raster generation error:', e);
   }
 
-  // 2. High-speed text mode fallback (bilingual Hindi/English)
-  if (!raster) {
-    const cleanDate = getCleanDisplayDate(b);
-    const devoteeMobile = b.mobileNumber && b.mobileNumber !== 'Walk-in Devotee' ? b.mobileNumber : '—';
-    const qrText = `${b.bookingId}|${b.tokenNumber}|${b.devoteeName}|${devoteeMobile}|${b.devoteeCount}|Nilkanth Gate`;
-    const cleanIssued = b.bookedAt ? b.bookedAt.replace(/[\u0900-\u097F]/g, '').trim() : 'Now';
-
-    const titleMain = isHi
-      ? 'SHRI MAHAKALESHWAR TEMPLE&#10;JYOTIRLINGA, UJJAIN (M.P.)&#10;SAMANYA DARSHAN PASS (NISHULK / FREE)'
-      : 'SHRI MAHAKALESHWAR&#10;JYOTIRLINGA TEMPLE, UJJAIN (M.P.)&#10;SAMANYA DARSHAN PASS (FREE)';
-    const tokenLbl = isHi ? `TOKEN NO. (TOKEN KRAMANK) : ${b.tokenNumber}` : `TOKEN NUMBER  : ${b.tokenNumber}`;
-    const passLbl  = isHi ? `PASS ID (PASS KRAMANK)    : ${b.bookingId}` : `PASS ID       : ${b.bookingId}`;
-    const statusLbl= isHi ? 'STATUS (STHITI)           : PUSHTIKRIT (FREE)' : 'STATUS        : CONFIRMED (FREE)';
-
-    const lblDevotee = isHi ? 'Mukhy Shraddhalu (Devotee): ' : 'Devotee Name  : ';
-    const lblMobile  = isHi ? 'Mobile Number             : ' : 'Mobile Number : ';
-    const lblCount   = isHi ? 'Kul Shraddhalu (Persons)  : ' : 'Total Persons : ';
-    const lblDate    = isHi ? 'Darshan Dinank (Date)     : ' : 'Darshan Date  : ';
-    const lblSlot    = isHi ? 'Darshan Slot (Samay)      : ' : 'Darshan Slot  : ';
-    const lblWait    = isHi ? 'Pratiksha Samay (Wait)    : ' : 'Est. Wait     : ';
-    const lblGate    = isHi ? 'Pravesh Dwar (Gate)       : ' : 'Entry Gate    : ';
-    const lblIssued  = isHi ? 'Jari Samay (Issued Time)  : ' : 'Issued At     : ';
-
-    const personsVal = isHi ? `${b.devoteeCount} Vyakti (${b.devoteeCount} Person)` : `${b.devoteeCount} Person(s)`;
-    const dateVal    = isHi ? `${cleanDate} (Aaj)` : `${cleanDate} (Today)`;
-    const qrNote     = isHi ? 'Pravesh Hetu Nilkanth Dwar Par Scan Karein&#10;(Scan at Nilkanth Gate Barrier)' : 'Scan at Nilkanth Gate Barrier';
-
-    xml = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><text align="center" width="2" height="2">${titleMain}&#10;================================================&#10;</text><text align="center" width="2" height="2">${tokenLbl}&#10;</text><text width="1" height="1">${passLbl}&#10;${statusLbl}&#10;------------------------------------------------&#10;</text><text align="left">${lblDevotee}${b.devoteeName}&#10;${lblMobile}${devoteeMobile}&#10;${lblCount}${personsVal}&#10;${lblDate}${dateVal}&#10;${lblSlot}${b.slotTime}&#10;${lblWait}${b.liveWaitMinutes || 35} Min&#10;${lblGate}Nilkanth Gate (Neelkanth Dwar)&#10;${lblIssued}${cleanIssued}&#10;------------------------------------------------&#10;</text><text align="center">&#10;</text><symbol type="qrcode_model_2" level="level_m" width="6">${qrText}</symbol><text align="center">&#10;${qrNote}&#10;Shri Mahakaleshwar Temple Committee, Ujjain&#10;Terminal: ${b.kioskId || 'KIOSK-UJJAIN-01'}&#10;&#10;&#10;</text><cut type="feed"/></epos-print></s:Body></s:Envelope>`;
-  }
-
-  // 3. First attempt printing graphic raster to local Node bridge if available
+  // 2. First attempt printing graphic raster to local Node bridge if available
   if (raster && raster.base64) {
     try {
       const localBridgeRes = await fetch('/api/print-raster', {
@@ -860,7 +832,7 @@ async function printViaEposXml(b) {
           widthBytes: raster.widthBytes,
           heightDots: raster.heightDots
         }),
-        signal: AbortSignal.timeout(2500)
+        signal: AbortSignal.timeout(3000)
       });
       if (localBridgeRes.ok) {
         const data = await localBridgeRes.json();
@@ -872,54 +844,60 @@ async function printViaEposXml(b) {
     } catch (e) {}
   }
 
-  // 4. Send ePOS XML directly to printer IP on local Wi-Fi / tablet
-  if (!ip) {
-    console.log('ℹ️ No printer IP configured yet in settings. Open ⚙️ to set IP.');
-    return false;
+  // 3. Send ePOS XML directly to printer IP on local Wi-Fi / tablet
+  if (xml && ip) {
+    const endpoints = [
+      `http://${ip}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`,
+      `https://${ip}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`,
+      'http://EPSON20CAAF.local/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000'
+    ];
+
+    for (const url of endpoints) {
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'SOAPAction': '""'
+          },
+          body: xml,
+          signal: AbortSignal.timeout(4000)
+        });
+        if (res.ok) {
+          return true;
+        }
+      } catch (err) {}
+    }
   }
 
-  const endpoints = [
-    `https://${ip}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`,
-    `http://${ip}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`,
-    'http://EPSON20CAAF.local/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000'
-  ];
-
-  for (const url of endpoints) {
-    try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'text/xml; charset=utf-8',
-          'SOAPAction': '""'
-        },
-        body: xml,
-        signal: AbortSignal.timeout(4000)
-      });
-      if (res.ok) {
-        return true;
-      }
-    } catch (err) {}
-  }
   return false;
 }
 
 // Render Official Darshan Pass Card
 function renderThermalTicket(b) {
   const container = document.getElementById('thermal-ticket-mount');
+  const printMount = document.getElementById('print-render-container');
   if (!container) return;
 
-  const qrSrc = b.qrDataUrl || `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(b.bookingId + '|' + b.tokenNumber)}`;
+  const qrPayload = `${b.bookingId}|${b.tokenNumber}|${b.devoteeName}|${b.mobileNumber || ''}|${b.devoteeCount}|Nilkanth Gate`;
+  let qrSrc = b.qrDataUrl || '';
+  if (!qrSrc || qrSrc.includes('api.qrserver.com')) {
+    qrSrc = generateLocalQrDataUrl(qrPayload, 160) || b.qrDataUrl || '';
+  }
+
   const cleanEn = getCleanDisplayDate(b);
   const displayPassDate = b.darshanDateFormatted && b.darshanDateFormatted !== cleanEn 
     ? `${cleanEn} (${b.darshanDateFormatted})` 
     : cleanEn;
 
-  container.innerHTML = `
+  const logoSrc = (typeof TEMPLE_LOGO_DATA_URL !== 'undefined') ? TEMPLE_LOGO_DATA_URL : 'logo-print.png';
+
+  const passHtml = `
     <div class="darshan-pass-card">
       <!-- Top Header with Temple Emblem -->
       <div class="pass-header">
         <div class="pass-emblem-row">
-          <img src="shrimahakaleshwar_logo.png" alt="श्री महाकालेश्वर मंदिर" class="pass-emblem-img" />
+          <img src="${logoSrc}" alt="श्री महाकालेश्वर मंदिर" class="pass-emblem-img" crossorigin="anonymous" />
           <div class="pass-temple-heading">
             <div style="font-size: 0.78rem; font-weight: 800; color: #d84b06; margin-bottom: 2px;">॥ श्री महाकालेश्वर ज्योतिर्लिंग मंदिर ॥</div>
             <h3>SHRI MAHAKALESHWAR TEMPLE</h3>
@@ -945,7 +923,7 @@ function renderThermalTicket(b) {
       <!-- Devotee & Booking Details Table -->
       <table class="pass-details-table">
         <tr>
-          <td class="pass-td-key">श्रद्धालु का नाम (Full Name):</td>
+          <td class="pass-td-key">श्रद्धालु का नाम (Devotee):</td>
           <td class="pass-td-val val-highlight">${b.devoteeName}</td>
         </tr>
         <tr>
@@ -954,14 +932,14 @@ function renderThermalTicket(b) {
         </tr>
         <tr>
           <td class="pass-td-key">कुल संख्या (Total Persons):</td>
-          <td class="pass-td-val"><strong>${b.devoteeCount} Person(s)</strong></td>
+          <td class="pass-td-val"><strong>${b.devoteeCount} व्यक्ति (${b.devoteeCount} Person)</strong></td>
         </tr>
         <tr>
           <td class="pass-td-key">दर्शन दिनांक (Darshan Date):</td>
           <td class="pass-td-val"><strong>${displayPassDate}</strong></td>
         </tr>
         <tr>
-          <td class="pass-td-key">दर्शन स्लॉट (Darshan Slot):</td>
+          <td class="pass-td-key">दर्शन समय स्लॉट (Darshan Slot):</td>
           <td class="pass-td-val">${b.slotTime}</td>
         </tr>
         <tr>
@@ -974,13 +952,13 @@ function renderThermalTicket(b) {
         </tr>
         <tr>
           <td class="pass-td-key">जारी समय (Issued Date/Time):</td>
-          <td class="pass-td-val">${b.bookedAt}</td>
+          <td class="pass-td-val">${b.bookedAt || 'Now'}</td>
         </tr>
       </table>
 
       <!-- QR Code & Turnstile Instructions -->
       <div class="pass-qr-section">
-        <img src="${qrSrc}" alt="Turnstile QR Code" class="pass-qr-img" />
+        <img src="${qrSrc}" alt="Turnstile QR Code" class="pass-qr-img" crossorigin="anonymous" />
         <div class="pass-qr-meta">
           <p style="font-size: 0.8rem; font-weight: 800; color: #7a1a03;">प्रवेश हेतु QR कोड स्कैन करें</p>
           <p style="margin-top: 2px; color: #4b5563;">Scan at turnstile barrier before entering queue.</p>
@@ -990,11 +968,16 @@ function renderThermalTicket(b) {
 
       <!-- Official Footer -->
       <div class="pass-footer-notes">
-        <p>श्री महाकालेश्वर मंदिर प्रबंध समिति, उज्जैन</p>
-        <small>यह पास केवल चयनित दिनांक के दर्शन के लिए एक बार प्रवेश हेतु मान्य है • Terminal: ${b.kioskId}</small>
+        <p>श्री महाकालेश्वर मंदिर प्रबंध समिति, उज्जैन (म.प्र.)</p>
+        <small>यह पास केवल चयनित दिनांक के दर्शन के लिए एक बार प्रवेश हेतु मान्य है • Terminal: ${b.kioskId || 'KIOSK-UJJAIN-01'}</small>
       </div>
     </div>
   `;
+
+  container.innerHTML = passHtml;
+  if (printMount) {
+    printMount.innerHTML = passHtml;
+  }
 }
 
 // Download PDF Helper

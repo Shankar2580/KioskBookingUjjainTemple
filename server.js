@@ -285,25 +285,26 @@ function printToEpsonNetworkPrinter(b) {
       const devoteeMobile = b.mobileNumber && b.mobileNumber !== 'Walk-in Devotee' ? b.mobileNumber : '—';
       const cleanIssued = b.bookedAt ? b.bookedAt.replace(/[\u0900-\u097F]/g, '').trim() : 'Now';
 
-      const titleHeader = isHi
-        ? 'SHRI MAHAKALESHWAR TEMPLE\nJYOTIRLINGA, UJJAIN (M.P.)\nSAMANYA DARSHAN PASS (NISHULK / FREE)\n'
-        : 'SHRI MAHAKALESHWAR\nJYOTIRLINGA TEMPLE, UJJAIN (M.P.)\nSAMANYA DARSHAN PASS (FREE)\n';
+      const titleHeader =
+        'SHRI MAHAKALESHWAR TEMPLE\n' +
+        'UJJAIN (MADHYA PRADESH)\n' +
+        'SWAYAM SEVA SAMANYA DARSHAN PASS\n';
 
-      const tokenLabel  = isHi ? `TOKEN NO. (TOKEN KRAMANK) : ${b.tokenNumber}\n` : `TOKEN NUMBER  : ${b.tokenNumber}\n`;
-      const passIdLabel = isHi ? `PASS ID (PASS KRAMANK)    : ${b.bookingId}\n` : `PASS ID       : ${b.bookingId}\n`;
-      const statusLabel = isHi ? 'STATUS (STHITI)           : PUSHTIKRIT (FREE)\n' : 'STATUS        : CONFIRMED (FREE)\n';
+      const tokenLabel  = `TOKEN NUMBER  : ${b.tokenNumber}\n`;
+      const passIdLabel = `PASS ID       : ${b.bookingId}\n`;
+      const statusLabel = 'STATUS        : CONFIRMED (FREE)\n';
 
-      const lblDevotee = isHi ? 'Mukhy Shraddhalu (Devotee): ' : 'Devotee Name  : ';
-      const lblMobile  = isHi ? 'Mobile Number             : ' : 'Mobile Number : ';
-      const lblCount   = isHi ? 'Kul Shraddhalu (Persons)  : ' : 'Total Persons : ';
-      const lblDate    = isHi ? 'Darshan Dinank (Date)     : ' : 'Darshan Date  : ';
-      const lblSlot    = isHi ? 'Darshan Slot (Samay)      : ' : 'Darshan Slot  : ';
-      const lblWait    = isHi ? 'Pratiksha Samay (Wait)    : ' : 'Est. Wait     : ';
-      const lblGate    = isHi ? 'Pravesh Dwar (Gate)       : ' : 'Entry Gate    : ';
-      const lblIssued  = isHi ? 'Jari Samay (Issued Time)  : ' : 'Issued At     : ';
+      const lblDevotee = 'Devotee Name  : ';
+      const lblMobile  = 'Mobile Number : ';
+      const lblCount   = 'Total Persons : ';
+      const lblDate    = 'Darshan Date  : ';
+      const lblSlot    = 'Darshan Slot  : ';
+      const lblWait    = 'Est. Wait     : ';
+      const lblGate    = 'Entry Gate    : ';
+      const lblIssued  = 'Issued At     : ';
 
-      const personsVal = isHi ? `${b.devoteeCount} Vyakti (${b.devoteeCount} Person)` : `${b.devoteeCount} Person(s)`;
-      const dateVal    = isHi ? `${cleanDate} (Aaj)` : `${cleanDate} (Today)`;
+      const personsVal = `${b.devoteeCount} Person(s)`;
+      const dateVal    = cleanDate;
       const waitVal    = `${b.liveWaitMinutes || 35} Min`;
 
       const header = Buffer.from(
@@ -347,9 +348,8 @@ function printToEpsonNetworkPrinter(b) {
         Buffer.from([0x1d, 0x28, 0x6b, 0x03, 0x00, 0x31, 0x51, 0x30])
       ]);
 
-      const footerText = isHi
-        ? '\nNeelkanth Dwar Par Scan Karein\n(Scan at Nilkanth Gate Barrier)\nShri Mahakaleshwar Mandir Prabandh Samiti\n\n\n\n'
-        : '\nScan at Nilkanth Gate Barrier\nShri Mahakaleshwar Temple Committee\n\n\n\n';
+      const footerText =
+        '\nScan at Nilkanth Gate Barrier\nShri Mahakaleshwar Temple Committee, Ujjain\n\n\n\n';
 
       const footer = Buffer.from(
         footerText +

@@ -228,7 +228,8 @@
         <p>श्री महाकालेश्वर मंदिर प्रबंध समिति, उज्जैन (म.प्र.)</p>
       </footer>
     </div>
-  </div>
+  <!-- Off-screen mount for 100% reliable 80mm monochrome graphic pass raster rendering -->
+  <div id="print-render-container" style="position: fixed; left: -9999px; top: 0; width: 380px; background: #ffffff; z-index: -9999; visibility: visible; display: block; overflow: visible;"></div>
 
   <!-- ============ 3-SECOND PRINT DISPENSER ANIMATION OVERLAY ============ -->
   <div id="modal-printing-dispenser" class="printing-dispenser-overlay" style="display: none;">
@@ -313,6 +314,8 @@
     </div>
   </div>
 
+  <script src="qrcode.min.js"></script>
+  <script src="logo-b64.js"></script>
   <script src="app.js"></script>
 </body>
 
