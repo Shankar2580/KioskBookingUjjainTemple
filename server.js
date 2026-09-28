@@ -43,10 +43,38 @@ app.post('/api/admin/waiting-time', (req, res) => {
   res.status(400).json({ error: 'Invalid minutes' });
 });
 
-// API: Get Available Slots
+// API: Get Available Slots & Dates (Today + 5 days)
 app.get('/api/slots', (req, res) => {
-  const today = new Date().toISOString().split('T')[0];
-  const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+  const dates = [];
+  const now = new Date();
+  
+  const monthNamesHi = ['जनवरी', 'फ़रवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर'];
+  const monthNamesEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const dayNamesHi = ['रवि', 'सोम', 'मंगल', 'बुध', 'गुरु', 'शुक्र', 'शनि'];
+
+  for (let i = 0; i <= 5; i++) {
+    const d = new Date(now.getTime() + i * 86400000);
+    const isoDate = d.toISOString().split('T')[0];
+    const dayNameEn = d.toLocaleDateString('en-US', { weekday: 'short' });
+    const dayNameHi = dayNamesHi[d.getDay()];
+    const monthNameEn = monthNamesEn[d.getMonth()];
+    const monthNameHi = monthNamesHi[d.getMonth()];
+    const dateNum = d.getDate();
+
+    dates.push({
+      offset: i,
+      isoDate,
+      dateNum,
+      dayNameEn,
+      dayNameHi,
+      monthNameEn,
+      monthNameHi,
+      labelHi: i === 0 ? 'आज (Today)' : i === 1 ? 'कल (Tomorrow)' : `${dayNameHi}, ${dateNum} ${monthNameHi}`,
+      labelEn: i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : `${dayNameEn}, ${dateNum} ${monthNameEn}`,
+      displayFullHi: `${dateNum} ${monthNameHi} ${d.getFullYear()}`,
+      displayFullEn: `${dateNum} ${monthNameEn} ${d.getFullYear()}`
+    });
+  }
 
   const slots = [
     { id: 'S1', time: '06:00 AM - 08:00 AM', labelHi: 'प्रातः दर्शन (Morning Aarti)', wait: '20 mins', available: true, remaining: 180 },
@@ -54,20 +82,19 @@ app.get('/api/slots', (req, res) => {
     { id: 'S3', time: '11:00 AM - 02:00 PM', labelHi: 'मध्याह्न दर्शन (Midday Darshan)', wait: '45 mins', available: true, remaining: 310 },
     { id: 'S4', time: '02:00 PM - 05:00 PM', labelHi: 'अपराह्न दर्शन (Afternoon Darshan)', wait: '30 mins', available: true, remaining: 290 },
     { id: 'S5', time: '05:00 PM - 08:00 PM', labelHi: 'संध्या आरती एवं दर्शन (Evening)', wait: '50 mins', available: true, remaining: 150 },
-    { id: 'S6', time: '08:00 PM - 10:30 PM', labelHi: 'शयन आरती दर्शन (Night Darshan)', wait: '25 mins', available: true, remaining: 200 }
+    { id: 'S6', time: '08:00 PM - 10:00 PM', labelHi: 'शयन आरती दर्शन (Night Darshan)', wait: '25 mins', available: true, remaining: 200 }
   ];
 
   res.json({
     success: true,
-    today,
-    tomorrow,
+    dates,
     slots
   });
 });
 
 // API: Create Booking & Issue Ticket
 app.post('/api/book', async (req, res) => {
-  const { devoteeName, devoteeCount, mobileNumber, slotId, slotTime, photoBase64, language } = req.body;
+  const { devoteeName, devoteeCount, mobileNumber, slotId, slotTime, darshanDate, darshanDateFormatted, photoBase64, language } = req.body;
 
   if (!devoteeName || !devoteeCount) {
     return res.status(400).json({ error: 'Devotee name and count are required.' });
@@ -86,6 +113,8 @@ app.post('/api/book', async (req, res) => {
     hour12: true
   });
 
+  const formattedDate = darshanDateFormatted || now.toLocaleDateString('en-IN');
+
   // Generate QR Code data URL
   let qrDataUrl = '';
   try {
@@ -94,9 +123,10 @@ app.post('/api/book', async (req, res) => {
       token: tokenNumber,
       name: devoteeName.trim(),
       persons: parseInt(devoteeCount, 10),
+      date: formattedDate,
       slot: slotTime || '08:00 AM - 11:00 AM',
-      gate: 'Gate No. 4 (Shanku Dwar)',
-      date: now.toLocaleDateString('en-IN')
+      gate: 'Triveni Gate, Shri Mahakal Mahalok',
+      issued: now.toLocaleDateString('en-IN')
     });
     qrDataUrl = await QRCode.toDataURL(qrPayload, {
       errorCorrectionLevel: 'M',
@@ -117,12 +147,14 @@ app.post('/api/book', async (req, res) => {
     devoteeName: devoteeName.trim(),
     devoteeCount: parseInt(devoteeCount, 10),
     mobileNumber: mobileNumber ? mobileNumber.trim() : 'Walk-in Devotee',
+    darshanDate: darshanDate || now.toISOString().split('T')[0],
+    darshanDateFormatted: formattedDate,
     slotId: slotId || 'S2',
     slotTime: slotTime || '08:00 AM - 11:00 AM',
     liveWaitMinutes: currentWaitMinutes,
     estimatedDarshanTime,
-    gateName: 'Gate No. 4 (Shanku Dwar / Bada Ganesh Marg)',
-    gateNameHi: 'गेट नं. ४ (शंकु द्वार / बड़ा गणेश मार्ग)',
+    gateName: 'Triveni Gate, Shri Mahakal Mahalok (त्रिवेणी गेट, श्री महाकाल महालोक)',
+    gateNameHi: 'त्रिवेणी गेट, श्री महाकाल महालोक (Triveni Gate, Shri Mahakal Mahalok)',
     bookedAt: now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
     qrDataUrl,
     photoBase64: photoBase64 || null,

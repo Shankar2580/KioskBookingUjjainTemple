@@ -73,31 +73,57 @@
           </div>
         </div>
 
-        <!-- ================= SCREEN 2: DEVOTEES COUNT ================= -->
-        <div id="screen-devotees" class="screen-card">
+        <!-- ================= SCREEN 2: DATE & TIME SLOTS (STEP 1) ================= -->
+        <div id="screen-slot" class="screen-card">
           <div class="step-header">
             <span class="step-eyebrow" data-t="step1Eye">चरण १ / ४</span>
-            <h2 class="step-title" data-t="step1Title">श्रद्धालुओं की संख्या चुनें</h2>
-            <p class="step-sub" data-t="step1Sub">एक बार में अधिकतम ८ श्रद्धालु बुक कर सकते हैं</p>
+            <h2 class="step-title" data-t="step1Title">दर्शन दिनांक एवं समय स्लॉट चुनें</h2>
+            <p class="step-sub" data-t="step1Sub">उपलब्ध दिनांक एवं दर्शन समय स्लॉट</p>
+          </div>
+
+          <!-- Date Selector Grid -->
+          <div class="date-selector-container">
+            <div class="date-section-heading" data-t="headingDate">📅 दर्शन दिनांक चुनें / Select Date</div>
+            <div id="date-selector-grid" class="date-grid"></div>
+          </div>
+
+          <!-- Time Slots Grid -->
+          <div class="date-section-heading" data-t="headingSlot">⏰ दर्शन समय स्लॉट चुनें / Select Time Slot</div>
+          <div id="slots-container" class="slots-grid"></div>
+
+          <div class="nav-actions">
+            <button type="button" id="btn-back-to-welcome" class="btn-back" data-t="btnBack">पीछे</button>
+            <button type="button" id="btn-to-devotees" class="btn-next">
+              <span data-t="btnNext">आगे बढ़ें</span> &rarr;
+            </button>
+          </div>
+        </div>
+
+        <!-- ================= SCREEN 3: DEVOTEES COUNT (STEP 2) ================= -->
+        <div id="screen-devotees" class="screen-card">
+          <div class="step-header">
+            <span class="step-eyebrow" data-t="step2Eye">चरण २ / ४</span>
+            <h2 class="step-title" data-t="step2Title">श्रद्धालुओं की संख्या चुनें</h2>
+            <p class="step-sub" data-t="step2Sub">एक बार में अधिकतम ८ श्रद्धालु बुक कर सकते हैं</p>
           </div>
 
           <!-- Touch Number Grid -->
           <div id="devotee-number-grid" class="number-grid"></div>
 
           <div class="nav-actions">
-            <button type="button" id="btn-back-to-welcome" class="btn-back" data-t="btnBack">पीछे</button>
+            <button type="button" id="btn-back-to-slot" class="btn-back" data-t="btnBack">पीछे</button>
             <button type="button" id="btn-to-name" class="btn-next">
               <span data-t="btnNext">आगे बढ़ें</span> &rarr;
             </button>
           </div>
         </div>
 
-        <!-- ================= SCREEN 3: NAME ONLY (EMPTY BY DEFAULT) ================= -->
+        <!-- ================= SCREEN 4: DEVOTEE NAME (STEP 3) ================= -->
         <div id="screen-name" class="screen-card">
           <div class="step-header">
-            <span class="step-eyebrow" data-t="step2Eye">चरण २ / ४</span>
-            <h2 class="step-title" data-t="step2Title">मुख्य श्रद्धालु का नाम दर्ज करें</h2>
-            <p class="step-sub" data-t="step2Sub">कृपया अपना पूरा नाम लिखें</p>
+            <span class="step-eyebrow" data-t="step3Eye">चरण ३ / ४</span>
+            <h2 class="step-title" data-t="step3Title">मुख्य श्रद्धालु का नाम दर्ज करें</h2>
+            <p class="step-sub" data-t="step3Sub">कृपया अपना पूरा नाम लिखें</p>
           </div>
 
           <div style="max-width: 580px; margin: 30px auto 0; width: 100%;">
@@ -112,31 +138,13 @@
 
           <div class="nav-actions">
             <button type="button" id="btn-back-to-devotees" class="btn-back" data-t="btnBack">पीछे</button>
-            <button type="button" id="btn-to-slot" class="btn-next">
-              <span data-t="btnNext">आगे बढ़ें</span> &rarr;
-            </button>
-          </div>
-        </div>
-
-        <!-- ================= SCREEN 4: SLOTS ================= -->
-        <div id="screen-slot" class="screen-card">
-          <div class="step-header">
-            <span class="step-eyebrow" data-t="step3Eye">चरण ३ / ४</span>
-            <h2 class="step-title" data-t="step3Title">दर्शन समय स्लॉट चुनें</h2>
-            <p class="step-sub" data-t="step3Sub">आज के उपलब्ध समय स्लॉट</p>
-          </div>
-
-          <div id="slots-container" class="slots-grid"></div>
-
-          <div class="nav-actions">
-            <button type="button" id="btn-back-to-name" class="btn-back" data-t="btnBack">पीछे</button>
             <button type="button" id="btn-to-confirm" class="btn-next">
               <span data-t="btnNext">आगे बढ़ें</span> &rarr;
             </button>
           </div>
         </div>
 
-        <!-- ================= SCREEN 5: CONFIRMATION ================= -->
+        <!-- ================= SCREEN 5: CONFIRMATION (STEP 4) ================= -->
         <div id="screen-confirm" class="screen-card">
           <div class="step-header">
             <span class="step-eyebrow" data-t="step4Eye">चरण ४ / ४</span>
@@ -155,7 +163,11 @@
                 <span id="sum-count" class="summary-val">-</span>
               </div>
               <div class="summary-row">
-                <span class="summary-key" data-t="summarySlot">दर्शन स्लॉट:</span>
+                <span class="summary-key" data-t="summaryDate">दर्शन दिनांक:</span>
+                <span id="sum-date" class="summary-val">-</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-key" data-t="summarySlot">दर्शन समय स्लॉट:</span>
                 <span id="sum-slot" class="summary-val">-</span>
               </div>
               <div class="summary-row">
@@ -164,13 +176,13 @@
               </div>
               <div class="summary-row">
                 <span class="summary-key" data-t="summaryGate">प्रवेश द्वार:</span>
-                <span id="sum-gate" class="summary-val" style="color: #2e7d32;">गेट नं. ४ (शंकु द्वार)</span>
+                <span id="sum-gate" class="summary-val" style="color: #2e7d32; font-weight: 800;">त्रिवेणी गेट, श्री महाकाल महालोक (Triveni Gate, Shri Mahakal Mahalok)</span>
               </div>
             </div>
           </div>
 
           <div class="nav-actions">
-            <button type="button" id="btn-back-to-slot" class="btn-back" data-t="btnBack">पीछे</button>
+            <button type="button" id="btn-back-to-name" class="btn-back" data-t="btnBack">पीछे</button>
             <button type="button" id="btn-confirm-booking" class="btn-next btn-confirm">
               <span>🖨️</span>
               <span data-t="btnConfirm">पुष्टि करें एवं टिकट प्रिंट करें</span>

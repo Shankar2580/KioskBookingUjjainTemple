@@ -15,23 +15,26 @@ const DICT = {
     minutes: 'मिनट',
     crowd: 'भीड़ स्थिति:',
     step1Eye: 'चरण १ / ४',
-    step1Title: 'श्रद्धालुओं की संख्या चुनें',
-    step1Sub: 'एक बार में अधिकतम ८ श्रद्धालु बुक कर सकते हैं',
-    persons: 'श्रद्धालु',
+    step1Title: 'दर्शन दिनांक एवं समय स्लॉट चुनें',
+    step1Sub: 'उपलब्ध दिनांक एवं दर्शन समय स्लॉट',
+    headingDate: '📅 दर्शन दिनांक चुनें / Select Date',
+    headingSlot: '⏰ दर्शन समय स्लॉट चुनें / Select Time Slot',
     step2Eye: 'चरण २ / ४',
-    step2Title: 'मुख्य श्रद्धालु का नाम दर्ज करें',
-    step2Sub: 'कृपया अपना पूरा नाम लिखें',
+    step2Title: 'श्रद्धालुओं की संख्या चुनें',
+    step2Sub: 'एक बार में अधिकतम ८ श्रद्धालु बुक कर सकते हैं',
+    persons: 'श्रद्धालु',
+    step3Eye: 'चरण ३ / ४',
+    step3Title: 'मुख्य श्रद्धालु का नाम दर्ज करें',
+    step3Sub: 'कृपया अपना पूरा नाम लिखें',
     labelName: 'मुख्य श्रद्धालु का पूरा नाम *',
     placeholderName: 'श्रद्धालु का नाम दर्ज करें',
-    step3Eye: 'चरण ३ / ४',
-    step3Title: 'दर्शन समय स्लॉट चुनें',
-    step3Sub: 'आज के उपलब्ध समय स्लॉट',
     step4Eye: 'चरण ४ / ४',
     step4Title: 'बुकिंग की पुष्टि करें',
     step4Sub: 'कृपया विवरण जांचें और टिकट प्रिंट करें',
     summaryDevotee: 'मुख्य श्रद्धालु:',
     summaryCount: 'कुल श्रद्धालु:',
-    summarySlot: 'दर्शन स्लॉट:',
+    summaryDate: 'दर्शन दिनांक:',
+    summarySlot: 'दर्शन समय स्लॉट:',
     summaryWait: 'अनुमानित प्रतीक्षा समय:',
     summaryGate: 'प्रवेश द्वार:',
     btnBack: 'पीछे',
@@ -54,22 +57,25 @@ const DICT = {
     minutes: 'Minutes',
     crowd: 'Crowd Level:',
     step1Eye: 'STEP 1 / 4',
-    step1Title: 'Select Number of Devotees',
-    step1Sub: 'You can book up to 8 devotees in one transaction',
-    persons: 'Person(s)',
+    step1Title: 'Select Darshan Date & Time Slot',
+    step1Sub: 'Choose your preferred date and slot',
+    headingDate: '📅 Select Darshan Date',
+    headingSlot: '⏰ Select Time Slot',
     step2Eye: 'STEP 2 / 4',
-    step2Title: 'Enter Primary Devotee Name',
-    step2Sub: 'Please enter your full name',
+    step2Title: 'Select Number of Devotees',
+    step2Sub: 'You can book up to 8 devotees in one transaction',
+    persons: 'Person(s)',
+    step3Eye: 'STEP 3 / 4',
+    step3Title: 'Enter Primary Devotee Name',
+    step3Sub: 'Please enter your full name',
     labelName: 'Primary Devotee Full Name *',
     placeholderName: 'Enter devotee name',
-    step3Eye: 'STEP 3 / 4',
-    step3Title: 'Select Darshan Time Slot',
-    step3Sub: 'Available slots for today',
     step4Eye: 'STEP 4 / 4',
     step4Title: 'Confirm Your Booking',
     step4Sub: 'Please verify details and print your ticket',
     summaryDevotee: 'Primary Devotee:',
     summaryCount: 'Total Devotees:',
+    summaryDate: 'Darshan Date:',
     summarySlot: 'Darshan Slot:',
     summaryWait: 'Live Waiting Time:',
     summaryGate: 'Designated Entry Gate:',
@@ -89,6 +95,9 @@ let currentLang = 'hi';
 let currentScreen = 'screen-welcome';
 let selectedDevoteeCount = 1;
 let devoteeName = '';
+let selectedDate = '';
+let selectedDateFormatted = '';
+let availableDates = [];
 let selectedSlotId = 'S2';
 let selectedSlotTime = '08:00 AM - 11:00 AM';
 let liveWaitMinutes = 35;
@@ -130,6 +139,10 @@ function setLanguage(lang) {
       }
     }
   });
+
+  if (availableDates.length) {
+    initDateSelector(availableDates);
+  }
 
   updateLiveWaitBanner();
 }
@@ -196,7 +209,47 @@ function initDevoteeSelector() {
   });
 }
 
-// Slots Loader
+// Date Selector (Today to 5 days later)
+function initDateSelector(dates) {
+  const container = document.getElementById('date-selector-grid');
+  if (!container || !dates || !dates.length) return;
+  availableDates = dates;
+
+  if (!selectedDate && dates[0]) {
+    selectedDate = dates[0].isoDate;
+    selectedDateFormatted = currentLang === 'hi' ? dates[0].displayFullHi : dates[0].displayFullEn;
+  }
+
+  container.innerHTML = dates.map((d, idx) => {
+    const isSelected = d.isoDate === selectedDate;
+    const dayLabel = idx === 0 ? (currentLang === 'hi' ? 'आज' : 'Today') : (idx === 1 ? (currentLang === 'hi' ? 'कल' : 'Tomorrow') : (currentLang === 'hi' ? d.dayNameHi : d.dayNameEn));
+    const monthLabel = currentLang === 'hi' ? d.monthNameHi : d.monthNameEn;
+
+    return `
+      <div class="date-card ${isSelected ? 'selected' : ''}" data-iso="${d.isoDate}" data-idx="${idx}">
+        <span class="date-tag">${dayLabel}</span>
+        <span class="date-num">${d.dateNum}</span>
+        <span class="date-month">${monthLabel}</span>
+      </div>
+    `;
+  }).join('');
+
+  container.querySelectorAll('.date-card').forEach(card => {
+    card.addEventListener('click', () => {
+      playBeep(880, 0.05);
+      container.querySelectorAll('.date-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      const idx = parseInt(card.getAttribute('data-idx'), 10);
+      const d = availableDates[idx];
+      if (d) {
+        selectedDate = d.isoDate;
+        selectedDateFormatted = currentLang === 'hi' ? d.displayFullHi : d.displayFullEn;
+      }
+    });
+  });
+}
+
+// Slots & Dates Loader
 async function initSlots() {
   const container = document.getElementById('slots-container');
   if (!container) return;
@@ -204,27 +257,32 @@ async function initSlots() {
   try {
     const res = await fetch('/api/slots');
     const data = await res.json();
-    if (data.success && data.slots) {
-      container.innerHTML = data.slots.map(s => `
-        <div class="slot-card ${s.id === selectedSlotId ? 'selected' : ''}" data-slot-id="${s.id}" data-slot-time="${s.time}">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span class="slot-time">${s.time}</span>
-            <span class="slot-badge">${s.remaining} Seats</span>
+    if (data.success) {
+      if (data.dates) {
+        initDateSelector(data.dates);
+      }
+      if (data.slots) {
+        container.innerHTML = data.slots.map(s => `
+          <div class="slot-card ${s.id === selectedSlotId ? 'selected' : ''}" data-slot-id="${s.id}" data-slot-time="${s.time}">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span class="slot-time">${s.time}</span>
+              <span class="slot-badge">${s.remaining} Seats</span>
+            </div>
+            <p class="slot-label">${s.labelHi}</p>
+            <span class="slot-wait">⏳ Wait: ${s.wait}</span>
           </div>
-          <p class="slot-label">${s.labelHi}</p>
-          <span class="slot-wait">⏳ Wait: ${s.wait}</span>
-        </div>
-      `).join('');
+        `).join('');
 
-      container.querySelectorAll('.slot-card').forEach(card => {
-        card.addEventListener('click', () => {
-          playBeep(880, 0.05);
-          container.querySelectorAll('.slot-card').forEach(c => c.classList.remove('selected'));
-          card.classList.add('selected');
-          selectedSlotId = card.getAttribute('data-slot-id');
-          selectedSlotTime = card.getAttribute('data-slot-time');
+        container.querySelectorAll('.slot-card').forEach(card => {
+          card.addEventListener('click', () => {
+            playBeep(880, 0.05);
+            container.querySelectorAll('.slot-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedSlotId = card.getAttribute('data-slot-id');
+            selectedSlotTime = card.getAttribute('data-slot-time');
+          });
         });
-      });
+      }
     }
   } catch (e) {}
 }
@@ -238,15 +296,17 @@ function renderConfirmation() {
 
   const sumName = document.getElementById('sum-name');
   const sumCount = document.getElementById('sum-count');
+  const sumDate = document.getElementById('sum-date');
   const sumSlot = document.getElementById('sum-slot');
   const sumWait = document.getElementById('sum-wait');
   const sumGate = document.getElementById('sum-gate');
 
   if (sumName) sumName.textContent = devoteeName || 'श्रद्धालु (Devotee)';
   if (sumCount) sumCount.textContent = `${selectedDevoteeCount} ${DICT[currentLang].persons}`;
+  if (sumDate) sumDate.textContent = selectedDateFormatted || (currentLang === 'hi' ? 'आज (Today)' : 'Today');
   if (sumSlot) sumSlot.textContent = selectedSlotTime;
   if (sumWait) sumWait.textContent = `~${liveWaitMinutes} ${DICT[currentLang].minutes}`;
-  if (sumGate) sumGate.textContent = currentLang === 'hi' ? 'गेट नं. ४ (शंकु द्वार)' : 'Gate No. 4 (Shanku Dwar)';
+  if (sumGate) sumGate.textContent = currentLang === 'hi' ? 'त्रिवेणी गेट, श्री महाकाल महालोक (Triveni Gate, Shri Mahakal Mahalok)' : 'Triveni Gate, Shri Mahakal Mahalok';
 }
 
 // Confirm & Print Action
@@ -271,6 +331,8 @@ async function confirmAndPrint() {
       body: JSON.stringify({
         devoteeName: devoteeName || 'Devotee',
         devoteeCount: selectedDevoteeCount,
+        darshanDate: selectedDate,
+        darshanDateFormatted: selectedDateFormatted,
         slotId: selectedSlotId,
         slotTime: selectedSlotTime,
         language: currentLang
@@ -305,6 +367,7 @@ function renderThermalTicket(b) {
   if (!container) return;
 
   const qrSrc = b.qrDataUrl || `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(b.bookingId + '|' + b.tokenNumber)}`;
+  const displayPassDate = b.darshanDateFormatted || (b.bookedAt ? b.bookedAt.split(',')[0] : 'Today');
 
   container.innerHTML = `
     <div class="darshan-pass-card">
@@ -345,6 +408,10 @@ function renderThermalTicket(b) {
           <td class="pass-td-val"><strong>${b.devoteeCount} Person(s)</strong></td>
         </tr>
         <tr>
+          <td class="pass-td-key">📅 दर्शन दिनांक (Darshan Date):</td>
+          <td class="pass-td-val"><strong>${displayPassDate}</strong></td>
+        </tr>
+        <tr>
           <td class="pass-td-key">⏰ दर्शन स्लॉट (Darshan Slot):</td>
           <td class="pass-td-val">${b.slotTime}</td>
         </tr>
@@ -354,10 +421,10 @@ function renderThermalTicket(b) {
         </tr>
         <tr>
           <td class="pass-td-key">📍 प्रवेश द्वार (Entry Gate):</td>
-          <td class="pass-td-val" style="color: #2e7d32;"><strong>गेट नं. ४ (शंकु द्वार)</strong></td>
+          <td class="pass-td-val" style="color: #2e7d32;"><strong>त्रिवेणी गेट, श्री महाकाल महालोक (Triveni Gate, Shri Mahakal Mahalok)</strong></td>
         </tr>
         <tr>
-          <td class="pass-td-key">📅 जारी समय (Issued Date/Time):</td>
+          <td class="pass-td-key">🕒 जारी समय (Issued Date/Time):</td>
           <td class="pass-td-val">${b.bookedAt}</td>
         </tr>
       </table>
@@ -368,20 +435,14 @@ function renderThermalTicket(b) {
         <div class="pass-qr-meta">
           <p style="font-size: 0.8rem; font-weight: 800; color: #7a1a03;">★ प्रवेश हेतु QR कोड स्कैन करें</p>
           <p style="margin-top: 2px; color: #4b5563;">Scan at turnstile barrier before entering queue.</p>
-          <span class="pass-qr-gate-badge">📍 GATE NO. 4 TURNSTILE</span>
+          <span class="pass-qr-gate-badge">📍 TRIVENI GATE, SHRI MAHAKAL MAHALOK</span>
         </div>
-      </div>
-
-      <!-- Simulated Barcode -->
-      <div class="pass-barcode-box">
-        <div class="barcode-lines"></div>
-        <span>*${b.bookingId}*</span>
       </div>
 
       <!-- Official Footer -->
       <div class="pass-footer-notes">
         <p>श्री महाकालेश्वर मंदिर प्रबंध समिति, उज्जैन</p>
-        <small>यह पास केवल आज के दर्शन के लिए एक बार प्रवेश हेतु मान्य है • Terminal: ${b.kioskId}</small>
+        <small>यह पास केवल चयनित दिनांक के दर्शन के लिए एक बार प्रवेश हेतु मान्य है • Terminal: ${b.kioskId}</small>
       </div>
     </div>
   `;
@@ -442,6 +503,7 @@ function resetKiosk() {
   const nameInput = document.getElementById('input-devotee-name');
   if (nameInput) nameInput.value = '';
   initDevoteeSelector();
+  initSlots();
   goToScreen('screen-welcome');
 }
 
@@ -459,48 +521,48 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Step 1 -> Step 2
+  // Welcome -> Step 1 (Date & Slot)
   document.getElementById('btn-start-booking')?.addEventListener('click', () => {
-    goToScreen('screen-devotees');
+    goToScreen('screen-slot');
   });
 
-  // Step 2 -> Step 3
-  document.getElementById('btn-to-name')?.addEventListener('click', () => {
-    goToScreen('screen-name');
+  // Step 1 (Date & Slot) -> Step 2 (Devotees Count)
+  document.getElementById('btn-to-devotees')?.addEventListener('click', () => {
+    goToScreen('screen-devotees');
   });
   document.getElementById('btn-back-to-welcome')?.addEventListener('click', () => {
     goToScreen('screen-welcome');
   });
 
-  // Step 3 -> Step 4
-  document.getElementById('btn-to-slot')?.addEventListener('click', () => {
+  // Step 2 (Devotees Count) -> Step 3 (Devotee Name)
+  document.getElementById('btn-to-name')?.addEventListener('click', () => {
+    goToScreen('screen-name');
+  });
+  document.getElementById('btn-back-to-slot')?.addEventListener('click', () => {
+    goToScreen('screen-slot');
+  });
+
+  // Step 3 (Devotee Name) -> Step 4 (Confirmation)
+  document.getElementById('btn-to-confirm')?.addEventListener('click', () => {
     const nameInput = document.getElementById('input-devotee-name');
     if (!nameInput || !nameInput.value.trim()) {
-      alert(currentLang === 'hi' ? 'कृपया श्रद्धालु का नाम दर्ज करें।' : 'Please enter devotee name.');
+      alert(currentLang === 'hi' ? 'कृपया मुख्य श्रद्धालु का नाम दर्ज करें।' : 'Please enter primary devotee name.');
       nameInput?.focus();
       return;
     }
     devoteeName = nameInput.value.trim();
-    goToScreen('screen-slot');
+    goToScreen('screen-confirm');
   });
   document.getElementById('btn-back-to-devotees')?.addEventListener('click', () => {
     goToScreen('screen-devotees');
   });
 
-  // Step 4 -> Step 5
-  document.getElementById('btn-to-confirm')?.addEventListener('click', () => {
-    goToScreen('screen-confirm');
-  });
-  document.getElementById('btn-back-to-name')?.addEventListener('click', () => {
-    goToScreen('screen-name');
-  });
-
-  // Step 5 -> Step 6
+  // Step 4 (Confirmation) -> Step 5 (Ticket Print)
   document.getElementById('btn-confirm-booking')?.addEventListener('click', () => {
     confirmAndPrint();
   });
-  document.getElementById('btn-back-to-slot')?.addEventListener('click', () => {
-    goToScreen('screen-slot');
+  document.getElementById('btn-back-to-name')?.addEventListener('click', () => {
+    goToScreen('screen-name');
   });
 
   // Print button

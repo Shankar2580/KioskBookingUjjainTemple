@@ -408,12 +408,88 @@ body {
   box-shadow: 0 0 0 4px rgba(216, 75, 6, 0.15);
 }
 
+/* Date Selection Grid */
+.date-selector-container {
+  margin-bottom: 18px;
+}
+
+.date-section-heading {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #7a1a03;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.date-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.date-card {
+  background: #fff;
+  border: 2px solid #fed7aa;
+  border-radius: var(--radius-md);
+  padding: 10px 4px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  user-select: none;
+}
+
+.date-card:hover {
+  border-color: #f97316;
+  transform: translateY(-1px);
+}
+
+.date-card.selected {
+  border-color: var(--primary);
+  background: linear-gradient(135deg, #fff2eb 0%, #ffe4d6 100%);
+  box-shadow: 0 6px 18px rgba(216, 75, 6, 0.25);
+  transform: scale(1.03);
+}
+
+.date-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #7a1a03;
+  letter-spacing: 0.04em;
+  margin-bottom: 2px;
+}
+
+.date-num {
+  font-size: 1.45rem;
+  font-weight: 900;
+  color: #1e1510;
+  line-height: 1.1;
+}
+
+.date-card.selected .date-num {
+  color: var(--primary);
+}
+
+.date-month {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #6b7280;
+}
+
 /* Slots Grid */
 .slots-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-  margin-bottom: 24px;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
 .slot-card {
