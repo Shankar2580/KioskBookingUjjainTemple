@@ -209,6 +209,42 @@ function initDevoteeSelector() {
   });
 }
 
+// Render Slots Grid (Clean without darshan labels)
+function renderSlots(slots) {
+  const container = document.getElementById('slots-container');
+  if (!container || !slots) return;
+
+  const seatsLabel = currentLang === 'hi' ? 'सीटें' : 'Seats';
+  const waitLabel = currentLang === 'hi' ? 'प्रतीक्षा' : 'Wait';
+
+  container.innerHTML = slots.map(s => {
+    const isSelected = s.id === selectedSlotId;
+    const waitTimeText = currentLang === 'hi' ? (s.waitHi || s.wait) : s.wait;
+
+    return `
+      <div class="slot-card ${isSelected ? 'selected' : ''}" data-slot-id="${s.id}" data-slot-time="${s.time}">
+        <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+          <span class="slot-time">${s.time}</span>
+          <span class="slot-badge">${s.remaining} ${seatsLabel}</span>
+        </div>
+        <div style="display:flex; align-items:center; margin-top:2px;">
+          <span class="slot-wait">⏳ ${waitLabel}: ${waitTimeText}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  container.querySelectorAll('.slot-card').forEach(card => {
+    card.addEventListener('click', () => {
+      playBeep(880, 0.05);
+      container.querySelectorAll('.slot-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedSlotId = card.getAttribute('data-slot-id');
+      selectedSlotTime = card.getAttribute('data-slot-time');
+    });
+  });
+}
+
 // Date Selector (Today to 5 days later)
 function initDateSelector(dates) {
   const container = document.getElementById('date-selector-grid');
@@ -244,44 +280,28 @@ function initDateSelector(dates) {
       if (d) {
         selectedDate = d.isoDate;
         selectedDateFormatted = currentLang === 'hi' ? d.displayFullHi : d.displayFullEn;
+        if (d.slots && d.slots.length) {
+          renderSlots(d.slots);
+        }
       }
     });
   });
 }
 
-// Slots & Dates Loader
+// Slots & Dates Loader (Always dynamically calculated)
 async function initSlots() {
-  const container = document.getElementById('slots-container');
-  if (!container) return;
-
   try {
     const res = await fetch('/api/slots');
     const data = await res.json();
     if (data.success) {
       if (data.dates) {
         initDateSelector(data.dates);
-      }
-      if (data.slots) {
-        container.innerHTML = data.slots.map(s => `
-          <div class="slot-card ${s.id === selectedSlotId ? 'selected' : ''}" data-slot-id="${s.id}" data-slot-time="${s.time}">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span class="slot-time">${s.time}</span>
-              <span class="slot-badge">${s.remaining} Seats</span>
-            </div>
-            <p class="slot-label">${s.labelHi}</p>
-            <span class="slot-wait">⏳ Wait: ${s.wait}</span>
-          </div>
-        `).join('');
-
-        container.querySelectorAll('.slot-card').forEach(card => {
-          card.addEventListener('click', () => {
-            playBeep(880, 0.05);
-            container.querySelectorAll('.slot-card').forEach(c => c.classList.remove('selected'));
-            card.classList.add('selected');
-            selectedSlotId = card.getAttribute('data-slot-id');
-            selectedSlotTime = card.getAttribute('data-slot-time');
-          });
-        });
+        const activeDateObj = data.dates.find(d => d.isoDate === selectedDate) || data.dates[0];
+        if (activeDateObj && activeDateObj.slots) {
+          renderSlots(activeDateObj.slots);
+        } else if (data.slots) {
+          renderSlots(data.slots);
+        }
       }
     }
   } catch (e) {}

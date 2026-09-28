@@ -43,7 +43,7 @@ app.post('/api/admin/waiting-time', (req, res) => {
   res.status(400).json({ error: 'Invalid minutes' });
 });
 
-// API: Get Available Slots & Dates (Today + 5 days)
+// API: Get Available Slots & Dates (Always dynamically calculated from today + 5 days)
 app.get('/api/slots', (req, res) => {
   const dates = [];
   const now = new Date();
@@ -51,6 +51,15 @@ app.get('/api/slots', (req, res) => {
   const monthNamesHi = ['जनवरी', 'फ़रवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर'];
   const monthNamesEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const dayNamesHi = ['रवि', 'सोम', 'मंगल', 'बुध', 'गुरु', 'शुक्र', 'शनि'];
+
+  const baseSlotsConfig = [
+    { id: 'S1', time: '06:00 AM - 08:00 AM', baseSeats: 180, wait: '20 mins', waitHi: '२० मिनट' },
+    { id: 'S2', time: '08:00 AM - 11:00 AM', baseSeats: 240, wait: `${currentWaitMinutes} mins`, waitHi: `${currentWaitMinutes} मिनट`, isCurrent: true },
+    { id: 'S3', time: '11:00 AM - 02:00 PM', baseSeats: 310, wait: '45 mins', waitHi: '४५ मिनट' },
+    { id: 'S4', time: '02:00 PM - 05:00 PM', baseSeats: 290, wait: '30 mins', waitHi: '३० मिनट' },
+    { id: 'S5', time: '05:00 PM - 08:00 PM', baseSeats: 150, wait: '50 mins', waitHi: '५० मिनट' },
+    { id: 'S6', time: '08:00 PM - 10:00 PM', baseSeats: 200, wait: '25 mins', waitHi: '२५ मिनट' }
+  ];
 
   for (let i = 0; i <= 5; i++) {
     const d = new Date(now.getTime() + i * 86400000);
@@ -60,6 +69,22 @@ app.get('/api/slots', (req, res) => {
     const monthNameEn = monthNamesEn[d.getMonth()];
     const monthNameHi = monthNamesHi[d.getMonth()];
     const dateNum = d.getDate();
+
+    // Distinct seat availability variance for each date
+    const dayVariance = [0, 42, -28, 65, -38, 78][i % 6];
+    const dateSlots = baseSlotsConfig.map((s, slotIdx) => {
+      const slotVariance = [0, -18, 24, -32, 38, -12][(i + slotIdx) % 6];
+      const remaining = Math.max(35, s.baseSeats + dayVariance + slotVariance);
+      return {
+        id: s.id,
+        time: s.time,
+        remaining,
+        wait: s.wait,
+        waitHi: s.waitHi,
+        available: true,
+        isCurrent: i === 0 && s.isCurrent
+      };
+    });
 
     dates.push({
       offset: i,
@@ -72,23 +97,15 @@ app.get('/api/slots', (req, res) => {
       labelHi: i === 0 ? 'आज (Today)' : i === 1 ? 'कल (Tomorrow)' : `${dayNameHi}, ${dateNum} ${monthNameHi}`,
       labelEn: i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : `${dayNameEn}, ${dateNum} ${monthNameEn}`,
       displayFullHi: `${dateNum} ${monthNameHi} ${d.getFullYear()}`,
-      displayFullEn: `${dateNum} ${monthNameEn} ${d.getFullYear()}`
+      displayFullEn: `${dateNum} ${monthNameEn} ${d.getFullYear()}`,
+      slots: dateSlots
     });
   }
-
-  const slots = [
-    { id: 'S1', time: '06:00 AM - 08:00 AM', labelHi: 'प्रातः दर्शन (Morning Aarti)', wait: '20 mins', available: true, remaining: 180 },
-    { id: 'S2', time: '08:00 AM - 11:00 AM', labelHi: 'सामान्य दर्शन (General Darshan)', wait: `${currentWaitMinutes} mins`, available: true, remaining: 240, isCurrent: true },
-    { id: 'S3', time: '11:00 AM - 02:00 PM', labelHi: 'मध्याह्न दर्शन (Midday Darshan)', wait: '45 mins', available: true, remaining: 310 },
-    { id: 'S4', time: '02:00 PM - 05:00 PM', labelHi: 'अपराह्न दर्शन (Afternoon Darshan)', wait: '30 mins', available: true, remaining: 290 },
-    { id: 'S5', time: '05:00 PM - 08:00 PM', labelHi: 'संध्या आरती एवं दर्शन (Evening)', wait: '50 mins', available: true, remaining: 150 },
-    { id: 'S6', time: '08:00 PM - 10:00 PM', labelHi: 'शयन आरती दर्शन (Night Darshan)', wait: '25 mins', available: true, remaining: 200 }
-  ];
 
   res.json({
     success: true,
     dates,
-    slots
+    slots: dates[0].slots
   });
 });
 
