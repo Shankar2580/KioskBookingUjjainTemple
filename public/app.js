@@ -826,24 +826,27 @@ async function printViaEposXml(b) {
     const qrText = `${b.bookingId}|${b.tokenNumber}|${b.devoteeName}|${devoteeMobile}|${b.devoteeCount}|Nilkanth Gate`;
     const cleanIssued = b.bookedAt ? b.bookedAt.replace(/[\u0900-\u097F]/g, '').trim() : 'Now';
 
-    const titleMain = isHi ? 'SHRI MAHAKALESHWAR TEMPLE&#10;JYOTIRLINGA, UJJAIN (M.P.)&#10;SAMANYA DARSHAN PASS (NISHULK)' : 'SHRI MAHAKALESHWAR&#10;JYOTIRLINGA TEMPLE, UJJAIN (M.P.)&#10;SAMANYA DARSHAN PASS (FREE)';
-    const tokenLbl = isHi ? `TOKEN / टोकन: ${b.tokenNumber}` : `TOKEN: ${b.tokenNumber}`;
-    const passLbl = isHi ? `PASS ID / पास: ${b.bookingId}` : `PASS ID: ${b.bookingId}`;
-    const statusLbl = isHi ? 'STATUS: PUSHTIKRIT / CONFIRMED (NISHULK)' : 'STATUS: CONFIRMED (FREE)';
+    const titleMain = isHi
+      ? 'SHRI MAHAKALESHWAR TEMPLE&#10;JYOTIRLINGA, UJJAIN (M.P.)&#10;SAMANYA DARSHAN PASS (NISHULK / FREE)'
+      : 'SHRI MAHAKALESHWAR&#10;JYOTIRLINGA TEMPLE, UJJAIN (M.P.)&#10;SAMANYA DARSHAN PASS (FREE)';
+    const tokenLbl = isHi ? `TOKEN NO. (TOKEN KRAMANK) : ${b.tokenNumber}` : `TOKEN NUMBER  : ${b.tokenNumber}`;
+    const passLbl  = isHi ? `PASS ID (PASS KRAMANK)    : ${b.bookingId}` : `PASS ID       : ${b.bookingId}`;
+    const statusLbl= isHi ? 'STATUS (STHITI)           : PUSHTIKRIT (FREE)' : 'STATUS        : CONFIRMED (FREE)';
 
-    const lblDevotee = isHi ? 'Shraddhalu / मुख्य श्रद्धालु : ' : 'Devotee Name : ';
-    const lblMobile  = isHi ? 'Mobile No. / मोबाइल नंबर   : ' : 'Mobile Number: ';
-    const lblCount   = isHi ? 'Kul Sankhya / कुल श्रद्धालु : ' : 'Total Persons: ';
-    const lblDate    = isHi ? 'Darshan Dinank / दर्शन दिनांक: ' : 'Darshan Date : ';
-    const lblSlot    = isHi ? 'Darshan Slot / समय स्लॉट   : ' : 'Darshan Slot : ';
-    const lblWait    = isHi ? 'Pratiksha / प्रतीक्षा समय   : ' : 'Est. Wait    : ';
-    const lblGate    = isHi ? 'Pravesh Dwar / प्रवेश द्वार : ' : 'Entry Gate   : ';
-    const lblIssued  = isHi ? 'Jari Samay / जारी समय      : ' : 'Issued At    : ';
+    const lblDevotee = isHi ? 'Mukhy Shraddhalu (Devotee): ' : 'Devotee Name  : ';
+    const lblMobile  = isHi ? 'Mobile Number             : ' : 'Mobile Number : ';
+    const lblCount   = isHi ? 'Kul Shraddhalu (Persons)  : ' : 'Total Persons : ';
+    const lblDate    = isHi ? 'Darshan Dinank (Date)     : ' : 'Darshan Date  : ';
+    const lblSlot    = isHi ? 'Darshan Slot (Samay)      : ' : 'Darshan Slot  : ';
+    const lblWait    = isHi ? 'Pratiksha Samay (Wait)    : ' : 'Est. Wait     : ';
+    const lblGate    = isHi ? 'Pravesh Dwar (Gate)       : ' : 'Entry Gate    : ';
+    const lblIssued  = isHi ? 'Jari Samay (Issued Time)  : ' : 'Issued At     : ';
 
-    const personsVal = isHi ? `${b.devoteeCount} Person / व्यक्ति` : `${b.devoteeCount} Person(s)`;
-    const qrNote     = isHi ? 'Neelkanth Dwar Par Scan Karein&#10;(Scan at Nilkanth Gate Barrier)' : 'Scan at Nilkanth Gate Barrier';
+    const personsVal = isHi ? `${b.devoteeCount} Vyakti (${b.devoteeCount} Person)` : `${b.devoteeCount} Person(s)`;
+    const dateVal    = isHi ? `${cleanDate} (Aaj)` : `${cleanDate} (Today)`;
+    const qrNote     = isHi ? 'Pravesh Hetu Nilkanth Dwar Par Scan Karein&#10;(Scan at Nilkanth Gate Barrier)' : 'Scan at Nilkanth Gate Barrier';
 
-    xml = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><text align="center" width="2" height="2">${titleMain}&#10;================================================&#10;</text><text align="center" width="2" height="2">${tokenLbl}&#10;</text><text width="1" height="1">${passLbl}&#10;${statusLbl}&#10;------------------------------------------------&#10;</text><text align="left">${lblDevotee}${b.devoteeName}&#10;${lblMobile}${devoteeMobile}&#10;${lblCount}${personsVal}&#10;${lblDate}${cleanDate}&#10;${lblSlot}${b.slotTime}&#10;${lblWait}${b.liveWaitMinutes || 35} Min&#10;${lblGate}Nilkanth Gate (Neelkanth Dwar)&#10;${lblIssued}${cleanIssued}&#10;------------------------------------------------&#10;</text><text align="center">&#10;</text><symbol type="qrcode_model_2" level="level_m" width="6">${qrText}</symbol><text align="center">&#10;${qrNote}&#10;Shri Mahakaleshwar Temple Committee, Ujjain&#10;Terminal: ${b.kioskId || 'KIOSK-UJJAIN-01'}&#10;&#10;&#10;</text><cut type="feed"/></epos-print></s:Body></s:Envelope>`;
+    xml = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><text align="center" width="2" height="2">${titleMain}&#10;================================================&#10;</text><text align="center" width="2" height="2">${tokenLbl}&#10;</text><text width="1" height="1">${passLbl}&#10;${statusLbl}&#10;------------------------------------------------&#10;</text><text align="left">${lblDevotee}${b.devoteeName}&#10;${lblMobile}${devoteeMobile}&#10;${lblCount}${personsVal}&#10;${lblDate}${dateVal}&#10;${lblSlot}${b.slotTime}&#10;${lblWait}${b.liveWaitMinutes || 35} Min&#10;${lblGate}Nilkanth Gate (Neelkanth Dwar)&#10;${lblIssued}${cleanIssued}&#10;------------------------------------------------&#10;</text><text align="center">&#10;</text><symbol type="qrcode_model_2" level="level_m" width="6">${qrText}</symbol><text align="center">&#10;${qrNote}&#10;Shri Mahakaleshwar Temple Committee, Ujjain&#10;Terminal: ${b.kioskId || 'KIOSK-UJJAIN-01'}&#10;&#10;&#10;</text><cut type="feed"/></epos-print></s:Body></s:Envelope>`;
   }
 
   // 3. First attempt printing graphic raster to local Node bridge if available

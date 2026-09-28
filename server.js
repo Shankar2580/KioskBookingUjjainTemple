@@ -280,29 +280,30 @@ function printToEpsonNetworkPrinter(b) {
       const ESC = '\x1b';
       const GS = '\x1d';
 
-      const isHi = (b.language === 'hi') || (!b.language);
-      const displayDate = b.darshanDateFormatted || b.darshanDateFormattedEn || (b.darshanDate && !/[\u0900-\u097F]/.test(b.darshanDate) ? b.darshanDate : 'Today');
+      const isHi = (b.language === 'hi');
+      const cleanDate = b.darshanDateFormattedEn || (b.darshanDate && !/[\u0900-\u097F]/.test(b.darshanDate) ? b.darshanDate : 'Today');
       const devoteeMobile = b.mobileNumber && b.mobileNumber !== 'Walk-in Devotee' ? b.mobileNumber : '—';
       const cleanIssued = b.bookedAt ? b.bookedAt.replace(/[\u0900-\u097F]/g, '').trim() : 'Now';
 
       const titleHeader = isHi
-        ? 'SHRI MAHAKALESHWAR TEMPLE\nJYOTIRLINGA, UJJAIN (M.P.)\n॥ SAMANYA DARSHAN PASS (NISHULK) ॥\n'
+        ? 'SHRI MAHAKALESHWAR TEMPLE\nJYOTIRLINGA, UJJAIN (M.P.)\nSAMANYA DARSHAN PASS (NISHULK / FREE)\n'
         : 'SHRI MAHAKALESHWAR\nJYOTIRLINGA TEMPLE, UJJAIN (M.P.)\nSAMANYA DARSHAN PASS (FREE)\n';
 
-      const tokenLabel  = isHi ? `TOKEN / टोकन: ${b.tokenNumber}\n` : `TOKEN: ${b.tokenNumber}\n`;
-      const passIdLabel = isHi ? `PASS ID / पास: ${b.bookingId}\n` : `PASS ID: ${b.bookingId}\n`;
-      const statusLabel = isHi ? 'STATUS: PUSHTIKRIT / CONFIRMED (NISHULK)\n' : 'STATUS: CONFIRMED (FREE)\n';
+      const tokenLabel  = isHi ? `TOKEN NO. (TOKEN KRAMANK) : ${b.tokenNumber}\n` : `TOKEN NUMBER  : ${b.tokenNumber}\n`;
+      const passIdLabel = isHi ? `PASS ID (PASS KRAMANK)    : ${b.bookingId}\n` : `PASS ID       : ${b.bookingId}\n`;
+      const statusLabel = isHi ? 'STATUS (STHITI)           : PUSHTIKRIT (FREE)\n' : 'STATUS        : CONFIRMED (FREE)\n';
 
-      const lblDevotee = isHi ? 'Shraddhalu / मुख्य श्रद्धालु : ' : 'Devotee Name : ';
-      const lblMobile  = isHi ? 'Mobile No. / मोबाइल नंबर   : ' : 'Mobile Number: ';
-      const lblCount   = isHi ? 'Kul Sankhya / कुल श्रद्धालु : ' : 'Total Persons: ';
-      const lblDate    = isHi ? 'Darshan Dinank / दर्शन दिनांक: ' : 'Darshan Date : ';
-      const lblSlot    = isHi ? 'Darshan Slot / समय स्लॉट   : ' : 'Darshan Slot : ';
-      const lblWait    = isHi ? 'Pratiksha / प्रतीक्षा समय   : ' : 'Est. Wait    : ';
-      const lblGate    = isHi ? 'Pravesh Dwar / प्रवेश द्वार : ' : 'Entry Gate   : ';
-      const lblIssued  = isHi ? 'Jari Samay / जारी समय      : ' : 'Issued At    : ';
+      const lblDevotee = isHi ? 'Mukhy Shraddhalu (Devotee): ' : 'Devotee Name  : ';
+      const lblMobile  = isHi ? 'Mobile Number             : ' : 'Mobile Number : ';
+      const lblCount   = isHi ? 'Kul Shraddhalu (Persons)  : ' : 'Total Persons : ';
+      const lblDate    = isHi ? 'Darshan Dinank (Date)     : ' : 'Darshan Date  : ';
+      const lblSlot    = isHi ? 'Darshan Slot (Samay)      : ' : 'Darshan Slot  : ';
+      const lblWait    = isHi ? 'Pratiksha Samay (Wait)    : ' : 'Est. Wait     : ';
+      const lblGate    = isHi ? 'Pravesh Dwar (Gate)       : ' : 'Entry Gate    : ';
+      const lblIssued  = isHi ? 'Jari Samay (Issued Time)  : ' : 'Issued At     : ';
 
-      const personsVal = isHi ? `${b.devoteeCount} Person / व्यक्ति` : `${b.devoteeCount} Person(s)`;
+      const personsVal = isHi ? `${b.devoteeCount} Vyakti (${b.devoteeCount} Person)` : `${b.devoteeCount} Person(s)`;
+      const dateVal    = isHi ? `${cleanDate} (Aaj)` : `${cleanDate} (Today)`;
       const waitVal    = `${b.liveWaitMinutes || 35} Min`;
 
       const header = Buffer.from(
@@ -321,7 +322,7 @@ function printToEpsonNetworkPrinter(b) {
         `${lblDevotee}${b.devoteeName}\n` +
         `${lblMobile}${devoteeMobile}\n` +
         `${lblCount}${personsVal}\n` +
-        `${lblDate}${displayDate}\n` +
+        `${lblDate}${dateVal}\n` +
         `${lblSlot}${b.slotTime}\n` +
         `${lblWait}${waitVal}\n` +
         `${lblGate}Nilkanth Gate (Neelkanth Dwar)\n` +
