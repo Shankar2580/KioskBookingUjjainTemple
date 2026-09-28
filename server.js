@@ -112,7 +112,7 @@ app.get('/api/slots', (req, res) => {
 
 // API: Create Booking & Issue Ticket
 app.post('/api/book', async (req, res) => {
-  const { devoteeName, devoteeCount, mobileNumber, slotId, slotTime, darshanDate, darshanDateFormatted, photoBase64, language } = req.body;
+  const { devoteeName, devoteeCount, mobileNumber, slotId, slotTime, darshanDate, darshanDateFormatted, darshanDateFormattedEn, photoBase64, language } = req.body;
 
   if (!devoteeName || !devoteeCount) {
     return res.status(400).json({ error: 'Devotee name and count are required.' });
@@ -132,6 +132,19 @@ app.post('/api/book', async (req, res) => {
   });
 
   const formattedDate = darshanDateFormatted || now.toLocaleDateString('en-IN');
+  let formattedDateEn = darshanDateFormattedEn;
+  if (!formattedDateEn && darshanDate) {
+    const parts = darshanDate.split('-');
+    if (parts.length === 3) {
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const mIdx = parseInt(parts[1], 10) - 1;
+      const dNum = parseInt(parts[2], 10);
+      if (mIdx >= 0 && mIdx < 12 && !isNaN(dNum)) {
+        formattedDateEn = `${dNum} ${months[mIdx]} ${parts[0]}`;
+      }
+    }
+  }
+  if (!formattedDateEn) formattedDateEn = now.toLocaleDateString('en-GB');
 
   // Generate QR Code data URL
   let qrDataUrl = '';
@@ -142,7 +155,7 @@ app.post('/api/book', async (req, res) => {
       name: devoteeName.trim(),
       mobile: mobileNumber ? mobileNumber.trim() : '',
       persons: parseInt(devoteeCount, 10),
-      date: formattedDate,
+      date: formattedDateEn,
       slot: slotTime || '08:00 AM - 11:00 AM',
       gate: 'Nilkanth Gate',
       issued: now.toLocaleDateString('en-IN')
@@ -168,6 +181,7 @@ app.post('/api/book', async (req, res) => {
     mobileNumber: mobileNumber ? mobileNumber.trim() : 'Walk-in Devotee',
     darshanDate: darshanDate || now.toISOString().split('T')[0],
     darshanDateFormatted: formattedDate,
+    darshanDateFormattedEn: formattedDateEn,
     slotId: slotId || 'S2',
     slotTime: slotTime || '08:00 AM - 11:00 AM',
     liveWaitMinutes: currentWaitMinutes,
@@ -208,21 +222,23 @@ function printToEpsonNetworkPrinter(b) {
       const ESC = '\x1b';
       const GS = '\x1d';
 
-      const displayDate = b.darshanDateFormatted || b.darshanDate || 'Today';
+      const displayDate = b.darshanDateFormattedEn || (b.darshanDate && !/[\u0900-\u097F]/.test(b.darshanDate) ? b.darshanDate : 'Today');
       const devoteeMobile = b.mobileNumber && b.mobileNumber !== 'Walk-in Devotee' ? b.mobileNumber : '—';
+      const cleanIssued = b.bookedAt ? b.bookedAt.replace(/[\u0900-\u097F]/g, '').trim() : 'Now';
 
       const header = Buffer.from(
         ESC + '@' + // Initialize printer
         ESC + 'a' + '\x01' + // Center
         GS + '!' + '\x11' + // Double size
-        'SHRI MAHAKALESHWAR TEMPLE\n' +
+        'SHRI MAHAKALESHWAR\n' +
         GS + '!' + '\x00' + // Normal size
-        'UJJAIN (MADHYA PRADESH)\n' +
-        'GENERAL DARSHAN PASS\n' +
-        '------------------------------------------------\n' +
+        'JYOTIRLINGA TEMPLE, UJJAIN (M.P.)\n' +
+        'SAMANYA DARSHAN PASS (FREE)\n' +
+        '================================================\n' +
         GS + '!' + '\x11' +
         `TOKEN: ${b.tokenNumber}\n` +
         GS + '!' + '\x00' +
+        `PASS ID: ${b.bookingId}\n` +
         'STATUS: CONFIRMED (FREE)\n' +
         '------------------------------------------------\n' +
         ESC + 'a' + '\x00' + // Left align
@@ -232,8 +248,8 @@ function printToEpsonNetworkPrinter(b) {
         `Darshan Date : ${displayDate}\n` +
         `Darshan Slot : ${b.slotTime}\n` +
         `Est. Wait    : ~${b.liveWaitMinutes || 35} Min\n` +
-        `Entry Gate   : Nilkanth Gate\n` +
-        `Issued At    : ${b.bookedAt}\n` +
+        `Entry Gate   : Nilkanth Gate (Neelkanth Dwar)\n` +
+        `Issued At    : ${cleanIssued}\n` +
         '------------------------------------------------\n' +
         ESC + 'a' + '\x01', // Center
         'binary'

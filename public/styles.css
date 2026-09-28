@@ -1006,3 +1006,304 @@ html, body {
   border-top: 1px solid #f3ece8;
   background: #fff;
 }
+
+/* ============================================================
+   MOBILE RESPONSIVENESS (SMARTPHONES & PORTRAIT TABLETS)
+   Preserves zero-scroll for landscape kiosk tablets while
+   providing a fluid, touch-friendly layout on mobile phones.
+   ============================================================ */
+
+@media (max-width: 768px), (orientation: portrait) and (max-width: 900px) {
+  html, body {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    max-height: none !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    position: static !important;
+    -webkit-overflow-scrolling: touch !important;
+    display: block !important;
+  }
+
+  .kiosk-device-casing {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+    display: block !important;
+  }
+
+  .kiosk-screen-viewport {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .kiosk-header {
+    padding: 8px 12px !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 50 !important;
+  }
+
+  .temple-brand {
+    gap: 8px !important;
+  }
+
+  .temple-logo-img {
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  .temple-title h1 {
+    font-size: 1rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .temple-title p {
+    font-size: 0.7rem !important;
+  }
+
+  .lang-btn {
+    padding: 5px 10px !important;
+    font-size: 0.78rem !important;
+    min-width: auto !important;
+  }
+
+  .kiosk-main {
+    flex: 1 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: calc(100vh - 65px) !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+    padding: 12px 10px 24px !important;
+  }
+
+  .screen-card {
+    width: 100% !important;
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+    padding-bottom: 16px !important;
+  }
+
+  /* Welcome Screen */
+  .welcome-hero {
+    padding: 20px 8px !important;
+    gap: 6px !important;
+  }
+
+  .welcome-logo-badge {
+    width: 120px !important;
+    height: 120px !important;
+    max-height: 25vh !important;
+    margin-bottom: 8px !important;
+  }
+
+  .welcome-title {
+    font-size: 1.75rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .welcome-subtitle {
+    font-size: 0.95rem !important;
+    line-height: 1.35 !important;
+  }
+
+  .kiosk-btn-hero {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 16px 24px !important;
+    font-size: 1.25rem !important;
+    border-radius: 40px !important;
+    margin-top: 16px !important;
+  }
+
+  /* Step Header */
+  .step-header {
+    margin-bottom: 12px !important;
+  }
+
+  .step-eyebrow {
+    font-size: 0.75rem !important;
+    padding: 3px 10px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .step-title {
+    font-size: 1.35rem !important;
+    line-height: 1.25 !important;
+  }
+
+  .step-sub {
+    font-size: 0.85rem !important;
+    margin-top: 2px !important;
+  }
+
+  /* Step 1: Dates & Slots */
+  .date-selector-container {
+    margin-bottom: 10px !important;
+  }
+
+  .date-section-heading {
+    font-size: 0.92rem !important;
+    margin-bottom: 6px !important;
+  }
+
+  .date-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .date-card {
+    min-height: 60px !important;
+    padding: 6px 4px !important;
+  }
+
+  .date-card .date-tag {
+    font-size: 0.65rem !important;
+  }
+
+  .date-card .date-num {
+    font-size: 1.2rem !important;
+  }
+
+  .date-card .date-month {
+    font-size: 0.7rem !important;
+  }
+
+  .slots-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .slot-card {
+    padding: 8px 10px !important;
+    min-height: 72px !important;
+  }
+
+  .slot-time {
+    font-size: 0.82rem !important;
+  }
+
+  .slot-wait-badge {
+    font-size: 0.68rem !important;
+    padding: 2px 6px !important;
+  }
+
+  .slot-seats {
+    font-size: 0.7rem !important;
+  }
+
+  /* Step 2: Devotees Selector */
+  .number-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 10px !important;
+    margin: 16px auto !important;
+    max-width: 100% !important;
+  }
+
+  .number-card {
+    height: 80px !important;
+  }
+
+  .number-card .num {
+    font-size: 2rem !important;
+  }
+
+  .number-card .lbl {
+    font-size: 0.75rem !important;
+  }
+
+  /* Step 3: Name & Mobile Form */
+  .form-container {
+    max-width: 100% !important;
+    padding: 0 4px !important;
+  }
+
+  .form-group {
+    margin-bottom: 14px !important;
+  }
+
+  .form-label {
+    font-size: 0.98rem !important;
+    margin-bottom: 6px !important;
+  }
+
+  .touch-input {
+    height: 50px !important;
+    font-size: 1.05rem !important;
+    padding: 0 14px !important;
+  }
+
+  /* Step 4: Summary Grid */
+  .summary-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 14px !important;
+    max-width: 100% !important;
+  }
+
+  .summary-item {
+    padding: 10px 8px !important;
+  }
+
+  .summary-item .sum-label {
+    font-size: 0.72rem !important;
+  }
+
+  .summary-item .sum-val {
+    font-size: 0.95rem !important;
+  }
+
+  /* Navigation Buttons */
+  .nav-actions {
+    margin-top: 14px !important;
+    gap: 10px !important;
+  }
+
+  .btn-back, .btn-next, .btn-confirm {
+    padding: 12px 18px !important;
+    font-size: 1.02rem !important;
+    min-height: 48px !important;
+  }
+
+  /* Step 5: Ticket Pass Card & Actions */
+  .ticket-preview-container {
+    width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .darshan-pass-card {
+    width: 100% !important;
+    max-width: 360px !important;
+    margin: 0 auto !important;
+    padding: 10px 12px !important;
+  }
+
+  #screen-ticket .nav-actions {
+    flex-direction: column !important;
+    max-width: 360px !important;
+    margin: 12px auto 0 !important;
+    gap: 8px !important;
+  }
+
+  #screen-ticket .nav-actions button {
+    width: 100% !important;
+    flex: none !important;
+    padding: 12px 16px !important;
+  }
+
+  .kiosk-screen-footer {
+    padding: 8px !important;
+    font-size: 0.7rem !important;
+  }
+}

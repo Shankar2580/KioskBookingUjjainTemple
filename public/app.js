@@ -104,6 +104,7 @@ let devoteeName = '';
 let devoteeMobile = '';
 let selectedDate = '';
 let selectedDateFormatted = '';
+let selectedDateFormattedEn = '';
 let availableDates = [];
 let selectedSlotId = 'S2';
 let selectedSlotTime = '08:00 AM - 11:00 AM';
@@ -260,6 +261,7 @@ function initDateSelector(dates) {
 
   if (!selectedDate && dates[0]) {
     selectedDate = dates[0].isoDate;
+    selectedDateFormattedEn = dates[0].displayFullEn;
     selectedDateFormatted = currentLang === 'hi' ? dates[0].displayFullHi : dates[0].displayFullEn;
   }
 
@@ -286,6 +288,7 @@ function initDateSelector(dates) {
       const d = availableDates[idx];
       if (d) {
         selectedDate = d.isoDate;
+        selectedDateFormattedEn = d.displayFullEn;
         selectedDateFormatted = currentLang === 'hi' ? d.displayFullHi : d.displayFullEn;
         if (d.slots && d.slots.length) {
           renderSlots(d.slots);
@@ -371,6 +374,7 @@ async function confirmAndPrint() {
         mobileNumber: devoteeMobile || 'Walk-in Devotee',
         darshanDate: selectedDate,
         darshanDateFormatted: selectedDateFormatted,
+        darshanDateFormattedEn: selectedDateFormattedEn,
         slotId: selectedSlotId,
         slotTime: selectedSlotTime,
         language: currentLang
@@ -412,10 +416,101 @@ function getPrinterIp() {
   return localStorage.getItem('kiosk_printer_ip') || '192.168.31.201';
 }
 
+// Helper: Ensure date is clean English/Latin without non-ASCII garbled characters
+function getCleanDisplayDate(b) {
+  if (!b) return 'Today';
+  if (b.darshanDateFormattedEn && !/[\u0900-\u097F]/.test(b.darshanDateFormattedEn)) {
+    return b.darshanDateFormattedEn;
+  }
+  if (b.darshanDate) {
+    const parts = b.darshanDate.split('-');
+    if (parts.length === 3) {
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const mIdx = parseInt(parts[1], 10) - 1;
+      const dNum = parseInt(parts[2], 10);
+      if (mIdx >= 0 && mIdx < 12 && !isNaN(dNum)) {
+        return `${dNum} ${months[mIdx]} ${parts[0]}`;
+      }
+    }
+    if (!/[\u0900-\u097F]/.test(b.darshanDate)) return b.darshanDate;
+  }
+  if (b.darshanDateFormatted && !/[\u0900-\u097F]/.test(b.darshanDateFormatted)) {
+    return b.darshanDateFormatted;
+  }
+  const d = new Date();
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+// Convert HTML element (darshan pass card) into Epson ePOS 1-bit monochrome raster Base64
+async function renderCardToEposRaster(element) {
+  if (!window.html2canvas || !element) return null;
+  try {
+    const canvas = await window.html2canvas(element, {
+      scale: 1.5,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      windowWidth: 380
+    });
+
+    const targetWidth = 512; // 512 dots is multiple of 8 (64 bytes/row for 80mm roll)
+    const scale = targetWidth / canvas.width;
+    const targetHeight = Math.round(canvas.height * scale);
+
+    const scaledCanvas = document.createElement('canvas');
+    scaledCanvas.width = targetWidth;
+    scaledCanvas.height = targetHeight;
+    const ctx = scaledCanvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, targetWidth, targetHeight);
+    ctx.drawImage(canvas, 0, 0, targetWidth, targetHeight);
+
+    const imgData = ctx.getImageData(0, 0, targetWidth, targetHeight);
+    const data = imgData.data;
+    const bytesPerRow = targetWidth / 8; // 64
+    const buffer = new Uint8Array(bytesPerRow * targetHeight);
+
+    for (let y = 0; y < targetHeight; y++) {
+      for (let x = 0; x < targetWidth; x++) {
+        const idx = (y * targetWidth + x) * 4;
+        const r = data[idx];
+        const g = data[idx + 1];
+        const b = data[idx + 2];
+        const a = data[idx + 3];
+        const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+        if (a > 50 && lum < 185) {
+          const byteIdx = y * bytesPerRow + (x >> 3);
+          buffer[byteIdx] |= (0x80 >> (x & 7));
+        }
+      }
+    }
+
+    let binary = '';
+    const len = buffer.byteLength;
+    const chunkSize = 8192;
+    for (let i = 0; i < len; i += chunkSize) {
+      const chunk = buffer.subarray(i, Math.min(i + chunkSize, len));
+      binary += String.fromCharCode.apply(null, chunk);
+    }
+    const base64 = btoa(binary);
+
+    return {
+      width: targetWidth,
+      height: targetHeight,
+      base64
+    };
+  } catch (err) {
+    console.warn('Canvas raster error:', err);
+    return null;
+  }
+}
+
 // Test print slip helper
 async function sendTestSlip(targetIp) {
   const ip = targetIp || getPrinterIp();
-  const xml = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><text align="center" width="2" height="2">SHRI MAHAKALESHWAR&#10;</text><text width="1" height="1">UJJAIN (MADHYA PRADESH)&#10;------------------------------------------------&#10;</text><text width="2" height="2">TEST PRINT OK&#10;</text><text width="1" height="1">Printer IP: ${ip}&#10;Status: ONLINE &amp; READY&#10;------------------------------------------------&#10;&#10;&#10;</text><cut type="feed"/></epos-print></s:Body></s:Envelope>`;
+  const printMode = localStorage.getItem('kiosk_print_mode') || 'graphic';
+  const xml = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><text align="center" width="2" height="2">SHRI MAHAKALESHWAR&#10;</text><text width="1" height="1">UJJAIN (MADHYA PRADESH)&#10;------------------------------------------------&#10;</text><text width="2" height="2">TEST PRINT OK&#10;</text><text width="1" height="1">Printer IP: ${ip}&#10;Print Mode: ${printMode.toUpperCase()}&#10;Status: ONLINE &amp; READY&#10;------------------------------------------------&#10;&#10;&#10;</text><cut type="feed"/></epos-print></s:Body></s:Envelope>`;
 
   const endpoints = [
     `https://${ip}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`,
@@ -439,13 +534,38 @@ async function sendTestSlip(targetIp) {
 // Direct Web ePOS-Print to Epson TM-T88VII on local network
 async function printViaEposXml(b) {
   if (!b) return false;
-  const displayDate = b.darshanDateFormatted || b.darshanDate || 'Today';
-  const devoteeMobile = b.mobileNumber && b.mobileNumber !== 'Walk-in Devotee' ? b.mobileNumber : '—';
-  const qrText = `${b.bookingId}|${b.tokenNumber}|${b.devoteeName}|${devoteeMobile}|${b.devoteeCount}|Nilkanth Gate`;
-
-  const xml = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><text align="center" width="2" height="2">SHRI MAHAKALESHWAR&#10;</text><text width="1" height="1">UJJAIN (MADHYA PRADESH)&#10;GENERAL DARSHAN PASS&#10;------------------------------------------------&#10;</text><text width="2" height="2">TOKEN: ${b.tokenNumber}&#10;</text><text width="1" height="1">STATUS: CONFIRMED (FREE)&#10;------------------------------------------------&#10;</text><text align="left">Devotee Name : ${b.devoteeName}&#10;Mobile Number: ${devoteeMobile}&#10;Total Persons: ${b.devoteeCount} Person(s)&#10;Darshan Date : ${displayDate}&#10;Darshan Slot : ${b.slotTime}&#10;Est. Wait    : ~${b.liveWaitMinutes || 35} Min&#10;Entry Gate   : Nilkanth Gate&#10;Issued At    : ${b.bookedAt}&#10;------------------------------------------------&#10;</text><text align="center">&#10;</text><symbol type="qrcode_model_2" level="level_m" width="6">${qrText}</symbol><text align="center">&#10;Scan at Nilkanth Gate Barrier&#10;Shri Mahakaleshwar Temple Committee&#10;&#10;&#10;</text><cut type="feed"/></epos-print></s:Body></s:Envelope>`;
-
   const ip = getPrinterIp();
+  const printMode = localStorage.getItem('kiosk_print_mode') || 'graphic';
+
+  let xml = '';
+  let isGraphic = false;
+
+  // 1. Try exact graphic pass print if graphic mode enabled
+  if (printMode === 'graphic') {
+    const cardEl = document.querySelector('.darshan-pass-card');
+    if (cardEl) {
+      try {
+        const raster = await renderCardToEposRaster(cardEl);
+        if (raster && raster.base64) {
+          xml = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><image width="${raster.width}" height="${raster.height}" color="none" mode="mono">${raster.base64}</image><cut type="feed"/></epos-print></s:Body></s:Envelope>`;
+          isGraphic = true;
+        }
+      } catch (e) {
+        console.warn('Graphic print generation error:', e);
+      }
+    }
+  }
+
+  // 2. High-speed text mode fallback (clean ASCII date, 100% matched content with zero corruption)
+  if (!isGraphic) {
+    const cleanDate = getCleanDisplayDate(b);
+    const devoteeMobile = b.mobileNumber && b.mobileNumber !== 'Walk-in Devotee' ? b.mobileNumber : '—';
+    const qrText = `${b.bookingId}|${b.tokenNumber}|${b.devoteeName}|${devoteeMobile}|${b.devoteeCount}|Nilkanth Gate`;
+    const cleanIssued = b.bookedAt ? b.bookedAt.replace(/[\u0900-\u097F]/g, '').trim() : 'Now';
+
+    xml = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><text align="center" width="2" height="2">SHRI MAHAKALESHWAR&#10;</text><text width="1" height="1">JYOTIRLINGA TEMPLE, UJJAIN (M.P.)&#10;SAMANYA DARSHAN PASS (FREE)&#10;================================================&#10;</text><text align="center" width="2" height="2">TOKEN: ${b.tokenNumber}&#10;</text><text width="1" height="1">PASS ID: ${b.bookingId}&#10;STATUS: CONFIRMED (FREE)&#10;------------------------------------------------&#10;</text><text align="left">Devotee Name : ${b.devoteeName}&#10;Mobile Number: ${devoteeMobile}&#10;Total Persons: ${b.devoteeCount} Person(s)&#10;Darshan Date : ${cleanDate}&#10;Darshan Slot : ${b.slotTime}&#10;Est. Wait    : ~${b.liveWaitMinutes || 35} Min&#10;Entry Gate   : Nilkanth Gate (Neelkanth Dwar)&#10;Issued At    : ${cleanIssued}&#10;------------------------------------------------&#10;</text><text align="center">&#10;</text><symbol type="qrcode_model_2" level="level_m" width="6">${qrText}</symbol><text align="center">&#10;Scan at Nilkanth Gate Barrier&#10;Shri Mahakaleshwar Temple Committee, Ujjain&#10;Terminal: ${b.kioskId || 'KIOSK-UJJAIN-01'}&#10;&#10;&#10;</text><cut type="feed"/></epos-print></s:Body></s:Envelope>`;
+  }
+
   const endpoints = [
     `https://${ip}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`,
     `http://${ip}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`,
@@ -463,7 +583,7 @@ async function printViaEposXml(b) {
           'SOAPAction': '""'
         },
         body: isProxy ? JSON.stringify(b) : xml,
-        signal: AbortSignal.timeout(3000)
+        signal: AbortSignal.timeout(4000)
       });
       if (res.ok) {
         return true;
@@ -481,7 +601,10 @@ function renderThermalTicket(b) {
   if (!container) return;
 
   const qrSrc = b.qrDataUrl || `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(b.bookingId + '|' + b.tokenNumber)}`;
-  const displayPassDate = b.darshanDateFormatted || (b.bookedAt ? b.bookedAt.split(',')[0] : 'Today');
+  const cleanEn = getCleanDisplayDate(b);
+  const displayPassDate = b.darshanDateFormatted && b.darshanDateFormatted !== cleanEn 
+    ? `${cleanEn} (${b.darshanDateFormatted})` 
+    : cleanEn;
 
   container.innerHTML = `
     <div class="darshan-pass-card">
@@ -728,11 +851,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // Printer Settings Modal Handlers
   const modal = document.getElementById('modal-printer-settings');
   const ipInput = document.getElementById('input-printer-ip');
+  const modeSelect = document.getElementById('select-print-mode');
   const statusEl = document.getElementById('settings-status');
 
   document.getElementById('btn-open-settings')?.addEventListener('click', () => {
     if (modal && ipInput) {
       ipInput.value = getPrinterIp();
+      if (modeSelect) {
+        modeSelect.value = localStorage.getItem('kiosk_print_mode') || 'graphic';
+      }
       if (statusEl) statusEl.textContent = '';
       modal.style.display = 'flex';
     }
@@ -746,9 +873,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (ipInput && ipInput.value.trim()) {
       const cleanIp = ipInput.value.trim();
       localStorage.setItem('kiosk_printer_ip', cleanIp);
+      if (modeSelect) {
+        localStorage.setItem('kiosk_print_mode', modeSelect.value);
+      }
       if (statusEl) {
         statusEl.style.color = '#2e7d32';
-        statusEl.textContent = `✓ IP Saved: ${cleanIp}`;
+        statusEl.textContent = `✓ Saved (IP: ${cleanIp}, Mode: ${modeSelect ? modeSelect.value : 'graphic'})`;
       }
       setTimeout(() => {
         if (modal) modal.style.display = 'none';
