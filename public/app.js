@@ -524,23 +524,15 @@ function getCleanDisplayDate(b) {
   return `${day} ${months[m - 1]} ${y}`;
 }
 
-// Convert any Canvas into Epson 1-bit monochrome raster (width: 512 dots = 64 bytes/row)
+// Convert Canvas into Epson 1-bit monochrome raster (native 1:1 dot mapping without blur)
 function convertCanvasToEposRaster(canvas) {
-  const targetWidth = 512;
-  const scale = targetWidth / canvas.width;
-  const targetHeight = Math.round(canvas.height * scale);
-
-  const scaledCanvas = document.createElement('canvas');
-  scaledCanvas.width = targetWidth;
-  scaledCanvas.height = targetHeight;
-  const ctx = scaledCanvas.getContext('2d');
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, targetWidth, targetHeight);
-  ctx.drawImage(canvas, 0, 0, targetWidth, targetHeight);
+  const targetWidth = canvas.width;
+  const targetHeight = canvas.height;
+  const ctx = canvas.getContext('2d');
 
   const imgData = ctx.getImageData(0, 0, targetWidth, targetHeight);
   const data = imgData.data;
-  const bytesPerRow = targetWidth / 8; // 64 bytes
+  const bytesPerRow = Math.ceil(targetWidth / 8);
   const buffer = new Uint8Array(bytesPerRow * targetHeight);
 
   for (let y = 0; y < targetHeight; y++) {
@@ -551,8 +543,8 @@ function convertCanvasToEposRaster(canvas) {
       const b = data[idx + 2];
       const a = data[idx + 3];
       const lum = 0.299 * r + 0.587 * g + 0.114 * b;
-      // Dark pixel (black ink)
-      if (a > 50 && lum < 185) {
+      // High-contrast clean black dot for crisp thermal printhead
+      if (a > 35 && lum < 200) {
         const byteIdx = y * bytesPerRow + (x >> 3);
         buffer[byteIdx] |= (0x80 >> (x & 7));
       }
@@ -601,145 +593,137 @@ function generateLocalQrDataUrl(text, size = 160) {
   return '';
 }
 
-// Generate complete official Darshan Pass on high-resolution 512px canvas
+// Generate complete official Darshan Pass on high-contrast 1:1 dot canvas (optimized for narrow thermal roll)
 async function generateDarshanPassCanvas(b, lang) {
   if (document.fonts) {
     try { await document.fonts.ready; } catch (e) {}
   }
 
-  // Method 1: Try capturing from the pre-mounted DOM element via html2canvas
-  const renderTarget = document.querySelector('#print-render-container .darshan-pass-card') || document.querySelector('#thermal-ticket-mount .darshan-pass-card');
-  if (renderTarget && window.html2canvas) {
-    try {
-      const capturedCanvas = await html2canvas(renderTarget, {
-        scale: 1.5,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: '#ffffff',
-        logging: false,
-        scrollX: 0,
-        scrollY: 0
-      });
-      if (capturedCanvas && capturedCanvas.width > 100 && capturedCanvas.height > 100) {
-        return capturedCanvas;
-      }
-    } catch (err) {
-      console.warn('html2canvas capture warning, falling back to direct canvas draw:', err);
-    }
-  }
-
-  // Method 2: Direct 2D Canvas rendering with 100% Devanagari Hindi and Temple Emblem
+  // Use configured paper width (default: 384 dots for narrow 58mm printer, 512 for wide 80mm)
+  const targetWidth = parseInt(localStorage.getItem('kiosk_paper_width'), 10) || 384;
   const canvas = document.createElement('canvas');
-  canvas.width = 512;
-  canvas.height = 980;
+  canvas.width = targetWidth;
+  canvas.height = 1100;
   const ctx = canvas.getContext('2d');
 
   // 1. Crisp White Background
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // 2. Outer Border
-  ctx.strokeStyle = '#000000';
-  ctx.lineWidth = 3;
-  ctx.strokeRect(8, 8, 496, 964);
+  let y = 14;
 
-  // 3. Header Section with Temple Emblem Logo
+  // 2. Temple Emblem Logo (Centered, crisp monochrome friendly)
   const logoDataUri = (typeof TEMPLE_LOGO_DATA_URL !== 'undefined') ? TEMPLE_LOGO_DATA_URL : 'logo-print.png';
-  const logoImg = new Image();
-  logoImg.crossOrigin = 'anonymous';
-  logoImg.src = logoDataUri;
-  if (!logoImg.complete) {
-    await new Promise(r => {
-      logoImg.onload = r;
-      logoImg.onerror = r;
-      setTimeout(r, 400);
-    });
+  if (logoDataUri) {
+    const logoImg = new Image();
+    logoImg.crossOrigin = 'anonymous';
+    logoImg.src = logoDataUri;
+    if (!logoImg.complete) {
+      await new Promise(r => {
+        logoImg.onload = r;
+        logoImg.onerror = r;
+        setTimeout(r, 350);
+      });
+    }
+    if (logoImg.naturalWidth) {
+      const logoSize = 56;
+      ctx.drawImage(logoImg, Math.round((targetWidth - logoSize) / 2), y, logoSize, logoSize);
+      y += logoSize + 10;
+    }
   }
 
-  try {
-    if (logoImg.naturalWidth) {
-      ctx.drawImage(logoImg, 22, 22, 58, 58);
-    }
-  } catch (e) {}
-
+  // 3. Official Temple Header (Large, bold, high-contrast)
   ctx.fillStyle = '#000000';
   ctx.textAlign = 'center';
 
-  ctx.font = 'bold 22px "Noto Sans Devanagari", sans-serif';
-  ctx.fillText('॥ श्री महाकालेश्वर ज्योतिर्लिंग मंदिर ॥', 280, 40);
-  ctx.font = 'bold 18px "Inter", sans-serif';
-  ctx.fillText('SHRI MAHAKALESHWAR TEMPLE', 280, 64);
-  ctx.font = '13px "Inter", sans-serif';
-  ctx.fillText('UJJAIN (MADHYA PRADESH)', 280, 82);
-  ctx.font = 'bold 14px "Noto Sans Devanagari", sans-serif';
-  ctx.fillText('स्वयं सेवा सामान्य दर्शन पास • GENERAL DARSHAN PASS', 256, 114);
+  ctx.font = '900 20px "Noto Sans Devanagari", sans-serif';
+  ctx.fillText('॥ श्री महाकालेश्वर ज्योतिर्लिंग ॥', targetWidth / 2, y);
+  y += 24;
 
-  // 4. Token Box
-  const tokenY = 130;
-  ctx.lineWidth = 2;
-  ctx.strokeRect(20, tokenY, 472, 86);
-
-  ctx.textAlign = 'left';
   ctx.font = 'bold 15px "Noto Sans Devanagari", sans-serif';
-  ctx.fillText('टोकन क्रमांक / Token No.', 32, tokenY + 28);
+  ctx.fillText('उज्जैन (मध्य प्रदेश)', targetWidth / 2, y);
+  y += 20;
 
-  ctx.font = '900 36px "Inter", sans-serif';
-  ctx.fillText(b.tokenNumber || 'GD-101', 32, tokenY + 70);
+  ctx.font = '900 16px "Inter", sans-serif';
+  ctx.fillText('SHRI MAHAKALESHWAR TEMPLE', targetWidth / 2, y);
+  y += 22;
 
-  ctx.textAlign = 'right';
-  ctx.font = 'bold 15px "Noto Sans Devanagari", sans-serif';
-  ctx.fillText('पुष्टिकृत / CONFIRMED', 476, tokenY + 32);
-  ctx.font = '13px "Inter", sans-serif';
-  ctx.fillText(`Pass ID: ${b.bookingId || 'MP-MK-2026'}`, 476, tokenY + 54);
-  ctx.font = 'bold 13px "Noto Sans Devanagari", sans-serif';
-  ctx.fillText('निःशुल्क पास (FREE)', 476, tokenY + 74);
+  ctx.font = 'bold 16px "Noto Sans Devanagari", sans-serif';
+  ctx.fillText('सामान्य दर्शन पास • DARSHAN PASS', targetWidth / 2, y);
+  y += 12;
 
-  // 5. Divider
-  let y = tokenY + 104;
+  // Divider Line
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = '#000000';
   ctx.beginPath();
-  ctx.moveTo(20, y);
-  ctx.lineTo(492, y);
+  ctx.moveTo(8, y);
+  ctx.lineTo(targetWidth - 8, y);
   ctx.stroke();
+  y += 16;
 
-  // 6. Details Table Rows
+  // 4. Large Bold Token Number Section
+  ctx.font = 'bold 15px "Noto Sans Devanagari", sans-serif';
+  ctx.fillText('टोकन संख्या / TOKEN NO.', targetWidth / 2, y);
+  y += 48;
+
+  ctx.font = '900 50px "Inter", sans-serif';
+  ctx.fillText(b.tokenNumber || 'GD-101', targetWidth / 2, y);
+  y += 20;
+
+  ctx.font = 'bold 15px "Noto Sans Devanagari", sans-serif';
+  ctx.fillText('पुष्टिकृत / CONFIRMED • निःशुल्क (FREE)', targetWidth / 2, y);
+  y += 18;
+
+  ctx.font = 'bold 13px "Inter", sans-serif';
+  ctx.fillText(`Pass ID: ${b.bookingId || 'MP-MK-2026'}`, targetWidth / 2, y);
+  y += 12;
+
+  // Divider Line
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(8, y);
+  ctx.lineTo(targetWidth - 8, y);
+  ctx.stroke();
+  y += 22;
+
+  // 5. Booking Details (Large fonts, high-contrast, perfectly fitted to narrow roll)
   const cleanDate = getCleanDisplayDate(b);
   const devoteeMobile = b.mobileNumber && b.mobileNumber !== 'Walk-in Devotee' ? b.mobileNumber : '—';
   const cleanIssued = b.bookedAt || 'Now';
 
-  const rows = [
-    ['श्रद्धालु का नाम (Devotee):', b.devoteeName || 'श्रद्धालु'],
-    ['मोबाइल नंबर (Mobile):', devoteeMobile],
-    ['कुल श्रद्धालु (Persons):', `${b.devoteeCount || 1} व्यक्ति (${b.devoteeCount || 1} Person)`],
-    ['दर्शन दिनांक (Date):', b.darshanDateFormatted || cleanDate],
-    ['दर्शन समय स्लॉट (Slot):', b.slotTime || '08:00 AM - 11:00 AM'],
-    ['अनुमानित प्रतीक्षा (Wait):', `${b.liveWaitMinutes || 35} मिनट (${b.liveWaitMinutes || 35} Min)`],
-    ['प्रवेश द्वार (Entry Gate):', 'नीलकंठ द्वार (Nilkanth Gate)'],
-    ['जारी समय (Issued At):', cleanIssued]
+  const items = [
+    ['श्रद्धालु / Devotee', b.devoteeName || 'श्रद्धालु'],
+    ['मोबाइल / Mobile', devoteeMobile],
+    ['संख्या / Persons', `${b.devoteeCount || 1} व्यक्ति (${b.devoteeCount || 1})`],
+    ['दिनांक / Date', b.darshanDateFormatted || cleanDate],
+    ['समय / Slot', b.slotTime || '08:00 AM - 11:00 AM'],
+    ['प्रतीक्षा / Wait', `${b.liveWaitMinutes || 35} मिनट (${b.liveWaitMinutes || 35} Min)`],
+    ['द्वार / Gate', 'नीलकंठ द्वार (Nilkanth Gate)'],
+    ['जारी / Issued', cleanIssued]
   ];
 
-  y += 24;
-  for (const [k, v] of rows) {
+  for (const [lbl, val] of items) {
     ctx.textAlign = 'left';
     ctx.font = 'bold 14px "Noto Sans Devanagari", sans-serif';
-    ctx.fillText(k, 24, y);
+    ctx.fillText(lbl + ':', 10, y);
 
     ctx.textAlign = 'right';
-    ctx.font = 'bold 15px "Noto Sans Devanagari", sans-serif';
-    ctx.fillText(v, 488, y);
+    ctx.font = '900 15px "Noto Sans Devanagari", sans-serif';
+    ctx.fillText(val, targetWidth - 10, y);
 
-    y += 9;
-    ctx.strokeStyle = '#e0e0e0';
+    y += 7;
     ctx.lineWidth = 1;
+    ctx.strokeStyle = '#bbbbbb';
     ctx.beginPath();
-    ctx.moveTo(24, y);
-    ctx.lineTo(488, y);
+    ctx.moveTo(10, y);
+    ctx.lineTo(targetWidth - 10, y);
     ctx.stroke();
-
-    y += 24;
+    y += 20;
   }
 
-  // 7. QR Code
-  y += 6;
+  y += 8;
+
+  // 6. Turnstile QR Code (Crisp, centered)
   const qrPayload = `${b.bookingId || ''}|${b.tokenNumber || ''}|${b.devoteeName || ''}|${b.devoteeCount || 1}|Nilkanth Gate`;
   let qrDataUri = b.qrDataUrl || '';
   if (!qrDataUri || qrDataUri.includes('api.qrserver.com')) {
@@ -754,29 +738,43 @@ async function generateDarshanPassCanvas(b, lang) {
       await new Promise(r => {
         qrImg.onload = r;
         qrImg.onerror = r;
-        setTimeout(r, 400);
+        setTimeout(r, 350);
       });
     }
+    const qrSize = 150;
+    const qrX = Math.round((targetWidth - qrSize) / 2);
     try {
-      ctx.drawImage(qrImg, 181, y, 150, 150);
+      ctx.drawImage(qrImg, qrX, y, qrSize, qrSize);
     } catch (e) {}
+    y += qrSize + 14;
   }
 
-  y += 168;
-
-  // 8. Gate Note & Footer
-  ctx.fillStyle = '#000000';
+  // 7. Gate Instruction & Footer
   ctx.textAlign = 'center';
-  ctx.font = 'bold 15px "Noto Sans Devanagari", sans-serif';
-  ctx.fillText('प्रवेश हेतु नीलकंठ द्वार पर QR कोड स्कैन करें', 256, y);
-  ctx.font = '13px "Inter", sans-serif';
-  ctx.fillText('Scan at Nilkanth Gate Barrier before entering queue', 256, y + 20);
-  ctx.font = 'bold 13px "Noto Sans Devanagari", sans-serif';
-  ctx.fillText('श्री महाकालेश्वर मंदिर प्रबंध समिति, उज्जैन (म.प्र.)', 256, y + 42);
-  ctx.font = '11px "Inter", sans-serif';
-  ctx.fillText(`टर्मिनल: ${b.kioskId || 'KIOSK-UJJAIN-01'} • केवल एक बार प्रवेश हेतु मान्य`, 256, y + 60);
+  ctx.font = '900 16px "Noto Sans Devanagari", sans-serif';
+  ctx.fillText('प्रवेश हेतु QR कोड स्कैन करें', targetWidth / 2, y);
+  y += 18;
 
-  return canvas;
+  ctx.font = 'bold 12px "Inter", sans-serif';
+  ctx.fillText('Scan at Nilkanth Gate Barrier', targetWidth / 2, y);
+  y += 18;
+
+  ctx.font = 'bold 13px "Noto Sans Devanagari", sans-serif';
+  ctx.fillText('श्री महाकालेश्वर मंदिर प्रबंध समिति, उज्जैन (म.प्र.)', targetWidth / 2, y);
+  y += 16;
+
+  ctx.font = '11px "Inter", sans-serif';
+  ctx.fillText(`Terminal: ${b.kioskId || 'KIOSK-UJJAIN-01'} • केवल एक बार प्रवेश मान्य`, targetWidth / 2, y);
+  y += 20;
+
+  // Crop final canvas height to exact printed content
+  const finalCanvas = document.createElement('canvas');
+  finalCanvas.width = targetWidth;
+  finalCanvas.height = y;
+  const fCtx = finalCanvas.getContext('2d');
+  fCtx.drawImage(canvas, 0, 0, targetWidth, y, 0, 0, targetWidth, y);
+
+  return finalCanvas;
 }
 
 // Test print slip helper
@@ -1142,15 +1140,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // Printer Settings Modal Handlers
   const modal = document.getElementById('modal-printer-settings');
   const ipInput = document.getElementById('input-printer-ip');
-  const modeSelect = document.getElementById('select-print-mode');
+  const widthSelect = document.getElementById('select-paper-width');
   const statusEl = document.getElementById('settings-status');
 
   document.getElementById('btn-open-settings')?.addEventListener('click', () => {
     if (modal && ipInput) {
       // If user opens first time, will be empty ('')
       ipInput.value = localStorage.getItem('kiosk_printer_ip') || '';
-      if (modeSelect) {
-        modeSelect.value = localStorage.getItem('kiosk_print_mode') || 'graphic';
+      if (widthSelect) {
+        widthSelect.value = localStorage.getItem('kiosk_paper_width') || '384';
       }
       if (statusEl) statusEl.textContent = '';
       modal.style.display = 'flex';
@@ -1163,11 +1161,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('btn-save-printer')?.addEventListener('click', () => {
     const rawIp = ipInput ? ipInput.value.trim() : '';
+    if (widthSelect) {
+      localStorage.setItem('kiosk_paper_width', widthSelect.value);
+    }
     if (rawIp) {
       localStorage.setItem('kiosk_printer_ip', rawIp);
-      if (modeSelect) {
-        localStorage.setItem('kiosk_print_mode', modeSelect.value);
-      }
       if (statusEl) {
         statusEl.style.color = '#2e7d32';
         statusEl.textContent = `✓ IP सेव हो गया (Saved: ${rawIp})`;
