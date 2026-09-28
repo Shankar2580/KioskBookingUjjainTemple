@@ -459,7 +459,7 @@ function renderThermalTicket(b) {
         </tr>
         <tr>
           <td class="pass-td-key">अनुमानित प्रतीक्षा समय (Est. Wait):</td>
-          <td class="pass-td-val"><strong>~${b.liveWaitMinutes} मिनट (~${b.liveWaitMinutes} Mins)</strong></td>
+          <td class="pass-td-val"><strong>~${b.liveWaitMinutes || 35} Min</strong></td>
         </tr>
         <tr>
           <td class="pass-td-key">प्रवेश द्वार (Entry Gate):</td>

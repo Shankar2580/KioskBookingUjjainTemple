@@ -640,11 +640,10 @@ html, body {
   background: #ffffff;
   border: 2px solid var(--primary);
   border-radius: 14px;
-  padding: 10px 16px;
+  padding: 8px 16px 8px 16px;
   box-shadow: 0 4px 18px rgba(122, 26, 3, 0.1), 0 0 0 3px #fef3c7;
   color: #1e1510;
   position: relative;
-  overflow: hidden;
   box-sizing: border-box;
 }
 
@@ -663,8 +662,8 @@ html, body {
 .pass-header {
   text-align: center;
   border-bottom: 1.5px dashed #fed7aa;
-  padding-bottom: 6px;
-  margin-bottom: 6px;
+  padding-bottom: 4px;
+  margin-bottom: 4px;
 }
 
 .pass-emblem-row {
@@ -719,9 +718,9 @@ html, body {
   background: linear-gradient(135deg, #fff2eb 0%, #fef3c7 100%);
   border: 1px solid #fed7aa;
   border-radius: 8px;
-  padding: 6px 12px;
+  padding: 4px 12px;
   text-align: center;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -765,7 +764,7 @@ html, body {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.8rem;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .pass-details-table tr {
@@ -777,7 +776,7 @@ html, body {
 }
 
 .pass-details-table td {
-  padding: 3px 2px;
+  padding: 2px 2px;
   vertical-align: middle;
 }
 
@@ -812,13 +811,13 @@ html, body {
   background: #faf7f5;
   border: 1px solid #eedfd8;
   border-radius: 8px;
-  padding: 6px 10px;
-  margin-bottom: 6px;
+  padding: 4px 10px;
+  margin-bottom: 4px;
 }
 
 .pass-qr-img {
-  width: 68px;
-  height: 68px;
+  width: 58px;
+  height: 58px;
   object-fit: contain;
   background: #fff;
   border: 1.5px solid #d84b06;
