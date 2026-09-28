@@ -24,14 +24,17 @@ const DICT = {
     step2Sub: 'एक बार में अधिकतम ८ श्रद्धालु बुक कर सकते हैं',
     persons: 'श्रद्धालु',
     step3Eye: 'चरण ३ / ४',
-    step3Title: 'मुख्य श्रद्धालु का नाम दर्ज करें',
-    step3Sub: 'कृपया अपना पूरा नाम लिखें',
+    step3Title: 'श्रद्धालु का विवरण दर्ज करें',
+    step3Sub: 'कृपया अपना नाम एवं मोबाइल नंबर लिखें',
     labelName: 'मुख्य श्रद्धालु का पूरा नाम *',
     placeholderName: 'श्रद्धालु का नाम दर्ज करें',
+    labelMobile: 'मोबाइल नंबर (Mobile No.)',
+    placeholderMobile: '१० अंकों का मोबाइल नंबर',
     step4Eye: 'चरण ४ / ४',
     step4Title: 'बुकिंग की पुष्टि करें',
     step4Sub: 'कृपया विवरण जांचें और टिकट प्रिंट करें',
     summaryDevotee: 'मुख्य श्रद्धालु:',
+    summaryMobile: 'मोबाइल नंबर:',
     summaryCount: 'कुल श्रद्धालु:',
     summaryDate: 'दर्शन दिनांक:',
     summarySlot: 'दर्शन समय स्लॉट:',
@@ -66,14 +69,17 @@ const DICT = {
     step2Sub: 'You can book up to 8 devotees in one transaction',
     persons: 'Person(s)',
     step3Eye: 'STEP 3 / 4',
-    step3Title: 'Enter Primary Devotee Name',
-    step3Sub: 'Please enter your full name',
+    step3Title: 'Enter Devotee Details',
+    step3Sub: 'Please enter your full name and mobile number',
     labelName: 'Primary Devotee Full Name *',
     placeholderName: 'Enter devotee name',
+    labelMobile: 'Mobile Number (10 digits)',
+    placeholderMobile: 'Enter 10-digit mobile number',
     step4Eye: 'STEP 4 / 4',
     step4Title: 'Confirm Your Booking',
     step4Sub: 'Please verify details and print your ticket',
     summaryDevotee: 'Primary Devotee:',
+    summaryMobile: 'Mobile No.:',
     summaryCount: 'Total Devotees:',
     summaryDate: 'Darshan Date:',
     summarySlot: 'Darshan Slot:',
@@ -95,6 +101,7 @@ let currentLang = 'hi';
 let currentScreen = 'screen-welcome';
 let selectedDevoteeCount = 1;
 let devoteeName = '';
+let devoteeMobile = '';
 let selectedDate = '';
 let selectedDateFormatted = '';
 let availableDates = [];
@@ -313,8 +320,13 @@ function renderConfirmation() {
   if (inputEl && inputEl.value.trim()) {
     devoteeName = inputEl.value.trim();
   }
+  const mobileEl = document.getElementById('input-devotee-mobile');
+  if (mobileEl && mobileEl.value.trim()) {
+    devoteeMobile = mobileEl.value.trim();
+  }
 
   const sumName = document.getElementById('sum-name');
+  const sumMobile = document.getElementById('sum-mobile');
   const sumCount = document.getElementById('sum-count');
   const sumDate = document.getElementById('sum-date');
   const sumSlot = document.getElementById('sum-slot');
@@ -322,11 +334,12 @@ function renderConfirmation() {
   const sumGate = document.getElementById('sum-gate');
 
   if (sumName) sumName.textContent = devoteeName || 'श्रद्धालु (Devotee)';
+  if (sumMobile) sumMobile.textContent = devoteeMobile ? `+91 ${devoteeMobile}` : (currentLang === 'hi' ? 'उपलब्ध नहीं' : 'N/A');
   if (sumCount) sumCount.textContent = `${selectedDevoteeCount} ${DICT[currentLang].persons}`;
   if (sumDate) sumDate.textContent = selectedDateFormatted || (currentLang === 'hi' ? 'आज (Today)' : 'Today');
   if (sumSlot) sumSlot.textContent = selectedSlotTime;
   if (sumWait) sumWait.textContent = `~${liveWaitMinutes} ${DICT[currentLang].minutes}`;
-  if (sumGate) sumGate.textContent = currentLang === 'hi' ? 'त्रिवेणी गेट, श्री महाकाल महालोक (Triveni Gate, Shri Mahakal Mahalok)' : 'Triveni Gate, Shri Mahakal Mahalok';
+  if (sumGate) sumGate.textContent = currentLang === 'hi' ? 'नीलकंठ द्वार (Nilkanth Gate)' : 'Nilkanth Gate';
 }
 
 // Confirm & Print Action
@@ -336,6 +349,10 @@ async function confirmAndPrint() {
   const inputEl = document.getElementById('input-devotee-name');
   if (inputEl && inputEl.value.trim()) {
     devoteeName = inputEl.value.trim();
+  }
+  const mobileEl = document.getElementById('input-devotee-mobile');
+  if (mobileEl && mobileEl.value.trim()) {
+    devoteeMobile = mobileEl.value.trim();
   }
 
   const btn = document.getElementById('btn-confirm-booking');
@@ -351,6 +368,7 @@ async function confirmAndPrint() {
       body: JSON.stringify({
         devoteeName: devoteeName || 'Devotee',
         devoteeCount: selectedDevoteeCount,
+        mobileNumber: devoteeMobile || 'Walk-in Devotee',
         darshanDate: selectedDate,
         darshanDateFormatted: selectedDateFormatted,
         slotId: selectedSlotId,
@@ -424,6 +442,10 @@ function renderThermalTicket(b) {
           <td class="pass-td-val val-highlight">${b.devoteeName}</td>
         </tr>
         <tr>
+          <td class="pass-td-key">📱 मोबाइल नंबर (Mobile No.):</td>
+          <td class="pass-td-val"><strong>${b.mobileNumber && b.mobileNumber !== 'Walk-in Devotee' ? b.mobileNumber : '—'}</strong></td>
+        </tr>
+        <tr>
           <td class="pass-td-key">👥 कुल संख्या (Total Persons):</td>
           <td class="pass-td-val"><strong>${b.devoteeCount} Person(s)</strong></td>
         </tr>
@@ -441,7 +463,7 @@ function renderThermalTicket(b) {
         </tr>
         <tr>
           <td class="pass-td-key">📍 प्रवेश द्वार (Entry Gate):</td>
-          <td class="pass-td-val" style="color: #2e7d32;"><strong>त्रिवेणी गेट, श्री महाकाल महालोक (Triveni Gate, Shri Mahakal Mahalok)</strong></td>
+          <td class="pass-td-val" style="color: #2e7d32;"><strong>नीलकंठ द्वार (Nilkanth Gate)</strong></td>
         </tr>
         <tr>
           <td class="pass-td-key">🕒 जारी समय (Issued Date/Time):</td>
@@ -455,7 +477,7 @@ function renderThermalTicket(b) {
         <div class="pass-qr-meta">
           <p style="font-size: 0.8rem; font-weight: 800; color: #7a1a03;">★ प्रवेश हेतु QR कोड स्कैन करें</p>
           <p style="margin-top: 2px; color: #4b5563;">Scan at turnstile barrier before entering queue.</p>
-          <span class="pass-qr-gate-badge">📍 TRIVENI GATE, SHRI MAHAKAL MAHALOK</span>
+          <span class="pass-qr-gate-badge">📍 NILKANTH GATE (नीलकंठ द्वार)</span>
         </div>
       </div>
 
@@ -521,8 +543,12 @@ function startAutoResetTimer(seconds = 20) {
 function resetKiosk() {
   clearInterval(resetTimerInterval);
   selectedDevoteeCount = 1;
+  devoteeName = '';
+  devoteeMobile = '';
   const nameInput = document.getElementById('input-devotee-name');
   if (nameInput) nameInput.value = '';
+  const mobileInput = document.getElementById('input-devotee-mobile');
+  if (mobileInput) mobileInput.value = '';
   initDevoteeSelector();
   initSlots();
   goToScreen('screen-welcome');
@@ -534,6 +560,14 @@ document.addEventListener('DOMContentLoaded', () => {
   initDevoteeSelector();
   initSlots();
   updateLiveWaitBanner();
+
+  // Mobile number input sanitization (digits only, max 10)
+  const mobileInput = document.getElementById('input-devotee-mobile');
+  if (mobileInput) {
+    mobileInput.addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+    });
+  }
 
   // Language buttons
   document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -563,7 +597,7 @@ document.addEventListener('DOMContentLoaded', () => {
     goToScreen('screen-slot');
   });
 
-  // Step 3 (Devotee Name) -> Step 4 (Confirmation)
+  // Step 3 (Devotee Name & Mobile) -> Step 4 (Confirmation)
   document.getElementById('btn-to-confirm')?.addEventListener('click', () => {
     const nameInput = document.getElementById('input-devotee-name');
     if (!nameInput || !nameInput.value.trim()) {
@@ -572,6 +606,8 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     devoteeName = nameInput.value.trim();
+    const mobInput = document.getElementById('input-devotee-mobile');
+    devoteeMobile = mobInput ? mobInput.value.trim() : '';
     goToScreen('screen-confirm');
   });
   document.getElementById('btn-back-to-devotees')?.addEventListener('click', () => {

@@ -114,21 +114,28 @@
           </div>
         </div>
 
-        <!-- ================= SCREEN 4: DEVOTEE NAME (STEP 3) ================= -->
+        <!-- ================= SCREEN 4: DEVOTEE DETAILS (STEP 3) ================= -->
         <div id="screen-name" class="screen-card">
           <div class="step-header">
             <span class="step-eyebrow" data-t="step3Eye">चरण ३ / ४</span>
-            <h2 class="step-title" data-t="step3Title">मुख्य श्रद्धालु का नाम दर्ज करें</h2>
-            <p class="step-sub" data-t="step3Sub">कृपया अपना पूरा नाम लिखें</p>
+            <h2 class="step-title" data-t="step3Title">श्रद्धालु का विवरण दर्ज करें</h2>
+            <p class="step-sub" data-t="step3Sub">कृपया अपना नाम एवं मोबाइल नंबर लिखें</p>
           </div>
 
-          <div style="max-width: 640px; margin: 16px auto 0; width: 100%;">
-            <div style="margin-bottom: 12px;">
-              <label style="display: block; font-size: 1rem; font-weight: 800; color: #1e1510; margin-bottom: 8px;" data-t="labelName">
+          <div style="max-width: 860px; margin: 24px auto 0; width: 100%; display: grid; grid-template-columns: 1.15fr 1fr; gap: 24px;">
+            <div>
+              <label style="display: block; font-size: 1.15rem; font-weight: 800; color: #1e1510; margin-bottom: 8px;" data-t="labelName">
                 मुख्य श्रद्धालु का पूरा नाम *
               </label>
               <!-- Input field starts completely EMPTY -->
               <input type="text" id="input-devotee-name" class="touch-input" placeholder="श्रद्धालु का नाम दर्ज करें" value="" data-t="placeholderName" autocomplete="off" autofocus />
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 1.15rem; font-weight: 800; color: #1e1510; margin-bottom: 8px;" data-t="labelMobile">
+                मोबाइल नंबर (Mobile No.)
+              </label>
+              <input type="tel" id="input-devotee-mobile" class="touch-input" inputmode="numeric" pattern="[0-9]*" placeholder="१० अंकों का मोबाइल नंबर" maxlength="10" value="" data-t="placeholderMobile" autocomplete="off" />
             </div>
           </div>
 
@@ -148,11 +155,15 @@
             <p class="step-sub" data-t="step4Sub">कृपया विवरण जांचें और टिकट प्रिंट करें</p>
           </div>
 
-          <div style="max-width: 820px; margin: 0 auto; width: 100%;">
+          <div style="max-width: 860px; margin: 0 auto; width: 100%;">
             <div class="summary-box">
               <div class="summary-row">
                 <span class="summary-key" data-t="summaryDevotee">मुख्य श्रद्धालु:</span>
                 <span id="sum-name" class="summary-val">-</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-key" data-t="summaryMobile">मोबाइल नंबर:</span>
+                <span id="sum-mobile" class="summary-val">-</span>
               </div>
               <div class="summary-row">
                 <span class="summary-key" data-t="summaryCount">कुल श्रद्धालु:</span>
@@ -167,12 +178,8 @@
                 <span id="sum-slot" class="summary-val">-</span>
               </div>
               <div class="summary-row">
-                <span class="summary-key" data-t="summaryWait">अनुमानित प्रतीक्षा समय:</span>
-                <span id="sum-wait" class="summary-val highlight">~35 मिनट</span>
-              </div>
-              <div class="summary-row">
                 <span class="summary-key" data-t="summaryGate">प्रवेश द्वार:</span>
-                <span id="sum-gate" class="summary-val" style="color: #2e7d32; font-weight: 800;">त्रिवेणी गेट, श्री महाकाल महालोक (Triveni Gate, Shri Mahakal Mahalok)</span>
+                <span id="sum-gate" class="summary-val" style="color: #2e7d32; font-weight: 800;">नीलकंठ द्वार (Nilkanth Gate)</span>
               </div>
             </div>
           </div>

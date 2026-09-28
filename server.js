@@ -139,10 +139,11 @@ app.post('/api/book', async (req, res) => {
       passId: bookingId,
       token: tokenNumber,
       name: devoteeName.trim(),
+      mobile: mobileNumber ? mobileNumber.trim() : '',
       persons: parseInt(devoteeCount, 10),
       date: formattedDate,
       slot: slotTime || '08:00 AM - 11:00 AM',
-      gate: 'Triveni Gate, Shri Mahakal Mahalok',
+      gate: 'Nilkanth Gate',
       issued: now.toLocaleDateString('en-IN')
     });
     qrDataUrl = await QRCode.toDataURL(qrPayload, {
@@ -170,8 +171,8 @@ app.post('/api/book', async (req, res) => {
     slotTime: slotTime || '08:00 AM - 11:00 AM',
     liveWaitMinutes: currentWaitMinutes,
     estimatedDarshanTime,
-    gateName: 'Triveni Gate, Shri Mahakal Mahalok (त्रिवेणी गेट, श्री महाकाल महालोक)',
-    gateNameHi: 'त्रिवेणी गेट, श्री महाकाल महालोक (Triveni Gate, Shri Mahakal Mahalok)',
+    gateName: 'Nilkanth Gate (नीलकंठ द्वार)',
+    gateNameHi: 'नीलकंठ द्वार (Nilkanth Gate)',
     bookedAt: now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
     qrDataUrl,
     photoBase64: photoBase64 || null,

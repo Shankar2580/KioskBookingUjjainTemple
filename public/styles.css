@@ -34,7 +34,7 @@
   user-select: none;
 }
 
-body {
+html, body {
   font-family: var(--font-sans);
   background: var(--light);
   color: var(--dark);
@@ -44,7 +44,7 @@ body {
   max-height: 100vh;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow: hidden !important;
   position: fixed;
   display: flex;
   flex-direction: column;
@@ -201,7 +201,7 @@ body {
   min-height: 0;
   height: 100%;
   flex-direction: column;
-  overflow: hidden;
+  overflow: hidden !important;
   animation: fadeIn 0.25s ease forwards;
 }
 
