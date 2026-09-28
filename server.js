@@ -207,11 +207,58 @@ app.post('/api/book', async (req, res) => {
 
   bookings.unshift(booking);
 
-  // Directly send to Epson TM-T88VII on local network if reachable
-  const printResult = await printToEpsonNetworkPrinter(booking);
-  booking.printedToHardware = printResult.printed;
+  // Directly send to Epson TM-T88VII on local network if reachable (unless skipped for client graphic print)
+  if (!req.body.skipServerPrint) {
+    const printResult = await printToEpsonNetworkPrinter(booking);
+    booking.printedToHardware = printResult.printed;
+  } else {
+    booking.printedToHardware = false;
+  }
 
-  res.json({ success: true, booking, printedToHardware: printResult.printed });
+  res.json({ success: true, booking, printedToHardware: booking.printedToHardware });
+});
+
+// API: Print high-resolution monochrome raster graphic to Epson printer
+app.post('/api/print-raster', async (req, res) => {
+  const { rasterBase64, widthBytes = 64, heightDots = 960 } = req.body || {};
+  if (!rasterBase64) {
+    return res.status(400).json({ success: false, error: 'No rasterBase64 provided' });
+  }
+
+  try {
+    const rasterBuf = Buffer.from(rasterBase64, 'base64');
+    const client = new net.Socket();
+    client.setTimeout(3500);
+
+    client.connect(PRINTER_PORT, PRINTER_HOST, () => {
+      const xL = widthBytes % 256;
+      const xH = Math.floor(widthBytes / 256);
+      const yL = heightDots % 256;
+      const yH = Math.floor(heightDots / 256);
+
+      // ESC @ (init) + GS v 0 0 xL xH yL yH [data] + ESC d 4 + GS V A 3 (cut)
+      const header = Buffer.from([0x1b, 0x40, 0x1d, 0x76, 0x30, 0x00, xL, xH, yL, yH]);
+      const footer = Buffer.from([0x1b, 0x64, 0x04, 0x1d, 0x56, 0x41, 0x03]);
+      const fullBuf = Buffer.concat([header, rasterBuf, footer]);
+
+      client.write(fullBuf, () => {
+        client.end();
+        res.json({ success: true, printed: true });
+      });
+    });
+
+    client.on('error', (err) => {
+      console.warn('Raster print socket error:', err.message);
+      res.json({ success: false, error: err.message });
+    });
+
+    client.on('timeout', () => {
+      client.destroy();
+      res.json({ success: false, error: 'Socket timeout' });
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 // API: Manual Thermal Print Trigger
@@ -233,34 +280,52 @@ function printToEpsonNetworkPrinter(b) {
       const ESC = '\x1b';
       const GS = '\x1d';
 
-      const displayDate = b.darshanDateFormattedEn || (b.darshanDate && !/[\u0900-\u097F]/.test(b.darshanDate) ? b.darshanDate : 'Today');
+      const isHi = (b.language === 'hi') || (!b.language);
+      const displayDate = b.darshanDateFormatted || b.darshanDateFormattedEn || (b.darshanDate && !/[\u0900-\u097F]/.test(b.darshanDate) ? b.darshanDate : 'Today');
       const devoteeMobile = b.mobileNumber && b.mobileNumber !== 'Walk-in Devotee' ? b.mobileNumber : '—';
       const cleanIssued = b.bookedAt ? b.bookedAt.replace(/[\u0900-\u097F]/g, '').trim() : 'Now';
+
+      const titleHeader = isHi
+        ? 'SHRI MAHAKALESHWAR TEMPLE\nJYOTIRLINGA, UJJAIN (M.P.)\n॥ SAMANYA DARSHAN PASS (NISHULK) ॥\n'
+        : 'SHRI MAHAKALESHWAR\nJYOTIRLINGA TEMPLE, UJJAIN (M.P.)\nSAMANYA DARSHAN PASS (FREE)\n';
+
+      const tokenLabel  = isHi ? `TOKEN / टोकन: ${b.tokenNumber}\n` : `TOKEN: ${b.tokenNumber}\n`;
+      const passIdLabel = isHi ? `PASS ID / पास: ${b.bookingId}\n` : `PASS ID: ${b.bookingId}\n`;
+      const statusLabel = isHi ? 'STATUS: PUSHTIKRIT / CONFIRMED (NISHULK)\n' : 'STATUS: CONFIRMED (FREE)\n';
+
+      const lblDevotee = isHi ? 'Shraddhalu / मुख्य श्रद्धालु : ' : 'Devotee Name : ';
+      const lblMobile  = isHi ? 'Mobile No. / मोबाइल नंबर   : ' : 'Mobile Number: ';
+      const lblCount   = isHi ? 'Kul Sankhya / कुल श्रद्धालु : ' : 'Total Persons: ';
+      const lblDate    = isHi ? 'Darshan Dinank / दर्शन दिनांक: ' : 'Darshan Date : ';
+      const lblSlot    = isHi ? 'Darshan Slot / समय स्लॉट   : ' : 'Darshan Slot : ';
+      const lblWait    = isHi ? 'Pratiksha / प्रतीक्षा समय   : ' : 'Est. Wait    : ';
+      const lblGate    = isHi ? 'Pravesh Dwar / प्रवेश द्वार : ' : 'Entry Gate   : ';
+      const lblIssued  = isHi ? 'Jari Samay / जारी समय      : ' : 'Issued At    : ';
+
+      const personsVal = isHi ? `${b.devoteeCount} Person / व्यक्ति` : `${b.devoteeCount} Person(s)`;
+      const waitVal    = `${b.liveWaitMinutes || 35} Min`;
 
       const header = Buffer.from(
         ESC + '@' + // Initialize printer
         ESC + 'a' + '\x01' + // Center
         GS + '!' + '\x11' + // Double size
-        'SHRI MAHAKALESHWAR\n' +
-        GS + '!' + '\x00' + // Normal size
-        'JYOTIRLINGA TEMPLE, UJJAIN (M.P.)\n' +
-        'SAMANYA DARSHAN PASS (FREE)\n' +
+        titleHeader +
         '================================================\n' +
         GS + '!' + '\x11' +
-        `TOKEN: ${b.tokenNumber}\n` +
+        tokenLabel +
         GS + '!' + '\x00' +
-        `PASS ID: ${b.bookingId}\n` +
-        'STATUS: CONFIRMED (FREE)\n' +
+        passIdLabel +
+        statusLabel +
         '------------------------------------------------\n' +
         ESC + 'a' + '\x00' + // Left align
-        `Devotee Name : ${b.devoteeName}\n` +
-        `Mobile Number: ${devoteeMobile}\n` +
-        `Total Persons: ${b.devoteeCount} Person(s)\n` +
-        `Darshan Date : ${displayDate}\n` +
-        `Darshan Slot : ${b.slotTime}\n` +
-        `Est. Wait    : ${b.liveWaitMinutes || 35} Min\n` +
-        `Entry Gate   : Nilkanth Gate (Neelkanth Dwar)\n` +
-        `Issued At    : ${cleanIssued}\n` +
+        `${lblDevotee}${b.devoteeName}\n` +
+        `${lblMobile}${devoteeMobile}\n` +
+        `${lblCount}${personsVal}\n` +
+        `${lblDate}${displayDate}\n` +
+        `${lblSlot}${b.slotTime}\n` +
+        `${lblWait}${waitVal}\n` +
+        `${lblGate}Nilkanth Gate (Neelkanth Dwar)\n` +
+        `${lblIssued}${cleanIssued}\n` +
         '------------------------------------------------\n' +
         ESC + 'a' + '\x01', // Center
         'binary'
@@ -281,9 +346,12 @@ function printToEpsonNetworkPrinter(b) {
         Buffer.from([0x1d, 0x28, 0x6b, 0x03, 0x00, 0x31, 0x51, 0x30])
       ]);
 
+      const footerText = isHi
+        ? '\nNeelkanth Dwar Par Scan Karein\n(Scan at Nilkanth Gate Barrier)\nShri Mahakaleshwar Mandir Prabandh Samiti\n\n\n\n'
+        : '\nScan at Nilkanth Gate Barrier\nShri Mahakaleshwar Temple Committee\n\n\n\n';
+
       const footer = Buffer.from(
-        '\nScan at Nilkanth Gate Barrier\n' +
-        'Shri Mahakaleshwar Temple Committee\n\n\n\n' +
+        footerText +
         ESC + 'd' + '\x04' +
         GS + 'V' + '\x41' + '\x03',
         'binary'

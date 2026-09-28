@@ -391,7 +391,8 @@ async function confirmAndPrint() {
         darshanDateFormattedEn: selectedDateFormattedEn,
         slotId: selectedSlotId,
         slotTime: selectedSlotTime,
-        language: currentLang
+        language: currentLang,
+        skipServerPrint: true
       })
     });
 
@@ -400,11 +401,8 @@ async function confirmAndPrint() {
       bookingData = data.booking;
       renderThermalTicket(bookingData);
 
-      // Trigger hardware / ePOS printing immediately in background
-      let printed = data.printedToHardware;
-      if (!printed) {
-        printViaEposXml(bookingData).catch(e => console.warn('Background ePOS print error:', e));
-      }
+      // Trigger high-res Hindi graphic / ePOS printing immediately in background
+      printViaEposXml(bookingData).catch(e => console.warn('Background print error:', e));
 
       // Show 3-Second Dispenser Animation and smoothly return to Home
       showPrintingDispenserAnimation(bookingData);
@@ -526,76 +524,256 @@ function getCleanDisplayDate(b) {
   return `${day} ${months[m - 1]} ${y}`;
 }
 
-// Convert HTML element (darshan pass card) into Epson ePOS 1-bit monochrome raster Base64
-async function renderCardToEposRaster(element) {
-  if (!window.html2canvas || !element) return null;
-  try {
-    const canvas = await window.html2canvas(element, {
-      scale: 1.5,
-      useCORS: true,
-      backgroundColor: '#ffffff',
-      logging: false,
-      windowWidth: 380
-    });
+// Convert Canvas into Epson 1-bit monochrome raster (width: 512 dots = 64 bytes/row)
+function convertCanvasToEposRaster(canvas) {
+  const targetWidth = 512;
+  const targetHeight = canvas.height;
+  const ctx = canvas.getContext('2d');
+  const imgData = ctx.getImageData(0, 0, targetWidth, targetHeight);
+  const data = imgData.data;
+  const bytesPerRow = targetWidth / 8; // 64 bytes
+  const buffer = new Uint8Array(bytesPerRow * targetHeight);
 
-    const targetWidth = 512; // 512 dots is multiple of 8 (64 bytes/row for 80mm roll)
-    const scale = targetWidth / canvas.width;
-    const targetHeight = Math.round(canvas.height * scale);
-
-    const scaledCanvas = document.createElement('canvas');
-    scaledCanvas.width = targetWidth;
-    scaledCanvas.height = targetHeight;
-    const ctx = scaledCanvas.getContext('2d');
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, targetWidth, targetHeight);
-    ctx.drawImage(canvas, 0, 0, targetWidth, targetHeight);
-
-    const imgData = ctx.getImageData(0, 0, targetWidth, targetHeight);
-    const data = imgData.data;
-    const bytesPerRow = targetWidth / 8; // 64
-    const buffer = new Uint8Array(bytesPerRow * targetHeight);
-
-    for (let y = 0; y < targetHeight; y++) {
-      for (let x = 0; x < targetWidth; x++) {
-        const idx = (y * targetWidth + x) * 4;
-        const r = data[idx];
-        const g = data[idx + 1];
-        const b = data[idx + 2];
-        const a = data[idx + 3];
-        const lum = 0.299 * r + 0.587 * g + 0.114 * b;
-        if (a > 50 && lum < 185) {
-          const byteIdx = y * bytesPerRow + (x >> 3);
-          buffer[byteIdx] |= (0x80 >> (x & 7));
-        }
+  for (let y = 0; y < targetHeight; y++) {
+    for (let x = 0; x < targetWidth; x++) {
+      const idx = (y * targetWidth + x) * 4;
+      const r = data[idx];
+      const g = data[idx + 1];
+      const b = data[idx + 2];
+      const a = data[idx + 3];
+      const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+      // Dark pixel (black ink)
+      if (a > 50 && lum < 185) {
+        const byteIdx = y * bytesPerRow + (x >> 3);
+        buffer[byteIdx] |= (0x80 >> (x & 7));
       }
     }
-
-    let binary = '';
-    const len = buffer.byteLength;
-    const chunkSize = 8192;
-    for (let i = 0; i < len; i += chunkSize) {
-      const chunk = buffer.subarray(i, Math.min(i + chunkSize, len));
-      binary += String.fromCharCode.apply(null, chunk);
-    }
-    const base64 = btoa(binary);
-
-    return {
-      width: targetWidth,
-      height: targetHeight,
-      base64
-    };
-  } catch (err) {
-    console.warn('Canvas raster error:', err);
-    return null;
   }
+
+  let binary = '';
+  const len = buffer.byteLength;
+  const chunkSize = 8192;
+  for (let i = 0; i < len; i += chunkSize) {
+    const chunk = buffer.subarray(i, Math.min(i + chunkSize, len));
+    binary += String.fromCharCode.apply(null, chunk);
+  }
+  const base64 = btoa(binary);
+
+  return {
+    width: targetWidth,
+    height: targetHeight,
+    widthBytes: bytesPerRow,
+    heightDots: targetHeight,
+    base64: base64
+  };
+}
+
+// Generate complete official Darshan Pass in memory on high-resolution 512px canvas
+async function generateDarshanPassCanvas(b, lang) {
+  if (document.fonts) {
+    try { await document.fonts.ready; } catch (e) {}
+  }
+
+  const isHi = (lang === 'hi') || (!lang);
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 980;
+  const ctx = canvas.getContext('2d');
+
+  // 1. Crisp White Background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // 2. Outer Border
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(8, 8, 496, 964);
+
+  // 3. Header Section with Temple Emblem Logo
+  const logoImg = new Image();
+  logoImg.src = 'shrimahakaleshwar_logo.png';
+  await new Promise(r => {
+    if (logoImg.complete) return r();
+    logoImg.onload = r;
+    logoImg.onerror = r;
+    setTimeout(r, 600);
+  });
+
+  try {
+    if (logoImg.naturalWidth) {
+      ctx.drawImage(logoImg, 22, 22, 58, 58);
+    }
+  } catch (e) {}
+
+  ctx.fillStyle = '#000000';
+  ctx.textAlign = 'center';
+
+  if (isHi) {
+    ctx.font = 'bold 22px "Noto Sans Devanagari", sans-serif';
+    ctx.fillText('॥ श्री महाकालेश्वर ज्योतिर्लिंग मंदिर ॥', 280, 40);
+    ctx.font = 'bold 18px "Inter", sans-serif';
+    ctx.fillText('SHRI MAHAKALESHWAR TEMPLE', 280, 64);
+    ctx.font = '13px "Inter", sans-serif';
+    ctx.fillText('UJJAIN (MADHYA PRADESH)', 280, 82);
+    ctx.font = 'bold 14px "Noto Sans Devanagari", sans-serif';
+    ctx.fillText('स्वयं सेवा सामान्य दर्शन पास • GENERAL DARSHAN PASS', 256, 114);
+  } else {
+    ctx.font = 'bold 20px "Inter", sans-serif';
+    ctx.fillText('SHRI MAHAKALESHWAR JYOTIRLINGA TEMPLE', 280, 42);
+    ctx.font = '15px "Inter", sans-serif';
+    ctx.fillText('UJJAIN (MADHYA PRADESH)', 280, 68);
+    ctx.font = 'bold 14px "Inter", sans-serif';
+    ctx.fillText('SELF-SERVICE GENERAL DARSHAN PASS (FREE)', 256, 110);
+  }
+
+  // 4. Token Box
+  const tokenY = 130;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(20, tokenY, 472, 86);
+
+  ctx.textAlign = 'left';
+  if (isHi) {
+    ctx.font = 'bold 15px "Noto Sans Devanagari", sans-serif';
+    ctx.fillText('टोकन क्रमांक / Token No.', 32, tokenY + 28);
+  } else {
+    ctx.font = 'bold 15px "Inter", sans-serif';
+    ctx.fillText('TOKEN NUMBER', 32, tokenY + 28);
+  }
+
+  ctx.font = '900 36px "Inter", sans-serif';
+  ctx.fillText(b.tokenNumber || 'GD-101', 32, tokenY + 70);
+
+  ctx.textAlign = 'right';
+  ctx.font = 'bold 15px "Noto Sans Devanagari", sans-serif';
+  ctx.fillText(isHi ? 'पुष्टिकृत / CONFIRMED' : 'CONFIRMED (FREE)', 476, tokenY + 32);
+  ctx.font = '13px "Inter", sans-serif';
+  ctx.fillText(`Pass ID: ${b.bookingId || 'MP-MK-2026'}`, 476, tokenY + 54);
+  if (isHi) {
+    ctx.font = 'bold 13px "Noto Sans Devanagari", sans-serif';
+    ctx.fillText('निःशुल्क पास (FREE)', 476, tokenY + 74);
+  }
+
+  // 5. Divider
+  let y = tokenY + 104;
+  ctx.beginPath();
+  ctx.moveTo(20, y);
+  ctx.lineTo(492, y);
+  ctx.stroke();
+
+  // 6. Details Table Rows
+  const cleanDate = getCleanDisplayDate(b);
+  const devoteeMobile = b.mobileNumber && b.mobileNumber !== 'Walk-in Devotee' ? b.mobileNumber : '—';
+  const cleanIssued = b.bookedAt || 'Now';
+
+  const rows = isHi ? [
+    ['श्रद्धालु का नाम (Devotee):', b.devoteeName || 'श्रद्धालु'],
+    ['मोबाइल नंबर (Mobile):', devoteeMobile],
+    ['कुल श्रद्धालु (Persons):', `${b.devoteeCount || 1} व्यक्ति (${b.devoteeCount || 1} Person)`],
+    ['दर्शन दिनांक (Date):', b.darshanDateFormatted || cleanDate],
+    ['दर्शन समय स्लॉट (Slot):', b.slotTime || '08:00 AM - 11:00 AM'],
+    ['अनुमानित प्रतीक्षा (Wait):', `${b.liveWaitMinutes || 35} मिनट (${b.liveWaitMinutes || 35} Min)`],
+    ['प्रवेश द्वार (Entry Gate):', 'नीलकंठ द्वार (Nilkanth Gate)'],
+    ['जारी समय (Issued At):', cleanIssued]
+  ] : [
+    ['Devotee Name:', b.devoteeName || 'Devotee'],
+    ['Mobile Number:', devoteeMobile],
+    ['Total Persons:', `${b.devoteeCount || 1} Person(s)`],
+    ['Darshan Date:', cleanDate],
+    ['Darshan Slot:', b.slotTime || '08:00 AM - 11:00 AM'],
+    ['Est. Wait Time:', `${b.liveWaitMinutes || 35} Min`],
+    ['Entry Gate:', 'Nilkanth Gate (Neelkanth Dwar)'],
+    ['Issued Date/Time:', cleanIssued]
+  ];
+
+  y += 24;
+  for (const [k, v] of rows) {
+    ctx.textAlign = 'left';
+    ctx.font = 'bold 14px "Noto Sans Devanagari", sans-serif';
+    ctx.fillText(k, 24, y);
+
+    ctx.textAlign = 'right';
+    ctx.font = 'bold 15px "Noto Sans Devanagari", sans-serif';
+    ctx.fillText(v, 488, y);
+
+    y += 9;
+    ctx.strokeStyle = '#e0e0e0';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(24, y);
+    ctx.lineTo(488, y);
+    ctx.stroke();
+
+    y += 24;
+  }
+
+  // 7. QR Code
+  y += 6;
+  const qrImg = new Image();
+  const qrLoaded = new Promise(resolve => {
+    qrImg.onload = () => resolve(true);
+    qrImg.onerror = () => resolve(false);
+  });
+  qrImg.src = b.qrDataUrl || `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent((b.bookingId || '') + '|' + (b.tokenNumber || ''))}`;
+  await Promise.race([qrLoaded, new Promise(r => setTimeout(r, 800))]);
+
+  try {
+    ctx.drawImage(qrImg, 181, y, 150, 150);
+  } catch (e) {}
+
+  y += 168;
+
+  // 8. Gate Note & Footer
+  ctx.fillStyle = '#000000';
+  ctx.textAlign = 'center';
+  if (isHi) {
+    ctx.font = 'bold 15px "Noto Sans Devanagari", sans-serif';
+    ctx.fillText('प्रवेश हेतु नीलकंठ द्वार पर QR कोड स्कैन करें', 256, y);
+    ctx.font = '13px "Inter", sans-serif';
+    ctx.fillText('Scan at Nilkanth Gate Barrier before entering queue', 256, y + 20);
+    ctx.font = 'bold 13px "Noto Sans Devanagari", sans-serif';
+    ctx.fillText('श्री महाकालेश्वर मंदिर प्रबंध समिति, उज्जैन (म.प्र.)', 256, y + 42);
+    ctx.font = '11px "Inter", sans-serif';
+    ctx.fillText(`टर्मिनल: ${b.kioskId || 'KIOSK-UJJAIN-01'} • केवल एक बार प्रवेश हेतु मान्य`, 256, y + 60);
+  } else {
+    ctx.font = 'bold 15px "Inter", sans-serif';
+    ctx.fillText('Scan QR Code at Nilkanth Gate Barrier', 256, y);
+    ctx.font = '13px "Inter", sans-serif';
+    ctx.fillText('Valid for one-time entry on selected darshan slot', 256, y + 20);
+    ctx.font = 'bold 13px "Inter", sans-serif';
+    ctx.fillText('Shri Mahakaleshwar Temple Committee, Ujjain (M.P.)', 256, y + 42);
+    ctx.font = '11px "Inter", sans-serif';
+    ctx.fillText(`Terminal: ${b.kioskId || 'KIOSK-UJJAIN-01'}`, 256, y + 60);
+  }
+
+  return canvas;
 }
 
 // Test print slip helper
 async function sendTestSlip(targetIp) {
   const ip = (targetIp && targetIp.trim()) || getPrinterIp();
   if (!ip) return false;
-  const printMode = localStorage.getItem('kiosk_print_mode') || 'graphic';
-  const xml = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><text align="center" width="2" height="2">SHRI MAHAKALESHWAR&#10;</text><text width="1" height="1">UJJAIN (MADHYA PRADESH)&#10;------------------------------------------------&#10;</text><text width="2" height="2">TEST PRINT OK&#10;</text><text width="1" height="1">Printer IP: ${ip}&#10;Print Mode: ${printMode.toUpperCase()}&#10;Status: ONLINE &amp; READY&#10;------------------------------------------------&#10;&#10;&#10;</text><cut type="feed"/></epos-print></s:Body></s:Envelope>`;
+  const xml = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><text align="center" width="2" height="2">SHRI MAHAKALESHWAR&#10;</text><text width="1" height="1">UJJAIN (MADHYA PRADESH)&#10;------------------------------------------------&#10;</text><text width="2" height="2">TEST PRINT OK&#10;</text><text width="1" height="1">Printer IP: ${ip}&#10;Status: ONLINE &amp; READY&#10;------------------------------------------------&#10;&#10;&#10;</text><cut type="feed"/></epos-print></s:Body></s:Envelope>`;
+
+  // Try local /api/print-thermal proxy first
+  try {
+    const res = await fetch('/api/print-thermal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tokenNumber: 'TEST-01',
+        bookingId: 'TEST-PRINT',
+        devoteeName: 'Test Devotee',
+        devoteeCount: 1,
+        slotTime: '08:00 AM - 11:00 AM',
+        language: currentLang
+      }),
+      signal: AbortSignal.timeout(2500)
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success) return true;
+    }
+  } catch (e) {}
 
   const endpoints = [
     `https://${ip}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`,
@@ -620,66 +798,104 @@ async function sendTestSlip(targetIp) {
 async function printViaEposXml(b) {
   if (!b) return false;
   const ip = getPrinterIp();
-  if (!ip) {
-    console.log('ℹ️ No printer IP configured yet in settings. Open ⚙️ to set IP.');
-    return false;
-  }
   const printMode = localStorage.getItem('kiosk_print_mode') || 'graphic';
+  const isHi = (currentLang === 'hi') || (b && b.language === 'hi');
 
+  let raster = null;
   let xml = '';
-  let isGraphic = false;
 
-  // 1. Try exact graphic pass print if graphic mode enabled
+  // 1. Generate crisp monochrome graphic raster with full Hindi/Devanagari text
   if (printMode === 'graphic') {
-    const cardEl = document.querySelector('.darshan-pass-card');
-    if (cardEl) {
-      try {
-        const raster = await renderCardToEposRaster(cardEl);
+    try {
+      const canvas = await generateDarshanPassCanvas(b, currentLang);
+      if (canvas) {
+        raster = convertCanvasToEposRaster(canvas);
         if (raster && raster.base64) {
           xml = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><image width="${raster.width}" height="${raster.height}" color="none" mode="mono">${raster.base64}</image><cut type="feed"/></epos-print></s:Body></s:Envelope>`;
-          isGraphic = true;
         }
-      } catch (e) {
-        console.warn('Graphic print generation error:', e);
       }
+    } catch (e) {
+      console.warn('Canvas raster generation error:', e);
     }
   }
 
-  // 2. High-speed text mode fallback (clean ASCII date, 100% matched content with zero corruption)
-  if (!isGraphic) {
+  // 2. High-speed text mode fallback (bilingual Hindi/English)
+  if (!raster) {
     const cleanDate = getCleanDisplayDate(b);
     const devoteeMobile = b.mobileNumber && b.mobileNumber !== 'Walk-in Devotee' ? b.mobileNumber : '—';
     const qrText = `${b.bookingId}|${b.tokenNumber}|${b.devoteeName}|${devoteeMobile}|${b.devoteeCount}|Nilkanth Gate`;
     const cleanIssued = b.bookedAt ? b.bookedAt.replace(/[\u0900-\u097F]/g, '').trim() : 'Now';
 
-    xml = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><text align="center" width="2" height="2">SHRI MAHAKALESHWAR&#10;</text><text width="1" height="1">JYOTIRLINGA TEMPLE, UJJAIN (M.P.)&#10;SAMANYA DARSHAN PASS (FREE)&#10;================================================&#10;</text><text align="center" width="2" height="2">TOKEN: ${b.tokenNumber}&#10;</text><text width="1" height="1">PASS ID: ${b.bookingId}&#10;STATUS: CONFIRMED (FREE)&#10;------------------------------------------------&#10;</text><text align="left">Devotee Name : ${b.devoteeName}&#10;Mobile Number: ${devoteeMobile}&#10;Total Persons: ${b.devoteeCount} Person(s)&#10;Darshan Date : ${cleanDate}&#10;Darshan Slot : ${b.slotTime}&#10;Est. Wait    : ${b.liveWaitMinutes || 35} Min&#10;Entry Gate   : Nilkanth Gate (Neelkanth Dwar)&#10;Issued At    : ${cleanIssued}&#10;------------------------------------------------&#10;</text><text align="center">&#10;</text><symbol type="qrcode_model_2" level="level_m" width="6">${qrText}</symbol><text align="center">&#10;Scan at Nilkanth Gate Barrier&#10;Shri Mahakaleshwar Temple Committee, Ujjain&#10;Terminal: ${b.kioskId || 'KIOSK-UJJAIN-01'}&#10;&#10;&#10;</text><cut type="feed"/></epos-print></s:Body></s:Envelope>`;
+    const titleMain = isHi ? 'SHRI MAHAKALESHWAR TEMPLE&#10;JYOTIRLINGA, UJJAIN (M.P.)&#10;SAMANYA DARSHAN PASS (NISHULK)' : 'SHRI MAHAKALESHWAR&#10;JYOTIRLINGA TEMPLE, UJJAIN (M.P.)&#10;SAMANYA DARSHAN PASS (FREE)';
+    const tokenLbl = isHi ? `TOKEN / टोकन: ${b.tokenNumber}` : `TOKEN: ${b.tokenNumber}`;
+    const passLbl = isHi ? `PASS ID / पास: ${b.bookingId}` : `PASS ID: ${b.bookingId}`;
+    const statusLbl = isHi ? 'STATUS: PUSHTIKRIT / CONFIRMED (NISHULK)' : 'STATUS: CONFIRMED (FREE)';
+
+    const lblDevotee = isHi ? 'Shraddhalu / मुख्य श्रद्धालु : ' : 'Devotee Name : ';
+    const lblMobile  = isHi ? 'Mobile No. / मोबाइल नंबर   : ' : 'Mobile Number: ';
+    const lblCount   = isHi ? 'Kul Sankhya / कुल श्रद्धालु : ' : 'Total Persons: ';
+    const lblDate    = isHi ? 'Darshan Dinank / दर्शन दिनांक: ' : 'Darshan Date : ';
+    const lblSlot    = isHi ? 'Darshan Slot / समय स्लॉट   : ' : 'Darshan Slot : ';
+    const lblWait    = isHi ? 'Pratiksha / प्रतीक्षा समय   : ' : 'Est. Wait    : ';
+    const lblGate    = isHi ? 'Pravesh Dwar / प्रवेश द्वार : ' : 'Entry Gate   : ';
+    const lblIssued  = isHi ? 'Jari Samay / जारी समय      : ' : 'Issued At    : ';
+
+    const personsVal = isHi ? `${b.devoteeCount} Person / व्यक्ति` : `${b.devoteeCount} Person(s)`;
+    const qrNote     = isHi ? 'Neelkanth Dwar Par Scan Karein&#10;(Scan at Nilkanth Gate Barrier)' : 'Scan at Nilkanth Gate Barrier';
+
+    xml = `<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print"><text align="center" width="2" height="2">${titleMain}&#10;================================================&#10;</text><text align="center" width="2" height="2">${tokenLbl}&#10;</text><text width="1" height="1">${passLbl}&#10;${statusLbl}&#10;------------------------------------------------&#10;</text><text align="left">${lblDevotee}${b.devoteeName}&#10;${lblMobile}${devoteeMobile}&#10;${lblCount}${personsVal}&#10;${lblDate}${cleanDate}&#10;${lblSlot}${b.slotTime}&#10;${lblWait}${b.liveWaitMinutes || 35} Min&#10;${lblGate}Nilkanth Gate (Neelkanth Dwar)&#10;${lblIssued}${cleanIssued}&#10;------------------------------------------------&#10;</text><text align="center">&#10;</text><symbol type="qrcode_model_2" level="level_m" width="6">${qrText}</symbol><text align="center">&#10;${qrNote}&#10;Shri Mahakaleshwar Temple Committee, Ujjain&#10;Terminal: ${b.kioskId || 'KIOSK-UJJAIN-01'}&#10;&#10;&#10;</text><cut type="feed"/></epos-print></s:Body></s:Envelope>`;
+  }
+
+  // 3. First attempt printing graphic raster to local Node bridge if available
+  if (raster && raster.base64) {
+    try {
+      const localBridgeRes = await fetch('/api/print-raster', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          rasterBase64: raster.base64,
+          widthBytes: raster.widthBytes,
+          heightDots: raster.heightDots
+        }),
+        signal: AbortSignal.timeout(2500)
+      });
+      if (localBridgeRes.ok) {
+        const data = await localBridgeRes.json();
+        if (data.success) {
+          console.log('✓ Successfully printed Hindi graphic pass via local bridge');
+          return true;
+        }
+      }
+    } catch (e) {}
+  }
+
+  // 4. Send ePOS XML directly to printer IP on local Wi-Fi / tablet
+  if (!ip) {
+    console.log('ℹ️ No printer IP configured yet in settings. Open ⚙️ to set IP.');
+    return false;
   }
 
   const endpoints = [
     `https://${ip}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`,
     `http://${ip}/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000`,
-    'http://EPSON20CAAF.local/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000',
-    'http://192.168.31.222:3005/api/print-thermal'
+    'http://EPSON20CAAF.local/cgi-bin/epos/service.cgi?devid=local_printer&timeout=10000'
   ];
 
   for (const url of endpoints) {
     try {
-      const isProxy = url.includes('/api/print-thermal');
       const res = await fetch(url, {
         method: 'POST',
-        headers: isProxy ? { 'Content-Type': 'application/json' } : {
+        headers: {
           'Content-Type': 'text/xml; charset=utf-8',
           'SOAPAction': '""'
         },
-        body: isProxy ? JSON.stringify(b) : xml,
+        body: xml,
         signal: AbortSignal.timeout(4000)
       });
       if (res.ok) {
         return true;
       }
-    } catch (err) {
-      // Continue to next endpoint
-    }
+    } catch (err) {}
   }
   return false;
 }
