@@ -1059,11 +1059,33 @@ document.addEventListener('DOMContentLoaded', () => {
   initSlots();
   updateLiveWaitBanner();
 
-  // Mobile number input sanitization (digits only, max 10)
+  // Mobile number input sanitization & strict numeric keyboard enforcement
   const mobileInput = document.getElementById('input-devotee-mobile');
   if (mobileInput) {
+    mobileInput.setAttribute('inputmode', 'numeric');
+    mobileInput.setAttribute('pattern', '[0-9]*');
+    mobileInput.setAttribute('type', 'tel');
+
+    // Re-assert numeric inputmode when user focuses or taps the field
+    mobileInput.addEventListener('focus', () => {
+      mobileInput.setAttribute('inputmode', 'numeric');
+    });
+
+    mobileInput.addEventListener('touchstart', () => {
+      mobileInput.setAttribute('inputmode', 'numeric');
+    }, { passive: true });
+
     mobileInput.addEventListener('input', (e) => {
       e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+    });
+
+    mobileInput.addEventListener('keydown', (e) => {
+      if (['Backspace', 'Tab', 'Enter', 'Delete', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) {
+        return;
+      }
+      if (!/^[0-9]$/.test(e.key)) {
+        e.preventDefault();
+      }
     });
   }
 

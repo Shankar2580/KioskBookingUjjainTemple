@@ -48,7 +48,9 @@
               <button type="button" class="lang-btn" data-lang="en">English</button>
             </div>
             <!-- Printer Settings Button -->
-            <button type="button" id="btn-open-settings" style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 50%; width: 32px; height: 32px; color: #fff; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="Printer Settings">⚙️</button>
+            <button type="button" id="btn-open-settings"
+              style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 50%; width: 32px; height: 32px; color: #fff; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center;"
+              title="Printer Settings">⚙️</button>
           </div>
         </div>
       </header>
@@ -127,20 +129,26 @@
             <p class="step-sub" data-t="step3Sub">कृपया अपना नाम एवं मोबाइल नंबर लिखें</p>
           </div>
 
-          <div style="max-width: 860px; margin: 24px auto 0; width: 100%; display: grid; grid-template-columns: 1.15fr 1fr; gap: 24px;">
+          <div
+            style="max-width: 860px; margin: 24px auto 0; width: 100%; display: grid; grid-template-columns: 1.15fr 1fr; gap: 24px;">
             <div>
-              <label style="display: block; font-size: 1.15rem; font-weight: 800; color: #1e1510; margin-bottom: 8px;" data-t="labelName">
+              <label style="display: block; font-size: 1.15rem; font-weight: 800; color: #1e1510; margin-bottom: 8px;"
+                data-t="labelName">
                 मुख्य श्रद्धालु का पूरा नाम *
               </label>
               <!-- Input field starts completely EMPTY -->
-              <input type="text" id="input-devotee-name" class="touch-input" placeholder="श्रद्धालु का नाम दर्ज करें" value="" data-t="placeholderName" autocomplete="off" autofocus />
+              <input type="text" id="input-devotee-name" class="touch-input" placeholder="श्रद्धालु का नाम दर्ज करें"
+                value="" data-t="placeholderName" autocomplete="off" autofocus />
             </div>
 
             <div>
-              <label style="display: block; font-size: 1.15rem; font-weight: 800; color: #1e1510; margin-bottom: 8px;" data-t="labelMobile">
+              <label style="display: block; font-size: 1.15rem; font-weight: 800; color: #1e1510; margin-bottom: 8px;"
+                data-t="labelMobile">
                 मोबाइल नंबर (Mobile No.) *
               </label>
-              <input type="tel" id="input-devotee-mobile" class="touch-input" inputmode="numeric" pattern="[0-9]*" placeholder="१० अंकों का मोबाइल नंबर *" maxlength="10" value="" data-t="placeholderMobile" autocomplete="off" required />
+              <input type="tel" id="input-devotee-mobile" class="touch-input" inputmode="numeric" pattern="[0-9]*"
+                placeholder="१० अंकों का मोबाइल नंबर *" maxlength="10" value="" data-t="placeholderMobile"
+                autocomplete="tel" required />
             </div>
           </div>
 
@@ -184,7 +192,8 @@
               </div>
               <div class="summary-row">
                 <span class="summary-key" data-t="summaryGate">प्रवेश द्वार:</span>
-                <span id="sum-gate" class="summary-val" style="color: #2e7d32; font-weight: 800;">नीलकंठ द्वार (Nilkanth Gate)</span>
+                <span id="sum-gate" class="summary-val" style="color: #2e7d32; font-weight: 800;">नीलकंठ द्वार (Nilkanth
+                  Gate)</span>
               </div>
             </div>
           </div>
@@ -200,8 +209,10 @@
         <!-- ================= SCREEN 6: TICKET PRINT ================= -->
         <div id="screen-ticket" class="screen-card">
           <div class="step-header" style="margin-bottom: 6px;">
-            <h2 class="step-title" style="color: #2e7d32; font-size: 1.35rem;" data-t="ticketGenerated">दर्शन पास सफलतापूर्वक जारी हुआ!</h2>
-            <p class="step-sub" style="font-size: 0.8rem;" data-t="ticketSub">कृपया नीचे से अपना प्रिंटेड पास प्राप्त करें</p>
+            <h2 class="step-title" style="color: #2e7d32; font-size: 1.35rem;" data-t="ticketGenerated">दर्शन पास
+              सफलतापूर्वक जारी हुआ!</h2>
+            <p class="step-sub" style="font-size: 0.8rem;" data-t="ticketSub">कृपया नीचे से अपना प्रिंटेड पास प्राप्त
+              करें</p>
           </div>
 
           <!-- Official Darshan Pass Mount -->
@@ -215,9 +226,13 @@
           </div>
 
           <div class="nav-actions" style="max-width: 560px; margin: 8px auto 0; width: 100%; display: flex; gap: 10px;">
-            <button type="button" id="btn-print-ticket-manual" class="btn-back" style="flex: 1; max-width: none;" data-t="btnPrintNow">प्रिंट करें</button>
-            <button type="button" id="btn-download-pdf" class="btn-back" style="flex: 1; max-width: none; background: #fff8f0; border-color: #d84b06; color: #d84b06; font-weight: 800;">PDF डाउनलोड</button>
-            <button type="button" id="btn-start-new-booking" class="btn-next" style="flex: 1.2;" data-t="btnBookAnother">नई बुकिंग करें</button>
+            <button type="button" id="btn-print-ticket-manual" class="btn-back" style="flex: 1; max-width: none;"
+              data-t="btnPrintNow">प्रिंट करें</button>
+            <button type="button" id="btn-download-pdf" class="btn-back"
+              style="flex: 1; max-width: none; background: #fff8f0; border-color: #d84b06; color: #d84b06; font-weight: 800;">PDF
+              डाउनलोड</button>
+            <button type="button" id="btn-start-new-booking" class="btn-next" style="flex: 1.2;"
+              data-t="btnBookAnother">नई बुकिंग करें</button>
           </div>
         </div>
 
@@ -228,95 +243,116 @@
         <p>श्री महाकालेश्वर मंदिर प्रबंध समिति, उज्जैन (म.प्र.)</p>
       </footer>
     </div>
-  <!-- Off-screen mount for 100% reliable 80mm monochrome graphic pass raster rendering -->
-  <div id="print-render-container" style="position: fixed; left: -9999px; top: 0; width: 380px; background: #ffffff; z-index: -9999; visibility: visible; display: block; overflow: visible;"></div>
+    <!-- Off-screen mount for 100% reliable 80mm monochrome graphic pass raster rendering -->
+    <div id="print-render-container"
+      style="position: fixed; left: -9999px; top: 0; width: 380px; background: #ffffff; z-index: -9999; visibility: visible; display: block; overflow: visible;">
+    </div>
 
-  <!-- ============ 3-SECOND PRINT DISPENSER ANIMATION OVERLAY ============ -->
-  <div id="modal-printing-dispenser" class="printing-dispenser-overlay" style="display: none;">
-    <div class="dispenser-content-card">
-      <!-- Status Header -->
-      <div class="dispenser-status-header">
-        <div class="dispenser-led-pill">
-          <span class="blinking-led"></span>
-          <span id="dispenser-status-text">🖨️ दर्शन पास प्रिंट हो रहा है...</span>
+    <!-- ============ 3-SECOND PRINT DISPENSER ANIMATION OVERLAY ============ -->
+    <div id="modal-printing-dispenser" class="printing-dispenser-overlay" style="display: none;">
+      <div class="dispenser-content-card">
+        <!-- Status Header -->
+        <div class="dispenser-status-header">
+          <div class="dispenser-led-pill">
+            <span class="blinking-led"></span>
+            <span id="dispenser-status-text">🖨️ दर्शन पास प्रिंट हो रहा है...</span>
+          </div>
+          <p id="dispenser-subtext" class="dispenser-subtext">कृपया नीचे प्रिंटर ट्रे से टिकट प्राप्त करें • Please
+            collect ticket from dispenser below</p>
         </div>
-        <p id="dispenser-subtext" class="dispenser-subtext">कृपया नीचे प्रिंटर ट्रे से टिकट प्राप्त करें • Please collect ticket from dispenser below</p>
-      </div>
 
-      <!-- Kiosk Dispenser Graphic Slot with Sliding Paper -->
-      <div class="dispenser-machine-frame">
-        <div class="dispenser-slot-mouth">
-          <div class="dispenser-laser-light"></div>
-        </div>
-        
-        <div class="dispenser-paper-stream">
-          <div id="dispenser-ticket-card" class="dispenser-ticket-slip">
-            <div class="slip-header">
-              <span class="slip-om">॥ श्री महाकालेश्वर ज्योतिर्लिंग मंदिर ॥</span>
-              <div class="slip-title">SHRI MAHAKALESHWAR TEMPLE</div>
+        <!-- Kiosk Dispenser Graphic Slot with Sliding Paper -->
+        <div class="dispenser-machine-frame">
+          <div class="dispenser-slot-mouth">
+            <div class="dispenser-laser-light"></div>
+          </div>
+
+          <div class="dispenser-paper-stream">
+            <div id="dispenser-ticket-card" class="dispenser-ticket-slip">
+              <div class="slip-header">
+                <span class="slip-om">॥ श्री महाकालेश्वर ज्योतिर्लिंग मंदिर ॥</span>
+                <div class="slip-title">SHRI MAHAKALESHWAR TEMPLE</div>
+              </div>
+              <div class="slip-token-row">
+                <span class="slip-token-label">TOKEN NO.</span>
+                <span id="slip-token-val" class="slip-token-val">GD-101</span>
+              </div>
+              <div class="slip-details">
+                <div class="slip-row"><span class="slip-k">Devotee:</span> <span id="slip-name-val"
+                    class="slip-v">Rahul</span></div>
+                <div class="slip-row"><span class="slip-k">Persons:</span> <span id="slip-count-val" class="slip-v">1
+                    Person(s)</span></div>
+                <div class="slip-row"><span class="slip-k">Slot:</span> <span id="slip-slot-val" class="slip-v">08:00 AM
+                    - 11:00 AM</span></div>
+                <div class="slip-row"><span class="slip-k">Gate:</span> <span class="slip-v slip-gate">नीलकंठ द्वार
+                    (Nilkanth Gate)</span></div>
+              </div>
+              <div class="slip-qr-box">
+                <img id="slip-qr-img" src="" alt="QR" class="slip-qr-img" />
+                <div class="slip-qr-note">Scan at Nilkanth Barrier</div>
+              </div>
             </div>
-            <div class="slip-token-row">
-              <span class="slip-token-label">TOKEN NO.</span>
-              <span id="slip-token-val" class="slip-token-val">GD-101</span>
-            </div>
-            <div class="slip-details">
-              <div class="slip-row"><span class="slip-k">Devotee:</span> <span id="slip-name-val" class="slip-v">Rahul</span></div>
-              <div class="slip-row"><span class="slip-k">Persons:</span> <span id="slip-count-val" class="slip-v">1 Person(s)</span></div>
-              <div class="slip-row"><span class="slip-k">Slot:</span> <span id="slip-slot-val" class="slip-v">08:00 AM - 11:00 AM</span></div>
-              <div class="slip-row"><span class="slip-k">Gate:</span> <span class="slip-v slip-gate">नीलकंठ द्वार (Nilkanth Gate)</span></div>
-            </div>
-            <div class="slip-qr-box">
-              <img id="slip-qr-img" src="" alt="QR" class="slip-qr-img" />
-              <div class="slip-qr-note">Scan at Nilkanth Barrier</div>
-            </div>
+          </div>
+
+          <div class="dispenser-tray-indicator">
+            <span>⬇ नीचे प्रिंटर ट्रे • Collector Tray Below ⬇</span>
           </div>
         </div>
 
-        <div class="dispenser-tray-indicator">
-          <span>⬇ नीचे प्रिंटर ट्रे • Collector Tray Below ⬇</span>
-        </div>
-      </div>
-
-      <!-- 3-Second Progress Bar & Auto-Reset Timer -->
-      <div class="dispenser-timer-section">
-        <div class="dispenser-progress-track">
-          <div id="dispenser-progress-fill" class="dispenser-progress-fill"></div>
-        </div>
-        <div class="dispenser-timer-label">
-          <span id="dispenser-reset-msg">कियोस्क होम स्क्रीन पर वापस जा रहा है:</span>
-          <strong id="dispenser-countdown-val">3s</strong>
+        <!-- 3-Second Progress Bar & Auto-Reset Timer -->
+        <div class="dispenser-timer-section">
+          <div class="dispenser-progress-track">
+            <div id="dispenser-progress-fill" class="dispenser-progress-fill"></div>
+          </div>
+          <div class="dispenser-timer-label">
+            <span id="dispenser-reset-msg">कियोस्क होम स्क्रीन पर वापस जा रहा है:</span>
+            <strong id="dispenser-countdown-val">3s</strong>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- ============ PRINTER SETTINGS MODAL ============ -->
-  <div id="modal-printer-settings" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center;">
-    <div style="background: #fff; border-radius: 16px; padding: 22px 24px; max-width: 440px; width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 2px solid #fed7aa;">
-      <h3 style="margin-bottom: 8px; font-size: 1.25rem; color: #7a1a03; font-weight: 800;">🖨️ Printer Settings / प्रिंटर सेटिंग्स</h3>
-      <p style="font-size: 0.85rem; color: #555; margin-bottom: 14px;">Set the Epson TM-T88VII IP address for this tablet / kiosk:</p>
-      
-      <label style="display: block; font-weight: 700; margin-bottom: 6px; font-size: 0.95rem; color: #1e1510;">Printer IP Address:</label>
-      <input type="text" id="input-printer-ip" class="touch-input" style="height: 48px; font-size: 1.05rem; margin-bottom: 12px;" placeholder="उदा. 192.168.31.201 / e.g. 192.168.31.201" value="" autocomplete="off" />
+    <!-- ============ PRINTER SETTINGS MODAL ============ -->
+    <div id="modal-printer-settings"
+      style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center;">
+      <div
+        style="background: #fff; border-radius: 16px; padding: 22px 24px; max-width: 440px; width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 2px solid #fed7aa;">
+        <h3 style="margin-bottom: 8px; font-size: 1.25rem; color: #7a1a03; font-weight: 800;">🖨️ Printer Settings /
+          प्रिंटर सेटिंग्स</h3>
+        <p style="font-size: 0.85rem; color: #555; margin-bottom: 14px;">Set the Epson TM-T88VII IP address for this
+          tablet / kiosk:</p>
 
-      <label style="display: block; font-weight: 700; margin-bottom: 6px; font-size: 0.95rem; color: #1e1510;">Paper Roll Width / पेपर चौड़ाई:</label>
-      <select id="select-paper-width" class="touch-input" style="height: 48px; font-size: 0.95rem; margin-bottom: 16px; padding: 0 12px; cursor: pointer;">
-        <option value="384">📏 Narrow Roll (58mm / 384 dots) — Recommended</option>
-        <option value="512">📄 Wide Roll (80mm / 512 dots)</option>
-      </select>
+        <label style="display: block; font-weight: 700; margin-bottom: 6px; font-size: 0.95rem; color: #1e1510;">Printer
+          IP Address:</label>
+        <input type="text" id="input-printer-ip" class="touch-input" inputmode="decimal" pattern="[0-9.]*"
+          style="height: 48px; font-size: 1.05rem; margin-bottom: 12px;"
+          placeholder="उदा. 192.168.31.201 / e.g. 192.168.31.201" value="" autocomplete="off" />
 
-      <div style="display: flex; gap: 8px;">
-        <button type="button" id="btn-test-printer" style="flex: 1; height: 44px; border-radius: 8px; border: 1.5px solid #d84b06; background: #fff8f0; color: #d84b06; font-weight: 700; cursor: pointer;">Test Print</button>
-        <button type="button" id="btn-save-printer" style="flex: 1; height: 44px; border-radius: 8px; border: none; background: #d84b06; color: #fff; font-weight: 700; cursor: pointer;">Save</button>
-        <button type="button" id="btn-close-settings" style="height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid #ccc; background: #eee; color: #333; font-weight: 700; cursor: pointer;">Close</button>
+        <label style="display: block; font-weight: 700; margin-bottom: 6px; font-size: 0.95rem; color: #1e1510;">Paper
+          Roll Width / पेपर चौड़ाई:</label>
+        <select id="select-paper-width" class="touch-input"
+          style="height: 48px; font-size: 0.95rem; margin-bottom: 16px; padding: 0 12px; cursor: pointer;">
+          <option value="384">📏 Narrow Roll (58mm / 384 dots) — Recommended</option>
+          <option value="512">📄 Wide Roll (80mm / 512 dots)</option>
+        </select>
+
+        <div style="display: flex; gap: 8px;">
+          <button type="button" id="btn-test-printer"
+            style="flex: 1; height: 44px; border-radius: 8px; border: 1.5px solid #d84b06; background: #fff8f0; color: #d84b06; font-weight: 700; cursor: pointer;">Test
+            Print</button>
+          <button type="button" id="btn-save-printer"
+            style="flex: 1; height: 44px; border-radius: 8px; border: none; background: #d84b06; color: #fff; font-weight: 700; cursor: pointer;">Save</button>
+          <button type="button" id="btn-close-settings"
+            style="height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid #ccc; background: #eee; color: #333; font-weight: 700; cursor: pointer;">Close</button>
+        </div>
+        <div id="settings-status" style="margin-top: 10px; font-size: 0.85rem; text-align: center; font-weight: 700;">
+        </div>
       </div>
-      <div id="settings-status" style="margin-top: 10px; font-size: 0.85rem; text-align: center; font-weight: 700;"></div>
     </div>
-  </div>
 
-  <script src="qrcode.min.js"></script>
-  <script src="logo-b64.js"></script>
-  <script src="app.js"></script>
+    <script src="qrcode.min.js"></script>
+    <script src="logo-b64.js"></script>
+    <script src="app.js"></script>
 </body>
 
 </html>
